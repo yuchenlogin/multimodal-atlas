@@ -32,7 +32,7 @@
 </aside>
 <main class="content">
 <header class="report-header"><div class="report-kicker">🎨 专题 05 · 多模态生成</div><h1>生成的艺术：扩散、自回归与统一理解-生成</h1><div class="report-sub">DDPM 完整推导、DiT、Flow Matching、统一模型</div>
-<div class="report-actions"><a class="btn" href="../../assets/05-generation.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+<div class="report-actions"><a class="btn" href="/multimodal-atlas/assets/05-generation.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
 </header>
 <article class="report-content" id="article">
 <blockquote>
@@ -45,7 +45,7 @@
 <p>如果说视觉-语言理解回答的是"模型如何看懂世界"，那么本方向回答的是它的对偶问题："模型如何把世界画出来"。生成（generation）是多模态研究中最古老的梦想——从玻尔兹曼机到 VAE、GAN，再到今天的扩散与自回归模型，其核心问题始终未变：如何为一个高维、多峰、结构复杂的数据分布 $p(\mathbf{x})$（图像、视频、音频）建立可学习、可采样的参数化模型。</p>
 <p><strong>学习地图</strong>。阅读本报告的先修概念包括：概率论中的条件分布、贝叶斯公式与 KL 散度；变分推断中的证据下界（ELBO）；神经网络中的 U-Net、Transformer 与交叉注意力；最基础的常微分方程（ODE）概念。本报告将在此基础上建立三个核心问题的答案：(i) 扩散模型为什么能从纯噪声中逐步"雕刻"出图像，其训练目标为何如此简洁；(ii) 自回归生成在视觉领域为什么长期落后于扩散，又是如何在 2024 年被 VAR 等工作翻盘的；(iii) 为什么 2025 年之后，"理解"与"生成"正在收敛到同一个模型中，以及这种统一在架构与损失函数层面意味着什么。</p>
 <p><strong>与其他方向的关系</strong>。生成方向不是孤立的：它的 tokenizer 技术（VQ-VAE、VAE）决定了多模态理解模型能"看见"什么粒度；它的统一模型（BAGEL、Emu3）直接定义了全模态（omni）系统的形态；它的视频生成分支（Sora、Veo、Seedance）正在被具身智能方向吸收为"世界模型"；而图像编辑（InstructPix2Pix、Kontext、Nano Banana）则是 agent 工具使用能力在视觉域的具体化。可以说，生成是多模态版图中连接理解、行动与交互的枢纽。</p>
-<p><img alt="扩散 vs 自回归：两条生成范式的对比" src="../assets/fig_diffusion_vs_ar.png" /></p>
+<p><img alt="扩散 vs 自回归：两条生成范式的对比" src="/multimodal-atlas/assets/fig_diffusion_vs_ar.png" /></p>
 <p>上图概括了本报告的两大主角：扩散模型将生成视为"迭代去噪"——从纯噪声出发，沿一条（随机或确定的）轨迹逐步逼近数据；自回归模型将生成视为"序列预测"——把图像切分为 token 序列，像写文字一样逐 token（或逐尺度）写出。两者看似对立，实则在 2025 年的统一模型中走向了深度的相互渗透。</p>
 <h2 id="2">2. 基础知识</h2>
 <p>本章是全报告的数学核心。组织顺序遵循一条思想线索：先从生成模型的基本问题出发（§2.1），用最长篇幅完整推导 DDPM 的 ELBO 及其化简（§2.2）——这是理解一切扩散变体的钥匙；随后以 DDIM（§2.3）与 score SDE（§2.4）把离散时间推广到连续时间，引出 probability flow ODE 这一现代视角；classifier-free guidance（§2.5）补全条件生成的工程拼图；flow matching 与 rectified flow（§2.6）给出当前工业界实际使用的训练目标；最后以 latent diffusion 的 VAE（§2.7）与自回归路线的 tokenizer（§2.8）收束，为两大范式的正面对比备好全部概念工具。</p>

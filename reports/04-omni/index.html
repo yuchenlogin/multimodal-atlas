@@ -32,7 +32,7 @@
 </aside>
 <main class="content">
 <header class="report-header"><div class="report-kicker">🌐 专题 04 · 全模态</div><h1>任意到任意：全模态（Omni）大模型</h1><div class="report-sub">Chameleon、Thinker-Talker、端到端全双工</div>
-<div class="report-actions"><a class="btn" href="../../assets/04-omni.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+<div class="report-actions"><a class="btn" href="/multimodal-atlas/assets/04-omni.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
 </header>
 <article class="report-content" id="article">
 <blockquote>
@@ -44,7 +44,7 @@
 <h2 id="1">1. 引言：本方向在多模态版图中的位置</h2>
 <p>多模态大模型的发展可以粗略地看作一个不断"开疆拓土"的过程。第一代模型（CLIP、BLIP 系）解决了"看图理解"的对齐问题；第二代视觉-语言模型（LLaVA、Qwen-VL 系）把视觉编码器嫁接到大语言模型（Large Language Model, LLM）上，实现了"看图对话"；随后音频、视频模态相继接入。然而，这条扩张路线存在一个隐含的不对称：<strong>模型一直在学习"理解世界"，却很少学习"用世界的语言表达"</strong>——绝大多数多模态模型的输出只有文字。</p>
 <p>全模态（Omni）模型要打破的正是这种不对称。所谓 any-to-any，是指模型接受任意模态组合作为输入（文本、图像、音频、视频），并产生任意模态组合作为输出（文本、语音、图像）。其终极形态可以用一张"中心-辐条"（hub-and-spoke）图来概括：语言作为认知的枢纽（hub），各模态作为感知与表达的辐条（spoke），信息流可以在任意辐条之间穿越枢纽。</p>
-<p><img alt="全模态模型的 hub-spoke 结构：语言作为枢纽，各模态作为辐条" src="../assets/fig_omni_modalities.png" /></p>
+<p><img alt="全模态模型的 hub-spoke 结构：语言作为枢纽，各模态作为辐条" src="/multimodal-atlas/assets/fig_omni_modalities.png" /></p>
 <p><strong>先修概念</strong>。阅读本报告之前，读者应当熟悉：Transformer 与自回归（autoregressive, AR）语言建模的基本原理；视觉-语言模型的连接器（connector）范式（如 Q-Former、MLP 投影）；向量量化（vector quantization, VQ）与 VQ-VAE 的基本思想。如果对这些概念感到陌生，建议先阅读本系列报告的视觉-语言篇。全文的阅读顺序可以按目标裁剪：想快速建立领域全貌的读者可按"摘要 → 第 3 章谱系 → 第 6 章对比表"的捷径走；准备动手做研究的读者则应精读第 4 章的六篇剖析与第 7、8 章的问题清单；第 2 章是为后续所有讨论准备的概念工具箱，遇到不熟悉的术语可随时回查第 9 章术语表。</p>
 <p><strong>本方向的核心问题</strong>。omni 模型面对的核心问题可以归纳为四个（它们将分别贯穿第 2、4、5、7 章的讨论）：</p>
 <ol>
@@ -67,7 +67,7 @@
 <p>第二条路线沿用视觉-语言模型的成熟做法：每种模态配备一个预训练连续编码器（如 ViT、Whisper 式音频编码器），其输出经连接器（线性投影、cross-attention 或重采样器）映射到 LLM 的词嵌入空间，作为"软 token"参与注意力计算。形式化地，对模态 $m$ 的输入 $X_m$，LLM 看到的序列是</p>
 <p>$$[\,\dots, \phi_m(E_m(X_m)), \dots\,],$$</p>
 <p>其中 $E_m$ 为模态编码器，$\phi_m$ 为连接器。这条路线下，"输入侧"是连续的，"输出侧"则外挂专用生成器（扩散模型、flow-matching 解码器或 codec 自回归头）。GPT-4o 之外的多数工业与开源 omni 系统（Qwen2.5-Omni、MiniCPM-o、VITA）均属此类。</p>
-<p><img alt="三种多模态架构范式对比：连接器式、cross-attention 式与早期融合式" src="../assets/fig_vlm_arch_taxonomy.png" /></p>
+<p><img alt="三种多模态架构范式对比：连接器式、cross-attention 式与早期融合式" src="/multimodal-atlas/assets/fig_vlm_arch_taxonomy.png" /></p>
 <h3 id="23-early-fusion-vs-late-fusion">2.3 融合时机：early fusion vs. late fusion</h3>
 <p><strong>融合策略</strong>回答"各模态在多早的层次开始共享计算"：</p>
 <ul>

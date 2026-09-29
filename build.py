@@ -44,7 +44,7 @@ SHELL_HEAD = """<!DOCTYPE html>
 </aside>
 <main class="content">
 <header class="report-header"><div class="report-kicker">{kicker}</div><h1>{h1}</h1><div class="report-sub">{subtitle}</div>
-<div class="report-actions"><a class="btn" href="{prefix}assets/{slug}.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+<div class="report-actions"><a class="btn" href="/multimodal-atlas/assets/{slug}.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
 </header>
 <article class="report-content" id="article">
 """
@@ -78,7 +78,7 @@ def convert(slug):
     text = re.sub(r"^# .*\n", "", text, count=1)
     # demote heading levels by one (## -> # handled by CSS anyway) — keep as-is
     # rewrite image paths ../../figures/x.png -> ../assets/x.png
-    text = text.replace("../../figures/", "../assets/")
+    text = text.replace("../../figures/", "/multimodal-atlas/assets/")
     # render
     html_body = markdown.markdown(text, extensions=MD_EXTS, extension_configs={"toc": {"toc_depth": "2-3"}})
     # heading ids for TOC anchors: python-markdown toc extension adds ids

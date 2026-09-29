@@ -32,7 +32,7 @@
 </aside>
 <main class="content">
 <header class="report-header"><div class="report-kicker">🧪 专题 11 · 数据与训练</div><h1>数据的炼金术：数据工程与训练方法</h1><div class="report-sub">DataComp、合成数据、训练配方</div>
-<div class="report-actions"><a class="btn" href="../../assets/11-data-training.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+<div class="report-actions"><a class="btn" href="/multimodal-atlas/assets/11-data-training.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
 </header>
 <article class="report-content" id="article">
 <blockquote>
@@ -57,7 +57,7 @@
 <h2 id="2">2. 基础知识</h2>
 <h3 id="21">2.1 多模态训练的三阶段骨架</h3>
 <p>几乎所有现代 MLLM 的训练都可以分解为三个阶段，每个阶段对数据的要求截然不同：</p>
-<p><img alt="三阶段训练流程" src="../assets/fig_training_pipeline.png" /></p>
+<p><img alt="三阶段训练流程" src="/multimodal-atlas/assets/fig_training_pipeline.png" /></p>
 <p><strong>阶段一：模态对齐预训练（alignment pretraining）</strong>。目标是让视觉编码器的输出空间与语言模型的词嵌入空间对齐。这一阶段通常冻结 LLM（有时也冻结视觉编码器），只训练连接器，数据采用大规模图文对（image-text pairs）。数据量动辄数亿到数十亿条，单条质量要求不高，但要求概念覆盖面广。LLaVA [10] 用约 60 万条图文对完成对齐；Qwen-VL [13] 的第一阶段则使用了约 14 亿对。</p>
 <p><strong>阶段二：高质量预训练与多任务训练</strong>。视觉编码器与 LLM 解冻（或部分解冻），在更高质量、更高分辨率的数据上继续训练，注入 OCR、文档理解、定位（grounding）等能力。这一阶段是"配方工程"的主战场：交错图文、视频、纯文本的混合比例在此决定。</p>
 <p><strong>阶段三：指令微调与后训练（SFT + preference/RLVR）</strong>。用指令跟随数据教模型"如何回答问题"，再用偏好数据或可验证奖励对齐人类偏好与推理行为。数据量从百万级骤降到十万甚至万级，但单条质量要求最高。</p>

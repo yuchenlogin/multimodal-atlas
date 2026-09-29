@@ -32,7 +32,7 @@
 </aside>
 <main class="content">
 <header class="report-header"><div class="report-kicker">🧭 专题 07 · 多模态 Agent</div><h1>会用工具的眼睛：多模态智能体</h1><div class="report-sub">ReAct、OSWorld、computer-use、MCP</div>
-<div class="report-actions"><a class="btn" href="../../assets/07-agent-tooluse.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+<div class="report-actions"><a class="btn" href="/multimodal-atlas/assets/07-agent-tooluse.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
 </header>
 <article class="report-content" id="article">
 <blockquote>
@@ -51,7 +51,7 @@
 <li><strong>与其他方向的关系</strong>：本方向站在多条线索的交汇点上。VLM（专题 01）是 GUI agent 的感知基座；具身智能（专题 06）与本方向共享"感知-行动循环"的范式，区别只在动作空间是机械臂还是鼠标键盘；对齐与安全（专题 09）在 agent 场景下变得尤为尖锐——一个能真实操作你电脑的模型，其误用与失控风险远超聊天机器人；效率（专题 08）则决定 agent 能否以可承受的成本跑完上百步的轨迹。</li>
 </ul>
 <p>下图给出多模态模型发展的总体时间线，可以看到 2023 年以后，agent 相关工作（HuggingGPT、WebArena、OSWorld、UI-TARS……）密度显著上升，成为多模态研究的主战场之一：</p>
-<p><img alt="多模态模型时间线" src="../assets/fig_timeline_vlm.png" /></p>
+<p><img alt="多模态模型时间线" src="/multimodal-atlas/assets/fig_timeline_vlm.png" /></p>
 <p><strong>为什么这个方向在 2023–2025 年爆发？</strong> 三个条件恰好在此时成熟：其一，LLM 的推理能力越过阈值，思维链提示让"用语言做规划"成为可能；其二，GPT-4V 级别的多模态模型让模型第一次能直接"看懂"屏幕截图，不再依赖 DOM、a11y tree 等内部表示；其三，开源社区积累了足够的微调与强化学习基础设施（PEFT、GRPO、vLLM 等），使学术团队也能训练原生 agent 模型。三条线索的汇合，构成了本报告的全部内容。</p>
 <h2 id="2">2. 基础知识</h2>
 <h3 id="21-agent">2.1 从一次性映射到决策循环：agent 的形式化</h3>

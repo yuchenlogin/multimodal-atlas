@@ -32,7 +32,7 @@
 </aside>
 <main class="content">
 <header class="report-header"><div class="report-kicker">🤖 专题 06 · 具身智能</div><h1>从像素到动作：具身智能与 VLA 模型</h1><div class="report-sub">RT-2、OpenVLA、π0、世界模型</div>
-<div class="report-actions"><a class="btn" href="../../assets/06-embodied.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+<div class="report-actions"><a class="btn" href="/multimodal-atlas/assets/06-embodied.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
 </header>
 <article class="report-content" id="article">
 <blockquote>
@@ -50,7 +50,7 @@
 <p><strong>学习地图。</strong> 本方向的先修概念包括：Transformer 与自回归生成（理解 VLA 主干）、视觉编码器与 VLM connector（理解感知前端）、扩散模型/flow matching（理解现代动作头）、模仿学习与强化学习基础（理解策略训练）、以及基本的机器人学术语（关节空间、末端执行器、本体）。本方向的核心问题可概括为四个：动作如何表示（tokenization vs. 连续生成）？语义知识如何迁移（co-training 配方）？数据如何规模化（跨本体数据联盟与视频数据）？以及系统如何分层（端到端 vs. 高低层分离）？它与其他方向的关系：VLA 是 VLM 的下游应用与压力测试（第 1 篇报告），其动作头技术直接继承自生成模型（第 5 篇），其数据与训练方法论与 data-training 方向（第 11 篇）深度共享，而其评测方法论则与 benchmark 方向（第 10 篇）互为表里。</p>
 <p><strong>本报告的组织。</strong> 第 2 节建立问题形式化与三大动作表示的基础；第 3 节沿时间线给出谱系与关键论文一览；第 4 节深读五篇代表作，每篇均按"问题-洞察-方法-结果-批判"五段式展开；第 5 节扫描 2025–2026 前沿；第 6–7 节做横向权衡与开放问题分析；第 8 节是给入门研究者的务实建议；第 9–10 节为术语表与经核验的参考文献。阅读时若时间有限，建议优先 2.3、4.2、4.3、4.4 与第 6 节——它们构成本领域最小完备的知识内核。</p>
 <h2 id="2">2. 基础知识</h2>
-<p><img alt="VLA 管线：从视觉-语言观测到动作生成的完整链路" src="../assets/fig_vla_pipeline.png" /></p>
+<p><img alt="VLA 管线：从视觉-语言观测到动作生成的完整链路" src="/multimodal-atlas/assets/fig_vla_pipeline.png" /></p>
 <p><em>图 1：视觉-语言-动作模型的通用管线——视觉编码器与语言模型主干提供语义表征，动作接口（离散 token 或 flow/diffusion 专家）将其转化为机器人可执行的连续动作块。</em></p>
 <h3 id="21-">2.1 具身智能的问题设定：感知-决策-动作闭环</h3>
 <p>机器人学习的标准形式化是部分可观测马尔可夫决策过程（Partially Observable Markov Decision Process, POMDP）。在时刻 $t$，机器人从传感器获得观测 $o_t$（RGB 图像、深度、本体感受 proprioception 如关节角、末端位姿），基于语言指令 $\ell$ 与历史，策略 $\pi$ 输出动作 $a_t$：</p>

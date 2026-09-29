@@ -32,7 +32,7 @@
 </aside>
 <main class="content">
 <header class="report-header"><div class="report-kicker">🔭 专题 12 · 前沿专题</div><h1>潮水的方向：2025–2026 前沿专题</h1><div class="report-sub">统一架构、多模态推理、世界模型、炒作 vs 实质</div>
-<div class="report-actions"><a class="btn" href="../../assets/12-frontier.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+<div class="report-actions"><a class="btn" href="/multimodal-atlas/assets/12-frontier.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
 </header>
 <article class="report-content" id="article">
 <blockquote>
@@ -41,7 +41,7 @@
 </blockquote>
 <h2 id="_1">摘要</h2>
 <p>本篇是多模态大模型系列报告的收官之作。前面十一篇分别深入了视觉语言、语音、视频、全模态、生成、具身、智能体、效率、安全、评测与数据训练等方向，每一篇都勾勒了各自的前沿轮廓；本篇的任务不是重复这些轮廓，而是把它们叠在同一张地图上，辨认那些跨越单一方向的结构性潮流。我们识别出六股正在重塑整个领域的趋势：其一，统一理解-生成——从"理解的归理解、生成的归扩散"的分工时代，走向单一 Transformer 大一统的架构收敛（Transfusion、Emu3、Janus、BAGEL）；其二，多模态推理革命——o1/R1 式长思维链与可验证奖励强化学习（RLVR）向视觉领域的大规模迁移（Vision-R1、Visual-RFT、R1-Onevision）；其三，世界模型——从视频生成到可交互环境的野心，以及围绕"视频生成器是否学到了物理"的尖锐争议（Genie、Cosmos、V-JEPA 2）；其四，原生多模态预训练——从"语言模型+视觉适配器"的拼装范式到从预训练第一天起就吃多模态数据的原生范式（Chameleon、InternVL3）；其五，架构多样化——线性注意力、混合架构与 1M+ 超长上下文带来的多模态意义；其六，AI for Science 的多模态维度与科研自动化的兴起。对每一股趋势，我们都给出"炒作 vs 实质"的冷静评估，并深度剖析五个代表性工作：Emu3、BAGEL、Vision-R1、Cosmos 与 V-JEPA 2。我们的总体判断是：架构统一与推理革命是真实且深刻的，世界模型与科研自动化则处在"愿景远超现状"的阶段；下一个范式转移的种子，很可能埋在"推理、生成与世界模型的交汇处"——一个能够先想、后画、再校验的闭环智能体之中。</p>
-<p><img alt="2025-2026 多模态时间线总览" src="../assets/fig_timeline_vlm.png" /></p>
+<p><img alt="2025-2026 多模态时间线总览" src="/multimodal-atlas/assets/fig_timeline_vlm.png" /></p>
 <h2 id="1">1. 引言：本方向在多模态版图中的位置</h2>
 <p>十一篇报告之后，我们有了一张颇为详细的多模态地图：视觉语言模型如何从 CLIP 对齐走向原生高分辨率，语音如何从级联系统走向端到端全双工，视频如何从秒级片段走向小时级长上下文，生成如何从扩散一枝独秀走向自回归与扩散的正面交锋，具身智能如何把多模态模型塞进机器人的躯干，智能体如何学会使用工具，效率工程如何把模型推向端侧，安全与评测如何追赶能力的狂奔。然而，地图越详细，越需要一张更高层级的"大地图"：这些方向之间是否存在共同的底层运动？哪一些看似独立的进展，实际上是同一股潮流在不同水域激起的浪花？</p>
 <p>本篇的定位正是这张大地图。我们不再按模态或任务划分领地，而是按<strong>趋势</strong>组织——一种趋势往往横跨多个模态、多个任务、多个子领域。例如，"统一理解-生成"既是视觉问题（图像生成），也是全模态问题（omni 模型的生成头），还是具身问题（动作序列的生成）；"推理革命"既是语言问题（o1/R1），也是视觉问题（Vision-R1），还是科学问题（科研 agent 的多步推理）。按趋势组织的好处在于，它让我们看到范式层面的迁移：一个想法在语言领域被验证之后，如何在六个月内席卷所有模态——这种迁移速度本身，就是 2025–2026 年最值得注意的现象。</p>
@@ -307,7 +307,7 @@
 </tr>
 </tbody>
 </table>
-<p><img alt="全模态的 hub-spoke 格局" src="../assets/fig_omni_modalities.png" /></p>
+<p><img alt="全模态的 hub-spoke 格局" src="/multimodal-atlas/assets/fig_omni_modalities.png" /></p>
 <h2 id="4">4. 代表作深度剖析</h2>
 <p>我们从六股趋势中选出五个代表性工作：Emu3 与 BAGEL 代表统一架构的两种答案，Vision-R1 代表推理革命的迁移方法论，Cosmos 与 V-JEPA 2 代表世界模型的两条对立路线。选择标准有三：是否提出了可迁移的方法论、是否有充分的公开细节、是否能体现该趋势的核心张力。</p>
 <h3 id="41-emu32024">4.1 Emu3：极简主义的宣言（2024）</h3>

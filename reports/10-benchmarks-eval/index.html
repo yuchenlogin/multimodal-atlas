@@ -32,7 +32,7 @@
 </aside>
 <main class="content">
 <header class="report-header"><div class="report-kicker">📏 专题 10 · 评测方法</div><h1>度量智能：评测基准与评估方法</h1><div class="report-sub">MME、MMMU、Video-MME、leaderboard 批判</div>
-<div class="report-actions"><a class="btn" href="../../assets/10-benchmarks-eval.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+<div class="report-actions"><a class="btn" href="/multimodal-atlas/assets/10-benchmarks-eval.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
 </header>
 <article class="report-content" id="article">
 <blockquote>
@@ -49,7 +49,7 @@
 <li><strong>本方向核心问题</strong>：(1) 如何定义并分解"多模态能力"？(2) 如何把自由文本输出转化为可比较、可复现的分数？(3) 如何保证分数反映的是真实能力而非记忆、猜测或对出题风格的迎合？</li>
 <li><strong>与其他方向的关系</strong>：评测为 data-training 篇提供数据质量的检验标准，为 alignment 篇提供对齐是否成功的判据（幻觉评测即是一例），为 agent-tooluse 篇提供任务完成度的度量，也为 frontier 篇的"能力边界"讨论提供证据。</li>
 </ul>
-<p><img alt="2017-2026 多模态模型时间线" src="../assets/fig_timeline_vlm.png" /></p>
+<p><img alt="2017-2026 多模态模型时间线" src="/multimodal-atlas/assets/fig_timeline_vlm.png" /></p>
 <p><em>图 1：2017—2026 年多模态模型发展时间线。评测基准的爆发与模型能力的跃迁几乎同步：2023 年指令微调模型普及催生了第一代基准，2025 年推理模型的兴起又迫使评测向过程评估与 frontier 难度演进。</em></p>
 <p>评测的历史反复上演一个循环：<strong>基准发布 → 模型刷分 → 基准饱和或被证伪 → 更严格的基准出现</strong>。MMBench 上线一年后头部模型即突破 80%，MMMU 在 2024 年初 GPT-4V 仅 56% [5]，到 2025 年旗舰模型已超过 75%。理解这个循环的机制，比记住任何一个具体分数都更重要。</p>
 <p>本报告的结构安排如下：第 2 节建立评测的方法论基础（评分范式、能力分解、指标谱系、统计学与污染）；第 3 节按时间线梳理基准谱系；第 4 节深度剖析五个代表作；第 5 节专题讨论 judge 偏差、污染与 leaderboard 批判这三重危机；第 6 节扫描 2025—2026 前沿；第 7—9 节分别给出技术权衡、开放问题与面向入门研究者的机会地图。</p>
@@ -258,7 +258,7 @@
 <p><strong>研究问题</strong>。2023 年上半年，指令微调的 MLLM（LLaVA、MiniGPT-4 等）密集涌现，但比较它们只能靠零散案例展示。MME 要问的是：能否建立一套定量、可复现、覆盖感知与认知两面的评测协议？</p>
 <p><strong>关键洞察</strong>。论文的核心贡献不是题目本身，而是<strong>评分协议的设计哲学</strong>：把所有问题强制转化为"Yes/No"判断题，并要求模型显式输出"是"或"否"。这一设计用极大的任务表达能力损失，换取了评分的绝对确定性——任何模型、任何人复现，得到的都是同一个分数。其分数计算为：每个任务下，准确率 + 严格准确率（同图两问皆对）的加权和，感知与认知分别汇总为最高各 2000 分。</p>
 <p><strong>实验与结果</strong>。论文评测了 30 个当时的模型，结论有两层：(1) 指令微调模型全面碾压传统 VQA 模型，证明"对齐到指令"是通用能力的关键；(2) 即便最好的模型在 OCR、计数、位置等基础感知上仍然脆弱——这直接预告了 2024 年 MMVP、BLINK 对"视觉短板"的深入追究。</p>
-<p><img alt="三种 connector 范式对比" src="../assets/fig_vlm_arch_taxonomy.png" /></p>
+<p><img alt="三种 connector 范式对比" src="/multimodal-atlas/assets/fig_vlm_arch_taxonomy.png" /></p>
 <p><em>图 2：视觉语言模型的三种连接器（connector）范式。评测诊断反复指向同一结论：无论采用哪种连接范式，视觉编码器的信息瓶颈都是感知类错误的主要来源——MMVP 将多模态模型的九类视觉盲区直接归因于 CLIP 嵌入空间的几何结构 [14]。</em></p>
 <p><strong>批判性分析</strong>。优点：协议简单到无法作弊（当时而言），复现性极佳；作为第一个标准，历史地位无可替代。局限：(1) Yes/No 格式的猜测基线高达 50%，头部模型很快饱和；(2) 二元判断无法考察推理过程；(3) 题目被纳入几乎所有后续训练语料，如今分数已失去意义。MME 的生命周期完美演示了基准的宿命：<strong>它越是成功，被污染得越快</strong>。从方法论史的角度看，MME 的另一层价值在于它定义了"感知—认知"这一沿用至今的二分语言，后续 MMBench 的层级、MMStar 的六能力、乃至 MM-Vet 的组合框架，都是在与这套语言对话中演进的。</p>
 <p><strong>一句话评价</strong>：MLLM 评测的"创世纪"，协议价值大于内容价值。★★★★（历史意义五星，当前使用价值两星）</p>
