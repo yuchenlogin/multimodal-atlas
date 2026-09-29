@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>从像素到动作：具身智能与 VLA 模型 · 多模态图谱</title>
+<link rel="stylesheet" href="../../css/site.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="report-body">
+<nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<div class="layout">
+<aside class="sidenav" id="sidenav">
+<div class="sidenav-title">系列报告</div>
+<a class="sidenav-link" href="../00-foundations/index.html"><span class="sidenav-icon">🏛️</span><span>foundations · 基础架构</span></a>
+<a class="sidenav-link" href="../01-vision-language/index.html"><span class="sidenav-icon">👁️</span><span>vision-language · 视觉-语言</span></a>
+<a class="sidenav-link" href="../02-audio-speech/index.html"><span class="sidenav-icon">🎧</span><span>audio-speech · 音频语音</span></a>
+<a class="sidenav-link" href="../03-video/index.html"><span class="sidenav-icon">🎬</span><span>video · 视频理解</span></a>
+<a class="sidenav-link" href="../04-omni/index.html"><span class="sidenav-icon">🌐</span><span>omni · 全模态</span></a>
+<a class="sidenav-link" href="../05-generation/index.html"><span class="sidenav-icon">🎨</span><span>generation · 多模态生成</span></a>
+<a class="sidenav-link active" href="../06-embodied/index.html"><span class="sidenav-icon">🤖</span><span>embodied · 具身智能</span></a>
+<a class="sidenav-link" href="../07-agent-tooluse/index.html"><span class="sidenav-icon">🧭</span><span>agent-tooluse · 多模态 Agent</span></a>
+<a class="sidenav-link" href="../08-efficiency/index.html"><span class="sidenav-icon">⚡</span><span>efficiency · 高效化</span></a>
+<a class="sidenav-link" href="../09-alignment-safety/index.html"><span class="sidenav-icon">🛡️</span><span>alignment-safety · 对齐与安全</span></a>
+<a class="sidenav-link" href="../10-benchmarks-eval/index.html"><span class="sidenav-icon">📏</span><span>benchmarks-eval · 评测方法</span></a>
+<a class="sidenav-link" href="../11-data-training/index.html"><span class="sidenav-icon">🧪</span><span>data-training · 数据与训练</span></a>
+<a class="sidenav-link" href="../12-frontier/index.html"><span class="sidenav-icon">🔭</span><span>frontier · 前沿专题</span></a>
+<div class="sidenav-title" style="margin-top:1.2rem">更多</div>
+<a class="sidenav-link" href="../../paper/index.html">📄 顶会风格论文</a>
+<a class="sidenav-link" href="../../index.html#about">ℹ️ 关于本站</a>
+</aside>
+<main class="content">
+<header class="report-header"><div class="report-kicker">🤖 专题 06 · 具身智能</div><h1>从像素到动作：具身智能与 VLA 模型</h1><div class="report-sub">RT-2、OpenVLA、π0、世界模型</div>
+<div class="report-actions"><a class="btn" href="../../assets/06-embodied.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+</header>
+<article class="report-content" id="article">
+<blockquote>
+<p>副标题：当多模态大模型长出"手"——VLA 如何打通感知、语义与物理控制的最后一公里
+版本日期：2026-09-29 | 面向读者：有深度学习基础的多模态初学者</p>
+</blockquote>
+<h2 id="_1">摘要</h2>
+<p>视觉-语言-动作模型（Vision-Language-Action Model, VLA）是 2023 年以来多模态学习中最具野心的方向之一：它试图让同一个神经网络同时完成"看图、听话、动手"三件事，把互联网规模的视觉-语言预训练知识直接转化为机器人的物理动作。本报告以具身智能的经典问题设定——感知-决策-动作闭环——为起点，沿时间线梳理从 SayCan 的"LLM 规划 + 底层技能"分层范式，到 RT-1 的大规模行为克隆 Transformer 策略，再到 RT-2 确立的"动作即文本 token"的 VLA 范式；继而剖析 Open X-Embodiment 数据联盟如何解决机器人数据碎片化问题、OpenVLA 如何成为开源社区的基座模型、π0/π0.5 如何用 flow-matching 动作头与异构 co-training 把泛化推进到真实家庭环境，以及 NVIDIA GR00T N1 的双系统架构。我们同时讨论世界模型（Genie、GAIA-1）作为"可交互训练场"的路线、sim2real 的持久难题，以及 CALVIN、LIBERO、SimplerEnv 构成的评测方法论。报告对 RT-2、OpenVLA、π0、π0.5 与 Diffusion Policy 五篇代表作做了深度剖析，并在结尾给出面向入门研究者的研究机会点评：数据与评测的"公共品"建设、latent action 预训练、RL post-training 与高效推理是算力门槛适中且问题清晰的切入点，而大规模真机数据采集与人形机器人基础模型则本质上是巨头游戏。</p>
+<p>全文的论述主线可以浓缩为一句话：VLA 的三年发展史，是动作表示、数据边界与系统层级三个接口被依次重新设计的历史；理解每一次接口重设计的动机与代价，就理解了这一领域的过去，也大体可以预见它的未来。</p>
+<h2 id="1">1. 引言：本方向在多模态版图中的位置</h2>
+<p>过去三年，多模态大模型的版图以"理解"与"生成"为两条主轴快速扩张：视觉-语言模型（VLM）学会了看图说话、回答视觉问题；扩散模型与视频生成模型学会了把文字变成图像与影像。但这两类能力都停留在"赛博空间"——模型输出的是文本、像素或音频，世界不因其输出而改变。具身智能（Embodied AI）提出的问题是第三条轴：当模型的输出不是符号而是<strong>物理动作</strong>时，会发生什么？</p>
+<p>这一问题把多模态学习推向了一个全新的困难区间。首先，动作是连续的、高频的、受动力学约束的：机械臂的关节力矩与文本 token 之间的鸿沟远大于图像与文本之间的鸿沟。其次，数据稀缺：互联网上有数万亿 token 的文本与数十亿图像-文本对，但高质量的机器人轨迹数据以百万计——而且是分散在几十种互不兼容的本体（embodiment）上。第三，评估昂贵且危险：评测一个 VLM 只需跑一次基准，评测一个机器人策略则需要在真实物理世界里反复试错。第四，错误不可撤销：语言模型说错一句话可以重试，机器人抓碎一个杯子则无法回滚。</p>
+<p>VLA 范式的核心赌注是：<strong>互联网规模的视觉-语言预训练中所蕴含的语义知识（物体类别、空间关系、物理常识、任务程序），可以通过适当的"动作化"接口迁移到机器人控制上</strong>，从而绕开从零学习物理世界的数据瓶颈。这一赌注由 RT-2 在 2023 年正式提出并初步验证，此后两年间，OpenVLA、π0、GR00T、Gemini Robotics 等一系列模型把它推成了多模态领域增长最快的分支。</p>
+<p>值得强调的是 VLA 在整个"基础模型"叙事中的特殊地位。如果说 GPT 类模型验证了"下一个 token 预测可以压缩互联网文本知识"、扩散模型验证了"迭代去噪可以压缩视觉世界的分布"，那么 VLA 试图验证的命题更为大胆：<strong>生成式预训练可以压缩物理世界的交互知识</strong>。这一命题若成立，机器人学将从"为每个任务写控制器"的工程学科转变为"为通用策略准备数据"的实证科学——这正是"具身智能"在 2023 年后从机器人学的边缘话题跃升为整个 AI 领域中心议题的原因。对多模态学习者而言，VLA 还是一个绝佳的"综合作文题"：它要求你同时调动表征学习、生成模型、序列决策与系统工程的几乎所有知识，其技术栈的完整性在多模态各方向中无出其右。</p>
+<p><strong>学习地图。</strong> 本方向的先修概念包括：Transformer 与自回归生成（理解 VLA 主干）、视觉编码器与 VLM connector（理解感知前端）、扩散模型/flow matching（理解现代动作头）、模仿学习与强化学习基础（理解策略训练）、以及基本的机器人学术语（关节空间、末端执行器、本体）。本方向的核心问题可概括为四个：动作如何表示（tokenization vs. 连续生成）？语义知识如何迁移（co-training 配方）？数据如何规模化（跨本体数据联盟与视频数据）？以及系统如何分层（端到端 vs. 高低层分离）？它与其他方向的关系：VLA 是 VLM 的下游应用与压力测试（第 1 篇报告），其动作头技术直接继承自生成模型（第 5 篇），其数据与训练方法论与 data-training 方向（第 11 篇）深度共享，而其评测方法论则与 benchmark 方向（第 10 篇）互为表里。</p>
+<p><strong>本报告的组织。</strong> 第 2 节建立问题形式化与三大动作表示的基础；第 3 节沿时间线给出谱系与关键论文一览；第 4 节深读五篇代表作，每篇均按"问题-洞察-方法-结果-批判"五段式展开；第 5 节扫描 2025–2026 前沿；第 6–7 节做横向权衡与开放问题分析；第 8 节是给入门研究者的务实建议；第 9–10 节为术语表与经核验的参考文献。阅读时若时间有限，建议优先 2.3、4.2、4.3、4.4 与第 6 节——它们构成本领域最小完备的知识内核。</p>
+<h2 id="2">2. 基础知识</h2>
+<p><img alt="VLA 管线：从视觉-语言观测到动作生成的完整链路" src="../assets/fig_vla_pipeline.png" /></p>
+<p><em>图 1：视觉-语言-动作模型的通用管线——视觉编码器与语言模型主干提供语义表征，动作接口（离散 token 或 flow/diffusion 专家）将其转化为机器人可执行的连续动作块。</em></p>
+<h3 id="21-">2.1 具身智能的问题设定：感知-决策-动作闭环</h3>
+<p>机器人学习的标准形式化是部分可观测马尔可夫决策过程（Partially Observable Markov Decision Process, POMDP）。在时刻 $t$，机器人从传感器获得观测 $o_t$（RGB 图像、深度、本体感受 proprioception 如关节角、末端位姿），基于语言指令 $\ell$ 与历史，策略 $\pi$ 输出动作 $a_t$：</p>
+<p>$$
+a_t \sim \pi_\theta(\cdot \mid o_{\le t}, \ell), \qquad a_t \in \mathbb{R}^d
+$$</p>
+<p>动作通常是 $d$ 维连续向量：例如 7 维机械臂动作（6 自由度末端位姿增量 + 1 维夹爪开合），或移动操作臂的更高维向量（底盘速度 + 臂 + 夹爪）。环境按动力学 $s_{t+1} = f(s_t, a_t)$ 演化，机器人获得新的观测，闭环继续。与游戏 AI 的关键区别在于：状态不可完全观测（遮挡、接触力不可见）、动力学含接触与形变（难建模）、且采样在真实时间里进行（一个 episode 可能耗时数十秒）。</p>
+<p>这个闭环看似与游戏 AI、推荐系统同构，但魔鬼在细节里。其一，<strong>时间尺度的错位</strong>：语义层面的决策（"该去拿杯子了"）以秒计，而稳定的运动控制需要 10Hz 到上百 Hz 的连续输出，单一模型同时承担两个尺度在架构上是巨大的张力——后文将看到，几乎所有成功的 VLA 系统都以某种方式回应了这一张力。其二，<strong>观测-动作空间的异构性</strong>：输入是高维图像（数十万像素）与离散语言，输出是低维但强约束的连续向量，且动作的正确性无法由局部损失完全刻画（抓握成功与否取决于整条轨迹的接触力学后果）。其三，<strong>数据分布的长尾性</strong>：物理世界的物体、光照、布局组合是无界的，而任何真实数据集都是有界的，泛化不是加分项而是生死线。</p>
+<p><strong>为什么传统方法不够用？</strong> 经典机器人学把闭环拆成感知（检测/分割/位姿估计）、规划（运动规划、任务规划）、控制（MPC、阻抗控制）三个独立模块，各自依赖人工建模，在结构化工厂里工作良好，但在开放家庭环境中因感知误差级联与建模失效而脆弱。机器人学习试图用数据替代人工建模，但早期的单任务强化学习（RL）或模仿学习（IL）策略泛化极差：换一个杯子、挪一下桌子，成功率就崩溃。这正是"基础模型时代"的具身智能要解决的痛点：不是学一个任务的策略，而是学一个<strong>可泛化、可语言条件化、可迁移</strong>的通用策略。</p>
+<h3 id="22">2.2 模仿学习与行为克隆</h3>
+<p>VLA 的主训练范式是行为克隆（Behavior Cloning, BC）：给定专家遥操作（teleoperation）采集的轨迹数据集 $\mathcal{D} = {(o_t, \ell, a_t)}$，最大化动作的对数似然：</p>
+<p>$$
+\mathcal{L}<em _o_ell_a_sim_mathcal_D="(o,\ell,a)\sim\mathcal{D">{\text{BC}} = -\mathbb{E}</em> \log \pi_\theta(a \mid o, \ell)
+$$}</p>
+<p>BC 简单、稳定、可扩展，但有协变量偏移（covariate shift）问题：训练分布是专家轨迹，测试时策略一旦偏离专家轨迹，就进入从未见过的状态，误差逐步累积。DAgger 类交互式方法可以缓解，但需要专家在线标注，成本高昂。实践中，大规模数据多样性本身被发现是对抗协变量偏移最暴力的解——这是 RT-1 与 Open X-Embodiment 的核心经验。</p>
+<p>与 BC 相对的是强化学习路线：通过与环境交互最大化回报 $\mathbb{E}\sum_t \gamma^t r_t$。RL 原则上能超越示范数据的上限（从自己的成败中学习），但真实机器人上的 RL 面临样本效率（一次真实交互以秒计，而 sim 中数百万步的算法难以直接迁移）与安全探索（试错即损耗硬件）的双重约束。因此 2022–2024 年的主流共识是"BC 打底、RL 点缀"，而 2025 年后 RL post-training 的复兴正是试图打破这一格局——详见第 5.5 节。</p>
+<p>另一个初学者易混淆的概念是<strong>语言条件化</strong>。VLA 中的语言指令 $\ell$ 不只是任务标签，而是泛化的载体：训练时见过"拿起红杯子"与"拿起蓝盘子"的策略，应当组合泛化到"拿起蓝杯子"。语言在这里扮演了任务空间的结构化参数化角色——这是语言条件策略区别于传统多任务策略（用 one-hot 任务 ID 条件化）的本质优势，也是 VLM 语义知识能够注入的自然接口。</p>
+<h3 id="23-token-flow-matching">2.3 动作表示：离散 token、扩散与 flow matching</h3>
+<p>VLA 最关键的设计决策是如何表示动作 $a_t$。三条路线：</p>
+<p><strong>(a) 离散动作 token。</strong> 将连续动作空间的每一维均匀量化为 $B$ 个 bin（如 256 个），映射为词表中的 token，动作预测退化为自回归文本生成。这允许直接复用语言模型的训练与推理基础设施——RT-1、RT-2、OpenVLA 均采用此路线。代价是：量化损失精细控制精度，且高维动作（双臂、全身）导致 token 序列变长、推理变慢。</p>
+<p><strong>(b) 扩散动作头（diffusion action head）。</strong> 以观测与语言为条件，用去噪扩散过程生成动作。Diffusion Policy 证明，条件扩散可以表达<strong>多峰动作分布</strong>（同一个"抓杯子"指令下存在多条合理轨迹），而单高斯回归会学到峰间平均、产生物理上不可行的动作。</p>
+<p><strong>(c) Flow matching。</strong> 扩散的一个更简洁的连续归一化流变体。给定噪声 $a^\tau = \tau a + (1-\tau)\epsilon$（$\epsilon \sim \mathcal{N}(0, I)$，$\tau \in [0,1]$），训练网络预测速度场 $v_\theta(a^\tau, \tau; o, \ell) \approx a - \epsilon$，损失为：</p>
+<p>$$
+\mathcal{L}<em>{\text{flow}} = \mathbb{E}\left| v</em>\theta(a^\tau, \tau; o, \ell) - (a - \epsilon) \right|^2
+$$</p>
+<p>推理时从纯噪声出发沿常微分方程积分数步即可得到动作。π0 与 GR00T N1 选择了这条路线：它保留了连续动作的高精度与多峰性，推理只需少量积分步，比自回归逐 token 解码更适合高频控制。</p>
+<p>一个具体例子有助于理解离散化的代价：假设机械臂末端位置控制精度需要 1mm，工作空间跨度约 1m，则单维至少需要 1000 个有效级别；而 256 bin 意味着约 4mm 的分辨率——对抓放足够，对插拔、擦拭、折叠等接触任务则力不从心。提高 bin 数会拉长 token 序列并稀释每维的监督信号，这正是离散路线的内在张力。</p>
+<p><strong>动作块（action chunk）。</strong> 现代 VLA 几乎不逐步预测单个动作，而是一次预测长度为 $H$ 的动作序列 $a_{t:t+H}$（如 π0 预测 50 步、以 50Hz 执行），部分开环执行后重新规划。Chunking 既摊薄了大模型的推理延迟，也使策略能表达短时程的连贯运动模式。</p>
+<p>形式化地看协变量偏移：若单步策略的误差率为 $\epsilon$，则 $T$ 步闭环执行中，策略访问专家分布外状态的概率随 $T$ 增长，累计性能退化可达到 $O(T^2\epsilon)$ 量级——这就是为什么单步准确率看似很高的策略，在长程任务上仍会灾难性失败。CALVIN 以"连续完成多少个任务"作为核心指标，正是对这一效应的直接度量。</p>
+<h3 id="24-vlm-vla">2.4 从 VLM 到 VLA：知识迁移的赌注</h3>
+<p>VLM（如 CLIP/SigLIP 视觉编码器 + LLM 主干）在互联网数据上学到了丰富的语义：它能认出"百事可乐"、理解"把最左边的物体放到最右边"、甚至进行多步推理。VLA 的赌注是这些语义表征可以<strong>接地（ground）</strong>到物理动作上。实现方式是在预训练 VLM 的基础上做协同微调（co-fine-tuning）：混合机器人轨迹数据与原始视觉-语言任务数据（VQA、图文匹配），让模型既不遗忘 web 知识（避免灾难性遗忘），又学会输出动作。协同微调的配比、冻结策略与损失权重是每个 VLA 工作的核心工程秘密。</p>
+<p>这里有一个值得初学者深思的问题：为什么语义知识对动作有用？直觉上，"知道什么是锤子"与"会抡锤子"是两种知识——前者是陈述性的（declarative），后者是程序性的（procedural）。VLA 路线的隐含假设是：陈述性知识构成的表征空间能为程序性知识的学习提供良好的归纳偏置——模型不需要从像素中重新发现"这是锤子"，只需在已知"锤子"的表征之上学习"如何操作锤子"。RT-2 的涌现能力实验（见 4.2 节）为这一假设提供了迄今最直接的证据；而 LIBERO 的发现（朴素预训练有时有害）则提醒我们，这一迁移并非无条件免费午餐。</p>
+<h3 id="25-sim2real">2.5 sim2real 与世界模型</h3>
+<p>真实机器人数据昂贵，自然的替代是仿真（simulation）：在 Isaac Sim、MuJoCo 等物理引擎中生成近乎无限的数据，再迁移到真实机器人。障碍是 reality gap——仿真的渲染、接触动力学、摩擦模型与真实世界总有偏差，直接迁移常失败。主流缓解手段包括域随机化（domain randomization，在训练中随机化纹理/光照/物理参数）、real-to-sim-to-real（先标定仿真到真实，再在仿真中训练），以及越来越重要的<strong>世界模型（world model）</strong>路线：不学策略，先学一个可交互的环境生成器，让策略在"想象"中训练。Genie 与 GAIA-1 代表了这条路线的两个极端——前者从无标注视频学通用交互环境，后者为自动驾驶构建可控生成的驾驶世界。</p>
+<p>对初学者，理解 sim2real 最好的心智模型是把它看作一个<strong>域适应（domain adaptation）</strong>问题：源域（仿真）标签免费但有偏，目标域（真实）标签昂贵但无偏。域随机化相当于显式扩大源域的方差以覆盖目标域；real-to-sim 相当于校准源域的均值；而世界模型路线则试图直接学习目标域本身——代价是学习的模型同样有偏。三条手段并不互斥，实践中常组合使用。这一视角也解释了为什么 SimplerEnv 的"复刻真实场景的仿真"能成功：它把 sim-real 差距压缩到了策略泛化能力足以覆盖的范围内。</p>
+<h2 id="3">3. 经典方法谱系</h2>
+<p>VLA 的谱系可以沿着三条脉络理解：<strong>分层规划路线</strong>（LLM 做大脑，技能库做手脚）、<strong>端到端策略路线</strong>（直接从像素回归动作）、以及<strong>两者在基础模型时代的合流</strong>（VLA = VLM 语义 + 动作头）。</p>
+<ul>
+<li>2020–2021 年，ALFWorld 与 CALVIN 等基准把语言条件操控确立为研究问题；此时方法以模块化流水线为主。</li>
+<li>2022 年是分层范式的巅峰：SayCan 用 LLM 打分任务分解、affordance value 打分可执行性，二者相乘选技能；Inner Monologue 把环境反馈注入 LLM 形成闭环；Code as Policies 让 LLM 直接写调用控制 API 的代码。同年底，RT-1 用 13 万条真实轨迹证明大规模行为克隆 + Transformer 的可扩展性。</li>
+<li>2023 年是范式转换之年：PaLM-E 把连续模态注入 562B 语言模型；Diffusion Policy 确立了扩散动作头的地位；RT-2 正式提出 VLA 概念，证明 web 知识可以迁移为机器人泛化；Open X-Embodiment 以 21 家机构的联盟方式解决数据碎片化；LIBERO 为终身学习式评测立标。</li>
+<li>2024 年是开源与规模化之年：Octo 与 OpenVLA 把通用策略开源化；SimplerEnv 解决真机评测瓶颈；Genie 把世界模型推向"基础模型"规模；π0 用 flow matching 刷新灵巧操作上限。</li>
+<li>2025 年，GR00T N1 以全栈开源姿态进入人形机器人；π0.5 首次在从未见过的真实家庭展示长程任务泛化；Hi Robot、DexVLA、UniVLA 等从层级化、灵巧化、数据扩展三个方向细化范式。</li>
+</ul>
+<p>读这条时间线时，建议关注三个"范式接力"的细节。第一，<strong>分层到端到端的接力</strong>：SayCan 需要人工设计的技能库与 affordance 价值函数，其泛化上限被技能库锁死；RT-2 的突破正是取消了这一中间层——但 2025 年层级化的回归（π0.5、Hi Robot）说明这不是简单的"端到端胜利"，而是"分层的位置从系统外部移到了模型内部"。第二，<strong>表示的接力</strong>：从 RT-1 的离散 bin，到 Diffusion Policy 的扩散过程，再到 π0 的 flow matching，动作表示的演化始终围绕"精度-多峰性-推理速度"的不可能三角优化。第三，<strong>数据的接力</strong>：从单机构自建数据（RT-1），到跨机构联盟（Open X-Embodiment），再到异构混合（π0.5 的多机器人 + web + 语义预测）与无标注视频（UniVLA、Genie）——数据边界的每一次外扩都对应着能力的一次跃迁。</p>
+<p><strong>关键论文一览表</strong>（共 21 篇核心文献，编号对应第 10 节参考文献；完整的近期综述列表亦见参考文献 [28]–[31]）</p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>年份</th>
+<th>核心思想</th>
+<th>架构要点</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ALFWorld [1]</td>
+<td>2020</td>
+<td>文本环境与具身环境对齐，先学抽象策略再迁移</td>
+<td>TextWorld + ALFRED 双环境</td>
+<td>LLM-agent 评测先驱</td>
+</tr>
+<tr>
+<td>CALVIN [2]</td>
+<td>2021</td>
+<td>长程语言条件操控基准</td>
+<td>34 任务、多环境泛化</td>
+<td>VLA 仿真评测标配</td>
+</tr>
+<tr>
+<td>SayCan [3]</td>
+<td>2022</td>
+<td>LLM 规划 × affordance 可执行性相乘选技能</td>
+<td>PaLM + 技能库 value function</td>
+<td>分层范式开山之作</td>
+</tr>
+<tr>
+<td>Inner Monologue [4]</td>
+<td>2022</td>
+<td>环境反馈注入 LLM 的闭环规划</td>
+<td>LLM + 场景描述/成功信号</td>
+<td>闭环具身推理</td>
+</tr>
+<tr>
+<td>Code as Policies [5]</td>
+<td>2022</td>
+<td>LLM 生成调用感知/控制 API 的策略代码</td>
+<td>层级化程序生成</td>
+<td>代码即策略</td>
+</tr>
+<tr>
+<td>RT-1 [6]</td>
+<td>2022</td>
+<td>大规模真实数据 + Transformer 通用策略</td>
+<td>13 万 episode、700+ 任务、离散动作 bin</td>
+<td>规模化行为克隆</td>
+</tr>
+<tr>
+<td>PaLM-E [7]</td>
+<td>2023</td>
+<td>连续模态嵌入注入巨型 LLM</td>
+<td>562B PaLM + ViT</td>
+<td>具身多模态语言模型</td>
+</tr>
+<tr>
+<td>Diffusion Policy [8]</td>
+<td>2023</td>
+<td>条件扩散表示多峰动作分布</td>
+<td>DDPM/评分匹配 + 动作序列预测</td>
+<td>动作头主流化起点</td>
+</tr>
+<tr>
+<td>RT-2 [9]</td>
+<td>2023</td>
+<td>动作作为文本 token，与 web 数据 co-fine-tune</td>
+<td>PaLI-X / PaLM-E 基座</td>
+<td>正式提出 VLA</td>
+</tr>
+<tr>
+<td>Open X-Embodiment [11]</td>
+<td>2023</td>
+<td>跨机构数据联盟与跨本体正迁移</td>
+<td>22 本体、100 万+ episode、RT-X</td>
+<td>数据基础设施</td>
+</tr>
+<tr>
+<td>LIBERO [14]</td>
+<td>2023</td>
+<td>终身学习视角的知识迁移基准</td>
+<td>130 任务、四任务套件</td>
+<td>微调评测事实标准</td>
+</tr>
+<tr>
+<td>Octo [15]</td>
+<td>2024</td>
+<td>开源通用策略，灵活任务/观测 token</td>
+<td>93M、diffusion head</td>
+<td>轻量开源基座</td>
+</tr>
+<tr>
+<td>SimplerEnv [16]</td>
+<td>2024</td>
+<td>复刻真实场景的仿真评测</td>
+<td>高 sim-real 相关性</td>
+<td>评测方法论</td>
+</tr>
+<tr>
+<td>OpenVLA [17]</td>
+<td>2024</td>
+<td>7B 开源 VLA，消费级 GPU 可微调</td>
+<td>Prismatic VLM + Llama 2</td>
+<td>社区事实基座</td>
+</tr>
+<tr>
+<td>Genie [18]</td>
+<td>2024</td>
+<td>无标注视频学出 latent action 的可交互世界模型</td>
+<td>11B、ST tokenizer + latent action</td>
+<td>世界模型主线</td>
+</tr>
+<tr>
+<td>GAIA-1 [19]</td>
+<td>2023</td>
+<td>视频+文本+动作条件的驾驶世界模型</td>
+<td>多模态条件生成</td>
+<td>自动驾驶数据闭环</td>
+</tr>
+<tr>
+<td>Mobile ALOHA [20]</td>
+<td>2024</td>
+<td>低成本双臂移动遥操作 + 模仿学习</td>
+<td>~$32k 硬件 + ACT</td>
+<td>硬件民主化</td>
+</tr>
+<tr>
+<td>π0 [21]</td>
+<td>2024</td>
+<td>VLM + flow-matching 动作专家</td>
+<td>跨 7 本体、50Hz 动作块</td>
+<td>基础策略新标杆</td>
+</tr>
+<tr>
+<td>GR00T N1 [23]</td>
+<td>2025</td>
+<td>双系统：VLM 慢思考 + DiT 快控制</td>
+<td>全开源人形基础模型</td>
+<td>硬件厂商路线</td>
+</tr>
+<tr>
+<td>π0.5 [26]</td>
+<td>2025</td>
+<td>异构 co-training 实现开放世界泛化</td>
+<td>多机器人 + web + 语义子任务预测</td>
+<td>全新家庭零样本</td>
+</tr>
+<tr>
+<td>UniVLA [27]</td>
+<td>2025</td>
+<td>从无动作视频学 task-centric latent action</td>
+<td>latent action 预训练</td>
+<td>数据扩展新维度</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. 代表作深度剖析</h2>
+<p>本节深读五篇文献：Diffusion Policy（动作头的思想源头）、RT-2（VLA 范式的确立）、OpenVLA（开源社区基座）、π0（flow-matching 基础策略）、π0.5（开放世界泛化的分水岭）。</p>
+<h3 id="41-diffusion-policy2023">4.1 Diffusion Policy（2023）：为什么动作生成需要生成模型</h3>
+<p><strong>研究问题。</strong> 视觉运动策略（visuomotor policy）的主流做法是回归：给定观测，回归一个确定性动作或单高斯分布。但人类示范数据本质上是<strong>多峰的</strong>——同一个目标状态可以左手抓也可以右手抓，可以绕行也可以直行。条件均值回归会把多个模式平均成一条物理上不可行的轨迹。</p>
+<p><strong>关键洞察。</strong> 把动作预测重新表述为<strong>条件生成</strong>问题：策略不是回归器，而是一个以视觉观测为条件的动作分布采样器。扩散模型恰好是当下最强的条件生成器，且其迭代去噪过程天然带来动作序列的时间一致性。</p>
+<p><strong>技术方法。</strong> Diffusion Policy 学习动作分布的评分函数（score function）梯度场，推理时通过一系列随机 Langevin 动力学步从噪声中迭代优化出动作序列。两个关键工程决策：一是预测<strong>动作序列</strong>（而非单步动作）并采用滚动时域执行，兼顾长程一致性与闭环反应；二是用 DDPM 训练配合噪声调度优化，保证高频控制下的推理速度可接受。</p>
+<p><strong>实验结果。</strong> 在 4 个机器人操控基准的 12 个任务上，Diffusion Policy 一致超越此前的行为克隆与 RL 方法，<strong>平均提升 46.9%</strong>——这是动作表示方法层面罕见的巨大增益，尤其在需要精细接触的任务（如推 T 形块、翻转酱料）上优势显著。</p>
+<p>值得初学者留意的是 Diffusion Policy 与图像扩散的一个关键差异：图像扩散生成的是一次性产物，而动作扩散生成的是<strong>将被闭环执行的序列</strong>——前若干步被执行后，剩余部分被丢弃、重新以新观测为条件再生成。这种"滚动时域扩散"（receding-horizon diffusion）在理论上牺牲了全局最优性，实践中却换来对扰动的在线修正能力，是生成模型与控制理论混合的精妙案例。</p>
+<p><strong>批判性分析。</strong> 优点：多峰性、训练稳定、对超参相对鲁棒，思想直接催生了 π0、GR00T 的 flow/diffusion 动作专家。局限：迭代去噪的推理延迟对高频控制是负担（后续工作用一致性模型、少步蒸馏缓解）；仍是单任务或有限任务训练，本身不含语义泛化能力——它是优秀的"小脑"，还需要 VLM 提供"大脑"。可复现性极佳，官方代码与基准完整开源，是入门复现的最佳起点。</p>
+<p><strong>一句话评价：</strong> 动作生成领域的"ResNet 时刻"——简单思想、显著收益、深远影响。评级：★★★★★（必读）。</p>
+<h3 id="42-rt-22023vla">4.2 RT-2（2023）：VLA 范式的确立</h3>
+<p>本篇在谱系中占据中心位置：它之前的所有工作（SayCan、RT-1、PaLM-E）都在"语言模型如何帮助机器人"的框架内思考，它之后的问题变成了"机器人数据如何融入语言模型"。这一视角转换是范式级别的。</p>
+<p><strong>研究问题。</strong> RT-1 证明了规模化真实数据训练的 Transformer 策略可行，但其泛化限于训练分布内的物体与指令。问题：<strong>能否让机器人策略继承互联网规模视觉-语言预训练的语义知识，从而泛化到训练中从未出现过的物体、指令与推理任务？</strong></p>
+<p><strong>关键洞察。</strong> 关键的设计决策朴素而深刻：<strong>把动作表示成文本 token</strong>。将机器人动作向量的每一维离散化为 256 个 bin，映射到语言模型的词表 token 上，于是机器人轨迹数据可以被"伪装"成文本数据，与视觉问答等 web 数据混合在同一个 co-fine-tuning 管线里。模型既可以用语言回答问题，也可以用"语言"输出动作——语义知识到动作知识的迁移，由此变成了同一个生成任务内部的迁移。</p>
+<p><strong>技术方法。</strong> RT-2 在两个 web 规模 VLM 上实例化：PaLI-X（55B）与 PaLM-E（12B）。训练混合了原始视觉-语言任务（VQA、字幕等）与机器人轨迹（沿用 RT-1 的 13 万 episode 数据），协同微调防止语义遗忘。推理时自回归解码动作 token 再反量化为连续动作。</p>
+<p><strong>实验结果。</strong> 约 <strong>6000 次真实评测试验</strong>表明：RT-2 在分布内任务上与 RT-1 持平或更优，而在<strong>泛化维度上大幅领先</strong>——对未见物体的抓取、理解数据中不存在的指令（如"把物体放到某个数字或图标上"）、以及初步的语义推理（"捡起最小的物体""捡起离另一个物体最近的那个"）。加入 chain-of-thought 后，RT-2 甚至能做多阶段推理：被问"拿什么可以当锤子用"时选择石头；被问"给疲惫的人拿什么饮料"时选择能量饮料。这些能力完全来自 web 预训练，机器人数据中从无此类样本。</p>
+<p><strong>批判性分析。</strong> 优点：范式定义性工作，用最少的架构改动撬动了最大的知识迁移；涌现能力的实验设计（语义推理、数字接地）至今是 VLA 评测的范本。局限：动作 tokenization 的离散化精度有限，难以胜任高频灵巧操作；自回归逐维解码慢，推理频率低；模型与数据完全闭源，无法复现——它证明了"可以做到"，但没有给社区留下"如何做到"的工具。此外，所有评测仍在 Google 单一实验室与单一本体（Everyday Robots 臂）上完成。</p>
+<p>从历史视角看，RT-2 最深远的影响不在于其具体模型（其本体 Everyday Robots 已随项目解散而退出历史），而在于它给出了一个<strong>可证伪的研究纲领</strong>：web 知识与机器人控制之间存在可迁移结构，且迁移程度可随基座模型能力增长而增长。此后三年 VLA 领域的发展——更强的 VLM 基座带来更强的策略——持续印证着这一纲领。同时它也留下了一个至今未完全回答的问题：涌现的语义推理究竟在多大程度上转化为<strong>动作层面</strong>的可靠性？能选出"能量饮料"的模型，未必能稳健地把饮料从拥挤的货架上取下来——语义正确性与运动可靠性是两个独立的泛化维度，后者的数据无法从 web 获得。</p>
+<p><strong>一句话评价：</strong> 用一句"动作即语言"重新定义了机器人学习，是 VLA 领域的奠基文献。评级：★★★★★（必读，思想价值高于工程价值）。</p>
+<h3 id="43-openvla2024">4.3 OpenVLA（2024）：开源社区的基座时刻</h3>
+<p><strong>研究问题。</strong> RT-2 证明了 VLA 的威力，但它是闭源的、参数量 55B、训练成本不可企及。问题：<strong>能否构建一个开源的、参数适中的 VLA，性能不输闭源模型，且能在消费级 GPU 上微调？</strong></p>
+<p><strong>关键洞察。</strong> 开源生态已经成熟：有高质量的开放 VLM 组件（DINOv2、SigLIP、Llama 2）、有 Open X-Embodiment 这样的标准化跨本体数据集。把正确的组件以正确的配方组合起来，7B 模型可以超过 55B 的闭源模型——数据多样性与视觉表征质量比单纯堆参数更重要。</p>
+<p><strong>技术方法。</strong> OpenVLA 采用 Prismatic VLM 架构：视觉端<strong>融合 DINOv2 与 SigLIP 两个预训练编码器</strong>的特征（前者擅长空间/几何、后者擅长语义/语言对齐），语言主干为 Llama 2-7B。沿用 RT-2 的离散动作 token 方案，在 Open X-Embodiment 的 <strong>97 万条真实机器人示范</strong>上训练。论文的另一个重要贡献是系统性研究了高效适配：LoRA 低秩微调可在消费级 GPU 完成，量化部署不损失成功率。</p>
+<p><strong>实验结果。</strong> 在 29 个任务、多种机器人本体上，OpenVLA 以 7B 参数在绝对成功率上<strong>超出 55B 的 RT-2-X 达 16.5%</strong>；在新任务微调设定下，比从头训练的强模仿学习基线 Diffusion Policy <strong>高出 20.4%</strong>，在多物体、强语言接地的多任务环境中优势尤其明显。</p>
+<p><strong>批判性分析。</strong> 优点：开源权重、代码、微调 notebook 与数据处理管线，直接催生了此后两年社区数百个衍生工作（微调到新本体、新任务、新动作头）——其生态地位类似 LLaMA 之于开源 LLM。局限：继承了 RT-2 路线的全部结构性缺陷——离散 token 精度受限、单帧观测无历史记忆、推理频率低（原版约数 Hz），对灵巧、高速任务力不从心；这也是社区随后推出 OpenVLA-OFT（加并行解码与 L1 回归头）等改进版的动因。</p>
+<p>从学习方法论的角度，OpenVLA 论文中常被忽视但极有价值的一部分是其对<strong>微调协议</strong>的系统研究：全量微调与 LoRA 的取舍、量化对成功率的影响、多任务与单任务微调的差异。这些"工程细节"恰恰是从"读过 VLA"到"会做 VLA"之间最缺的知识，因为此后绝大多数学术工作（包括本报告建议的入门路径）都是从微调一个开源 VLA 开始的。OpenVLA 的第二个启示是<strong>组件选择大于架构创新</strong>：它没有提出任何新模块，DINOv2+SigLIP 的双编码器融合、Prismatic 架构、离散动作头全是现成部件——但把它们与 97 万条多样化数据的组合做对了，就胜过了参数大 7 倍的先行者。对资源有限的研究者，这是极具示范意义的科研策略。</p>
+<p><strong>一句话评价：</strong> 把 VLA 从 Google 的实验室搬到了所有人的 GPU 上，是生态学意义上的里程碑。评级：★★★★★（必读，且应动手微调一次）。</p>
+<h3 id="44-02024flow-matching">4.4 π0（2024）：flow matching 定义"基础策略"</h3>
+<p><strong>研究问题。</strong> 离散 token 路线的 VLA 在抓取-放置类任务上表现良好，但在<strong>灵巧、高频、接触丰富</strong>的任务（叠衣服、擦桌子、装盒子）上明显不足。问题：<strong>如何设计一个既继承互联网语义知识、又能输出 50Hz 连续灵巧动作的基础策略？</strong></p>
+<p><strong>关键洞察。</strong> 瓶颈不在语义而在动作接口。π0 的方案是<strong>在预训练 VLM 之上外挂一个 flow-matching 动作专家（action expert）</strong>：VLM 主干（继承自 PaliGemma 一脉的开源权重）负责看图与理解指令，动作专家是一个较小的 transformer，以 VLM 的隐状态为条件，用 flow matching 生成高频连续动作块。语义与运动控制由此解耦为两个尺度的子问题，各用最适合的表示。</p>
+<p><strong>技术方法。</strong> 如第 2.3 节所述，flow matching 训练网络预测从噪声到真实动作的流速场，推理时积分数步即可。π0 一次预测 50 步动作块（50Hz 下约 1 秒的运动），大幅摊薄了 VLM 前向推理的成本。训练数据横跨 <strong>7 种本体</strong>——单臂、双臂、移动操作臂——均为高灵巧度平台，辅以 web 视觉-语言数据保持语义能力。</p>
+<p><strong>实验结果。</strong> π0 在零样本（预训练后直接部署）、语言指令跟随（人给的指令以及高层 VLM 给出的指令）、以及微调学习新技能三个设定下系统评测，覆盖叠衣物、清理桌面、组装盒子等此前任何通用策略都无法可靠完成的任务，确立了"基础策略（foundation policy）"的新标杆。</p>
+<p><strong>批判性分析。</strong> 优点：动作头设计的分水岭——此后高质量 VLA 几乎都放弃了纯自回归 token 路线，转向 diffusion/flow 专家；跨本体训练与灵巧任务表现树立了 2025–2026 年工业界的标准范式。局限：模型与数据闭源（后由开源社区在 π0 基础上复现与微调，生态部分开放）；flow 头的多步积分仍有限制控制频率的上限；论文作为技术报告，消融与定量对比不如顶会论文系统。</p>
+<p>π0 的架构哲学值得与 OpenVLA 对照品味。OpenVLA 是"语言模型同化动作"——动作迁就语言的表示；π0 是"语言与动作各得其所"——VLM 输出语义条件，动作专家用生成模型处理连续性。这一分工暗合了第 2.1 节的时间尺度错位问题：语义表征可以低频更新，动作专家在其条件化下高频生成。π0 论文的另一个看点是其对<strong>数据配比的异质性处理</strong>：不同本体的动作维度不同，π0 通过动作空间的统一填充与归一化处理，让单臂与双臂数据在同一模型中互相增益——这类"脏活"细节是跨本体训练真正的工作难点，也是阅读技术报告时最应留意的部分。</p>
+<p><strong>一句话评价：</strong> 把 VLA 从"会抓放"推进到"会做家务"，flow-matching 动作专家由此成为新范式。评级：★★★★★（精读，与 OpenVLA 对照阅读收益最大）。</p>
+<h3 id="45-052025">4.5 π0.5（2025）：开放世界泛化的分水岭</h3>
+<p>在展开之前，先明确本篇在谱系中的坐标：若说 RT-2 证明了"web 知识能迁移到机器人"，π0 证明了"VLA 能做灵巧操作"，那么 π0.5 要证明的是三者的合取——<strong>在语义开放、环境新颖、任务长程三个维度同时成立的端到端系统</strong>。这是三个此前分别被部分验证、但从未同时满足的性质。</p>
+<p><strong>研究问题。</strong> π0 虽强，但其部署环境仍接近实验室分布。真正的考验是：<strong>VLA 能否进入从未见过的真实家庭，完成"把厨房收拾干净"这样开放、长程的任务？</strong> 这是 VLA 从演示走向实用的关键一跃。</p>
+<p><strong>关键洞察。</strong> 泛化的来源不是更大的模型，而是<strong>异构 co-training</strong>：知识分散在不同形式的数据中——多机器人轨迹提供运动技能、web 数据提供语义、高层语义预测任务（预测下一步该做什么子任务、检测物体在哪）提供长程推理支架。把这些数据以"混合多模态样本"（图像观测 + 语言指令 + 物体检测 + 语义子任务预测 + 低层动作的组合）统一训练，模型可以在任务的不同抽象层之间互相迁移。</p>
+<p><strong>技术方法。</strong> π0.5 沿用 π0 的 VLM + flow 动作专家架构，但训练数据大幅异构化：多种机器人本体、web 视觉-语言数据、以及关键的高层语义预测目标。系统以层级方式运行——模型先预测语义子任务（"接下来应该把碗放进水槽"），再以该子任务为条件生成低层动作，实现"边想边做"。</p>
+<p><strong>实验结果。</strong> 论文首次展示：<strong>一个端到端学习的机器人系统在完全陌生的真实家庭中完成长程灵巧任务</strong>——清洁厨房、整理卧室，涉及多步推理、多样物体、长时程闭环。消融表明异构 co-training 是泛化的必要因素，去掉 web 数据或语义预测目标，新环境表现显著退化。</p>
+<p><strong>批判性分析。</strong> 优点：把 VLA 评测从"实验室桌面"推进到"陌生家庭"，实验设定本身就是对领域标准的重塑；层级化语义推理为长程任务提供了可复用的配方（与 Hi Robot 的层级 VLA 思路呼应）。局限：仍是特定公司数据闭环的产物，成功率与失败模式的完整统计未以标准化基准形式公开；长程任务依赖遥操作数据中的"程序性知识"，对真正需要物理试错学习的场景（如插拔紧配合零件）尚无答案。</p>
+<p>π0.5 与 π0 连读，能读出一条清晰的科学假设演进：π0 回答"如何让动作足够灵巧"，π0.5 回答"如何让语义足够开放"，而两者合起来暗示了第三个问题——<strong>灵巧与开放在分布外同时成立吗</strong>？在陌生家庭中遇到训练集中从未出现过的物体类别（而非只是已知类别的新实例）时，抓取是否仍可靠？论文的演示令人印象深刻，但作为批判性读者应注意：演示视频是存在性证明（existence proof），不是性能刻画——真正等待社区完成的，是把"开放世界"操作化为可复现的评测协议。这也是本报告第 7 节将"泛化的压力测试"列为首要开放问题的原因。</p>
+<p><strong>一句话评价：</strong> 2025 年最具说服力的 VLA 证据——泛化来自异构数据而非模型规模。评级：★★★★★（精读，与 π0 连读）。</p>
+<h2 id="5-20252026">5. 研究前沿（2025–2026）</h2>
+<h3 id="51">5.1 全栈开源的人形机器人基础模型</h3>
+<p><strong>GR00T N1 → N1.5 → N2（NVIDIA）</strong> 代表硬件厂商切入 VLA 的路线。GR00T N1 采用<strong>双系统架构</strong>，直接呼应认知科学的"系统 1 / 系统 2"隐喻：VLM 模块作为"系统 2"以较低频率解读视觉与语言指令、进行推理；其后的 diffusion transformer 作为"系统 1"实时生成流畅的高频电机动作；两模块紧耦合并端到端联合训练。训练数据是真实机器人轨迹、人类视频与合成生成数据的异构混合。其生态意义大于单一技术贡献：模型权重、仿真环境（Isaac Lab）、评测与部署栈（Jetson Thor）全部开源，对人形机器人社区的效应类似 LLaMA 对开源 LLM 的效应——2025 年 GTC 发布 N1，随后的 N1.5 与 N2 持续迭代，已成为人形机器人研究的事实基座之一。</p>
+<p>从学习视角看 GR00T N1 的训练数据策略同样具有范式意义：真实机器人轨迹提供精确动作、人类视频提供任务多样性、合成数据提供规模——三类数据各补短板。这一"三源混合"配方与 π0.5 的异构 co-training 英雄所见略同，说明数据工程已成为 VLA 竞争的主战场，架构创新反而趋于收敛。</p>
+<p><strong>Gemini Robotics / Gemini Robotics-ER（Google DeepMind，2025-03）</strong> 则代表另一条路线：把最强的通用多模态模型（Gemini 2.0）直接延伸为 VLA 与具身推理（embodied reasoning）模型，强调灵巧性与跨本体快速适配——少量示范即可迁移到 ALOHA 双臂平台与 Apptronik 人形机器人。这条"通用模型下沉到机器人"与 OpenVLA 的"机器人数据上探到 VLM"形成有趣的对照。</p>
+<p>两条路线对照之下，2025–2026 年的格局逐渐清晰：<strong>机器人公司向上做模型</strong>（Physical Intelligence、Figure 等从控制走向语义），<strong>模型公司向下做机器人</strong>（Google DeepMind、NVIDIA 从语义走向控制）。前者的护城河是数据闭环与硬件 know-how，后者的护城河是基座模型能力；竞争焦点在于谁的短板补得更快。对学术界而言，这一格局的含义是双面的：开源基座（OpenVLA、GR00T）的存在保证了可参与性，但前沿标杆的实验规模正在向工业界倾斜。</p>
+<h3 id="52">5.2 层级化与"边想边做"</h3>
+<p>π0.5 的语义子任务预测并非孤例。<strong>Hi Robot</strong> 显式构建了高低层分离的 VLA：高层 VLM 把开放式指令（"帮我收拾桌子"）逐步拆解为低层 VLA 可执行的原子指令（"把杯子移到左边"），并能在执行中根据环境反馈动态修正计划。这条路线实质上是 SayCan 分层思想在 VLA 时代的复兴——区别在于低层技能从人工设计的策略库换成了端到端 VLA，高层规划者也从纯文本 LLM 换成了能看图的 VLM。层级化的核心动机是<strong>时程解耦</strong>：语义规划以秒为单位、运动控制以 10–50Hz 运行，强行让单一网络同时承担两个时间尺度会造成能力互相拖累。</p>
+<p>层级化还有一个常被低估的工程收益：<strong>可调试性</strong>。端到端系统失败时，归因于感知、推理还是控制几乎不可能；层级系统中，高层输出的文本计划是可读的中间表征，失败可以定位到层。随着 VLA 走向真实部署，可调试性与可审计性的价值将愈发凸显——这是纯性能数字之外的选型维度。</p>
+<h3 id="53-latent-action">5.3 数据扩展：latent action 与视频预训练</h3>
+<p>机器人数据的根本瓶颈是"动作标签"——互联网上有海量人类操作视频，但没有对应的机器人动作标注。<strong>UniVLA</strong> 提出的解法是 task-centric latent action：从无动作标注的视频中以自监督方式学出离散的隐动作空间，把视频当作"动作被隐变量化"的轨迹来预训练 VLA，再在少量真实机器人数据上把隐动作解码为具体本体的动作。这条路线把 VLA 的数据源从"机器人遥操作"扩展到"一切操作视频"，与 Genie 的 latent action 思想一脉相承。同时，"人形机器人数据工厂"（大规模遥操作采集中心）在 2025–2026 年成为产业热点，Mobile ALOHA 式的低成本遥操作平台则让学术实验室也能参与数据生产。</p>
+<p>从更宏观的视角看，VLA 的数据战略正在分化为"深度"与"广度"两派：深度派（Physical Intelligence、Figure 等）集中采集单一或少数本体的高质量、任务密集的数据，赌的是数据质量与任务覆盖胜过本体多样性；广度派（Open X-Embodiment 联盟、GR00T 的异构混合）赌的是跨本体、跨来源的正迁移。π0.5 的结果某种程度上同时支持两派——它既有自家的高质量遥操作，又大规模吸收异构数据。对学术界，广度派的可及性显然更高，这也是 UniVLA 类视频预训练工作值得特别关注的原因：它把数据问题从"拥有多少机器人"转化为"设计多好的隐动作学习器"，后者是一个纯粹的算法问题。</p>
+<h3 id="54">5.4 世界模型：从训练场到评估器</h3>
+<p>世界模型路线在 2024–2025 年显著加速。<strong>Genie</strong>（11B 参数）首次证明可以从无标注互联网视频以完全无监督方式学出可交互环境：模型包含时空视频 tokenizer、自回归动力学模型与 latent action 模型，用户可以在生成环境中逐帧行动，学到的 latent action 空间还能用于训练模仿未见视频行为的 agent。<strong>GAIA-1</strong> 在自动驾驶领域验证了视频+文本+动作多模态条件的可控生成对数据闭环的价值。<strong>Genie 3</strong>（DeepMind，2025-08 以产品形式发布）把这一路线推到实时：24fps、720p 的可交互生成，物理一致性与分钟级记忆大幅改进。对机器人学而言，世界模型的前景是双重的：既作为策略的<strong>训练场</strong>（在想象中试错，零真实成本），也作为<strong>评估器</strong>（用生成模型预测动作后果，替代昂贵的真机评测）。</p>
+<p>值得单独指出的是世界模型与 VLA 之间的"共生关系"正在从设想变为工具链：VLA 的策略为世界模型提供动作条件的意义（动作必须能改变生成的世界），世界模型为 VLA 提供试错空间。但批判性地看，生成式世界模型目前擅长的是视觉层面的合理延续，而机器人操作的关键恰恰在接触力学的局部细节——一个抓握是否滑动，取决于毫米级的接触几何，这恰是视频生成模型最不可靠的部分。"世界模型何时能作为可靠的物理模拟器"仍是开放问题，2025–2026 年社区对此的态度是谨慎乐观。</p>
+<h3 id="55-rl-post-training">5.5 RL post-training 与高效推理</h3>
+<p>2025 年起，LLM 领域验证的强化学习后训练（GRPO/RLVR 一脉）开始系统迁移到 VLA：在行为克隆预训练的策略上用仿真或真机反馈做 RL 微调，修补 BC 的协变量偏移与长尾失败模式。社区已出现用 RL bootstrap 方式把 π0 系策略适配新本体的工作。与此同时，VLA 的<strong>推理效率</strong>成为独立子领域：action token 压缩、轻量化动作头、少步扩散蒸馏、边缘部署与实时控制频率之间的权衡被两篇 2025 年的效率综述系统梳理——其背景是 VLA 要部署在机器人机载算力上，而 7B 模型的单次前向在消费级边缘芯片上往往已占据控制周期的预算上限。</p>
+<h3 id="56">5.6 安全与评测生态的成熟</h3>
+<p>物理世界的失效代价使 VLA 安全成为独立议题：BadRobot 等工作系统研究了具身模型的越狱攻击与物理安全边界，接触丰富任务的安全学习也有专门综述。评测方面，<strong>RoboChallenge</strong> 以大规模真机评测补充仿真基准；OpenVLA 可解释性研究则开始分析 VLA 内部是否涌现了世界表征——这既是科学问题，也是安全审计的前提。</p>
+<p>最后，一个容易被能力叙事掩盖的事实是：<strong>VLA 的可靠性数字距离部署门槛仍有数量级差距</strong>。实验室中 80–90% 的单任务成功率听着可观，但串联成 10 步任务链后期望成功率跌至 40% 以下，而真实服务场景要求的往往是 99% 以上的单步可靠性。2025–2026 年对效率、安全与评测的关注升温，本质上都是这一差距倒逼的产物——领域正在从"证明可行"转向"证明可靠"，这一转向决定了未来几年研究品味（taste）的走向。</p>
+<p>在深入各子方向之前，先给一个鸟瞰：2025–2026 年的前沿不再是单一突破的竞逐，而是五条战线的并行推进——全栈开源（GR00T）、层级化（Hi Robot）、数据解锁（UniVLA）、世界模型（Genie 3）、以及从"可行"到"可靠"的工程化（效率、安全、评测）。每条战线都对应第 7 节的一个开放问题，前沿与未解之谜在这里直接对接。</p>
+<h3 id="57">5.7 小结：前沿的收敛信号</h3>
+<p>纵观 2025–2026 年的前沿动态，可以识别出几个收敛信号：其一，<strong>架构收敛</strong>——"VLM 主干 + 扩散/flow 动作专家 + 动作块"成为事实标准，分歧只剩细节；其二，<strong>数据配方收敛</strong>——异构混合（机器人 + web + 视频 + 合成）被各阵营独立验证；其三，<strong>评测收敛</strong>——LIBERO/SimplerEnv/CALVIN 构成仿真标配，真机评测向标准化努力（RoboChallenge）。收敛意味着领域正在从"百家争鸣"进入"工程深化"阶段，此时入场的新研究者更应关注第 8 节列出的"收敛之外的缝隙"。</p>
+<h2 id="6">6. 技术路线对比与权衡</h2>
+<h3 id="61">6.1 动作表示：三条路线的系统对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>离散动作 token（RT-1/RT-2/OpenVLA）</th>
+<th>扩散动作头（Diffusion Policy/DexVLA/GR00T）</th>
+<th>Flow matching（π0/π0.5）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>动作精度</td>
+<td>受量化 bin 数限制</td>
+<td>连续，高精度</td>
+<td>连续，高精度</td>
+</tr>
+<tr>
+<td>多峰分布表达</td>
+<td>弱（自回归可部分表达）</td>
+<td>强</td>
+<td>强</td>
+</tr>
+<tr>
+<td>推理速度</td>
+<td>逐 token 解码，慢</td>
+<td>多步去噪，中-慢</td>
+<td>少步积分，中</td>
+</tr>
+<tr>
+<td>与 LLM 基础设施兼容</td>
+<td>完美复用</td>
+<td>需外挂头</td>
+<td>需外挂头</td>
+</tr>
+<tr>
+<td>高频灵巧任务</td>
+<td>困难</td>
+<td>可行</td>
+<td>优秀</td>
+</tr>
+<tr>
+<td>代表局限</td>
+<td>精度与速度双瓶颈</td>
+<td>推理延迟</td>
+<td>生态较新</td>
+</tr>
+</tbody>
+</table>
+<p>实践结论：2024 年后，新工作几乎不再为高性能系统选择纯自回归 token 路线；但 token 路线在<strong>复用 VLM 预训练与协同微调</strong>上仍最简洁，故 OpenVLA 类基座仍广泛用作微调起点。</p>
+<h3 id="62-vs">6.2 系统组织：端到端 vs. 层级式</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>端到端 VLA（OpenVLA、π0）</th>
+<th>层级式（SayCan、Hi Robot、π0.5 的语义层）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>时程覆盖</td>
+<td>短-中程（秒级）</td>
+<td>长程（分钟级任务）</td>
+</tr>
+<tr>
+<td>可解释性</td>
+<td>差</td>
+<td>高层计划可读</td>
+</tr>
+<tr>
+<td>错误恢复</td>
+<td>依赖闭环鲁棒性</td>
+<td>高层可重规划</td>
+</tr>
+<tr>
+<td>训练复杂度</td>
+<td>单一目标</td>
+<td>多层目标对齐难</td>
+</tr>
+<tr>
+<td>适用任务</td>
+<td>单技能、短链条</td>
+<td>多步骤、开放指令</td>
+</tr>
+</tbody>
+</table>
+<p>趋势是合流：端到端模型内部长出隐式层级（π0.5 的语义子任务预测即"内化的高层"），层级系统的低层则被端到端 VLA 取代。</p>
+<p>一个务实的判断是：对学术实验室，层级式系统的<strong>组件化</strong>特征使其更容易拆解成可发表的子问题（高层规划器的提示与反馈机制、层间接口的表示、失败时的高层干预），而端到端系统的改进往往需要全栈实验。这也是 Hi Robot 类工作对入门者格外有参考价值的原因——它展示了一条"用现成开源 VLA 作为低层、把创新集中在上层"的高性价比研究路线。</p>
+<h3 id="63">6.3 数据来源：五种数据的权衡</h3>
+<p>真实遥操作数据质量最高但最贵（Mobile ALOHA 把硬件成本降到 ~$32k 量级已是重大突破）；跨本体联盟数据（Open X-Embodiment：22 种本体、100 万+ episode、21 家机构）解决多样性但引入 action space 对齐难题，其实验表明跨本体存在<strong>正迁移</strong>——RT-X 模型借助其他平台的经验提升了多个机器人的能力；仿真数据便宜但有 reality gap（SimplerEnv 证明精心复刻真实场景的仿真可以与真机评测高度相关）；人类操作视频近乎无限但无动作标签（latent action 路线正在解锁）；web 视觉-语言数据提供语义但不提供运动技能（π0.5 证明其对新环境泛化不可或缺）。当前共识配方是<strong>异构混合</strong>，各数据源之间的配比与课程设计是各家的核心 know-how。</p>
+<p>一个贯穿三种对比的主线值得提炼：<strong>VLA 的每一次重大进步，本质上都是某个接口的重新设计</strong>——RT-2 重设计了动作与语言的接口，Open X-Embodiment 重设计了数据与本体的接口，π0 重设计了语义与控制的接口，π0.5 重设计了任务层级内部的接口。接口设计的共同原则是"让每一侧用最适合的表示工作，让接口承担翻译成本"。这一原则对评估未来新工作的价值是一个很好的启发式：问自己它重新设计了哪个接口、翻译成本由谁承担。</p>
+<h3 id="64">6.4 评测体系：三个基准的分工</h3>
+<table>
+<thead>
+<tr>
+<th>基准</th>
+<th>类型</th>
+<th>评测重点</th>
+<th>在生态中的角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CALVIN</td>
+<td>仿真（桌面臂）</td>
+<td>长程语言条件任务链、多环境泛化</td>
+<td>长程操控的标准考场</td>
+</tr>
+<tr>
+<td>LIBERO</td>
+<td>仿真（130 任务四套件）</td>
+<td>空间/物体/任务/目标四类知识迁移、终身学习</td>
+<td>VLA 微调评测事实标准</td>
+</tr>
+<tr>
+<td>SimplerEnv</td>
+<td>仿真（复刻真实场景）</td>
+<td>与真机排名的相关性</td>
+<td>真机评测的廉价代理</td>
+</tr>
+</tbody>
+</table>
+<p>LIBERO 的原始实验还给出过耐人寻味的发现：朴素监督预训练有时会<strong>损害</strong>后续终身学习表现，顺序微调在前向迁移上反而优于专门的终身学习算法——提醒我们"更多预训练"并非无条件有益。</p>
+<p>三个基准的局限同样需要清醒认识。CALVIN 的桌面环境视觉复杂度远低于真实世界，高 CALVIN 分数不保证真机能力；LIBERO 的 130 个任务共享同一物理引擎与物体集合，测的是"分布内组合泛化"而非开放世界；SimplerEnv 目前仅覆盖少数机器人设置（如 Google Robot 与 WidowX 的桌面操作），其相关性结论未必外推到灵巧手或移动操作。一个负责任的 VLA 论文应当同时报告多基准结果并对仿真-真实外推保持克制——遗憾的是，这在当前社区实践中仍属少数。</p>
+<h2 id="7">7. 开放问题与未来方向</h2>
+<p><strong>1. 泛化的真实边界。</strong> π0.5 展示了陌生家庭中的整理任务，但"开放世界泛化"仍缺乏严格的定量刻画：多少物体类别、多少空间布局、多少任务程序之外，系统就会崩溃？失败是感知性、推理性还是运动性的？领域缺少类似 ImageNet 之于视觉的"压力测试"协议。</p>
+<p>更尖锐的表述是：当前所有"开放世界"演示都发生在<strong>物品级别已知、实例级别新颖</strong>的设定中。真正的开放世界包含未知类别的物体（一个造型奇特的厨房小工具）、对抗性的物理属性（表面光滑得反常的杯子）、以及社会性上下文（"别吵醒睡觉的人"）。这三层泛化目前没有任何基准覆盖，也没有证据表明现有 co-training 配方能覆盖。</p>
+<p><strong>2. 动作的 grounding 鸿沟。</strong> 离散 token 牺牲精度，连续生成牺牲与语言基础设施的兼容；能否找到既保持连续精度、又深度复用 LLM 生成机制的表示（如连续 token、混合专家解码）仍开放。</p>
+<p><strong>3. 数据的 scaling law。</strong> LLM 有清晰的 scaling law，机器人数据是否存在类似规律？Open X-Embodiment 显示正迁移，但跨本体混合何时从正迁移转为负干扰、最优配比如何随本体数量变化，几乎无系统研究。</p>
+<p><strong>4. 从模仿到试错。</strong> 当前 VLA 本质是行为克隆，不会从失败中学习。RL post-training 刚起步，真实世界 RL 的样本效率、安全探索与奖励定义三大经典难题在 VLA 尺度上全部重新打开。</p>
+<p><strong>5. 世界模型与策略的闭环。</strong> Genie 类世界模型能否真正替代真实交互训练策略？生成环境的物理保真度误差是否会像 reality gap 一样累积？世界模型作为评测器的校准问题同样未解。</p>
+<p><strong>6. 记忆与时程。</strong> 多数 VLA 只看单帧或短窗口观测，长程任务依赖外部层级化。如何让策略拥有可扩展的工作记忆（而不只是更大的上下文），是架构层面的空白。</p>
+<p><strong>7. 评测的'度量危机'。</strong> 成功率（success rate）是当前几乎唯一的指标，但它丢失了过程信息：一次"成功但碰倒三个物体"的操作与一次干净利落的成功被记为同分；长程任务的部分进展（完成了 4 个子任务中的 3 个）在二元成功率下无法区分。CALVIN 的平均任务链长度是少数例外。设计能反映操作质量、鲁棒性与效率的过程性指标，是评测方法学的下一个台阶。</p>
+<p><strong>8. 安全与失效兜底。</strong> 物理失效不可撤销，而 VLA 的失效模式（语义误解、分布外动作）比传统控制器更不可预测。运行时监护、可中断性与不确定性量化的研究远落后于能力研究。</p>
+<h2 id="8">8. 研究机会点评（给入门研究者的建议）</h2>
+<p>先校准一下"入门者"的现实约束：一张到几张消费级 GPU、无真机或最多一台低成本臂、六个月到一年的课题周期。以下建议均在此约束下筛选。</p>
+<p><strong>算力门槛适中、问题清晰的方向：</strong></p>
+<ul>
+<li><strong>评测与基准方法论。</strong> SimplerEnv 证明了"把评测方法论做扎实"本身可以成为高影响力工作。仿真-真实相关性、失败模式分类学、长程任务的过程性指标，都是一张 GPU 加一台仿真服务器就能做的事，且社区需求迫切。</li>
+<li><strong>VLA 的高效推理。</strong> 动作 token 压缩、少步扩散/flow 蒸馏、推测解码用于动作块——技术上有 LLM 推理加速的成熟工具箱可迁移，问题定义清晰，实验周期短，适合出顶会论文。</li>
+<li><strong>latent action 与视频预训练。</strong> UniVLA 开了头，但 latent action 的粒度、与语言的接地、跨本体解码都有大量空白。数据用公开操作视频即可起步。</li>
+<li><strong>RL post-training for VLA。</strong> 在 OpenVLA/π0 开源基座上用仿真反馈做 RL 微调，方法学（奖励设计、离线-在线混合）空间大，是 2026 年明确的热点。</li>
+<li><strong>可解释性与安全审计。</strong> VLA 内部是否涌现世界模型、注意力与动作选择的因果分析、越狱与对抗扰动——几乎空白且准入门槛低。</li>
+</ul>
+<p><strong>需要坦诚说明的"巨头游戏"：</strong></p>
+<ul>
+<li>从零训练 7B+ 规模的 VLA 基座、大规模真机数据采集（百万 episode 级）、人形机器人全栈——这些本质上需要数十台机器人、整队遥操作员与千卡级算力，个人与小实验室不宜正面竞争，但可以通过<strong>在开源基座上研究科学问题</strong>（数据配比消融、迁移规律、失败分析）参与核心议题。</li>
+<li>低成本遥操作硬件（Mobile ALOHA 路线）是个人实验室撬动真实数据的可行杠杆，但应有心理准备：硬件维护与数据采集本身会占据大量研究时间。</li>
+</ul>
+<p><strong>关于选题的三个判断力标准。</strong> 第一，<strong>问题是否在小规模上可证伪</strong>——好的入门课题应能在 LIBERO 或单台机器人上数月内给出明确答案，而非依赖"规模上去再看"。第二，<strong>是否与巨头路线错位</strong>——与其在"更大的基座"上内卷，不如研究基座之上的科学问题（为什么这样配比有效？失败模式是什么结构？），这类问题的答案不随规模过时。第三，<strong>是否能产出公共品</strong>——数据集、评测工具、复现基线、失败案例库，这类工作在 VLA 这类工程密集型领域获得的引用与社区声望往往超过又一个渐进式方法。</p>
+<p><strong>一条现实的入门路径：</strong> 复现 Diffusion Policy 理解动作生成 → 在 LIBERO 上微调 OpenVLA 理解 VLA 管线 → 用 SimplerEnv 做一次系统的评测方法研究 → 选定一个切口（效率/RL/解释性）深入。</p>
+<h2 id="9">9. 术语表</h2>
+<ul>
+<li><strong>VLA（Vision-Language-Action Model）</strong>：端到端将视觉观测与语言指令映射为机器人动作的模型，RT-2 确立此概念。</li>
+<li><strong>Embodiment（本体）</strong>：机器人的具体物理形态（单臂、双臂、人形等），跨本体迁移是 VLA 的核心挑战。</li>
+<li><strong>Behavior Cloning（行为克隆）</strong>：用监督学习从专家轨迹学策略的模仿学习范式，VLA 的主训练方法。</li>
+<li><strong>Action Tokenization（动作 token 化）</strong>：把连续动作量化为离散 token，使动作预测可复用语言模型的自回归生成。</li>
+<li><strong>Action Chunk（动作块）</strong>：一次预测多步动作序列、部分开环执行，摊薄推理延迟并保证运动连贯。</li>
+<li><strong>Diffusion/Flow Matching Action Head</strong>：以条件扩散或流匹配生成连续动作的模块，替代离散 token，支持多峰分布与高频控制。</li>
+<li><strong>Co-training / Co-fine-tuning（协同微调）</strong>：机器人数据与 web 视觉-语言数据混合训练，防止语义遗忘并促进知识迁移。</li>
+<li><strong>Affordance（可供性）</strong>：环境或物体为特定动作提供的可能性；SayCan 用其价值函数为 LLM 规划接地。</li>
+<li><strong>Teleoperation（遥操作）</strong>：人类远程操控机器人采集示范数据，是真实机器人数据的主要来源。</li>
+<li><strong>Open X-Embodiment</strong>：跨 21 家机构、22 种本体、百万级 episode 的开放机器人数据集联盟。</li>
+<li><strong>Cross-Embodiment Transfer（跨本体迁移）</strong>：在一个机器人上学到的策略/知识迁移到不同形态的机器人。</li>
+<li><strong>Latent Action（隐动作）</strong>：从无标注视频中自监督学出的隐变量动作空间，用于解锁视频数据的预训练价值。</li>
+<li><strong>World Model（世界模型）</strong>：学习环境动态的可交互生成模型，可作为策略训练场与评估器。</li>
+<li><strong>Sim2Real</strong>：仿真训练迁移到真实机器人；核心障碍是 reality gap。</li>
+<li><strong>Covariate Shift（协变量偏移）</strong>：行为克隆中训练分布（专家）与测试分布（策略自身）不匹配导致的误差累积。</li>
+<li><strong>Proprioception（本体感受）</strong>：机器人关于自身关节、末端状态的感知输入。</li>
+<li><strong>Hierarchical VLA（层级化 VLA）</strong>：高层 VLM 做语义子任务规划、低层 VLA 做运动控制的系统组织方式。</li>
+</ul>
+<h2 id="10">10. 参考文献</h2>
+<p>[1] ALFWorld: Aligning Text and Embodied Environments for Interactive Learning, Shridhar et al., 2020, arXiv:2010.03768, https://arxiv.org/abs/2010.03768</p>
+<p>[2] CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks, Mees et al., 2021, arXiv:2112.03227, https://arxiv.org/abs/2112.03227</p>
+<p>[3] Do As I Can, Not As I Say: Grounding Language in Robotic Affordances (SayCan), Ahn et al., Google, 2022, arXiv:2204.01691, https://arxiv.org/abs/2204.01691</p>
+<p>[4] Inner Monologue: Embodied Reasoning through Planning with Language Models, Huang et al., Google, 2022, arXiv:2207.05608, https://arxiv.org/abs/2207.05608</p>
+<p>[5] Code as Policies: Language Model Programs for Embodied Control, Liang et al., Google, 2022, arXiv:2209.07753, https://arxiv.org/abs/2209.07753</p>
+<p>[6] RT-1: Robotics Transformer for Real-World Control at Scale, Brohan et al., Google, 2022, arXiv:2212.06817, https://arxiv.org/abs/2212.06817</p>
+<p>[7] PaLM-E: An Embodied Multimodal Language Model, Driess et al., Google, 2023, arXiv:2303.03378, https://arxiv.org/abs/2303.03378</p>
+<p>[8] Diffusion Policy: Visuomotor Policy Learning via Action Diffusion, Chi et al., Columbia/TRI, 2023, arXiv:2303.04137, https://arxiv.org/abs/2303.04137</p>
+<p>[9] RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control, Brohan et al., Google DeepMind, 2023, arXiv:2307.15818, https://arxiv.org/abs/2307.15818</p>
+<p>[10] VoxPoser: Composable 3D Value Maps for Robotic Manipulation with Language Models, Huang et al., 2023, arXiv:2307.05973, https://arxiv.org/abs/2307.05973</p>
+<p>[11] Open X-Embodiment: Robotic Learning Datasets and RT-X Models, O'Neill et al., 多机构联盟, 2023, arXiv:2310.08864, https://arxiv.org/abs/2310.08864</p>
+<p>[12] RoboFlamingo: Vision-Language-Action Model, Li et al., 2023, arXiv:2311.01378, https://arxiv.org/abs/2311.01378</p>
+<p>[13] Language to Rewards for Robotic Skill Synthesis, Yu et al., Google DeepMind, 2023, arXiv:2306.08647, https://arxiv.org/abs/2306.08647</p>
+<p>[14] LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning, Liu et al., 2023, arXiv:2306.03310, https://arxiv.org/abs/2306.03310</p>
+<p>[15] Octo: An Open-Source Generalist Robot Policy, Octo Model Team, 2024, arXiv:2405.12213, https://arxiv.org/abs/2405.12213</p>
+<p>[16] SimplerEnv: Evaluating Real-World Robot Manipulation Policies in Simulation, Li et al., 2024, arXiv:2405.05941, https://arxiv.org/abs/2405.05941</p>
+<p>[17] OpenVLA: An Open-Source Vision-Language-Action Model, Kim et al., Stanford 等, 2024, arXiv:2406.09246, https://arxiv.org/abs/2406.09246</p>
+<p>[18] Genie: Generative Interactive Environments, Bruce et al., Google DeepMind, 2024, arXiv:2402.15391, https://arxiv.org/abs/2402.15391</p>
+<p>[19] GAIA-1: A Generative World Model for Autonomous Driving, Hu et al., Wayve, 2023, arXiv:2309.17080, https://arxiv.org/abs/2309.17080</p>
+<p>[20] Mobile ALOHA: Learning Bimanual Mobile Manipulation with Low-Cost Whole-Body Teleoperation, Fu et al., Stanford, 2024, arXiv:2401.02117, https://arxiv.org/abs/2401.02117</p>
+<p>[21] π0: A Vision-Language-Action Flow Model for General Robot Control, Black et al., Physical Intelligence, 2024, arXiv:2410.24164, https://arxiv.org/abs/2410.24164</p>
+<p>[22] TraceVLA: Visual Trace Prompting Enhances Spatial-Temporal Awareness, Zheng et al., 2024, arXiv:2412.10345, https://arxiv.org/abs/2412.10345</p>
+<p>[23] GR00T N1: An Open Foundation Model for Generalist Humanoid Robots, NVIDIA, 2025, arXiv:2503.14734, https://arxiv.org/abs/2503.14734</p>
+<p>[24] DexVLA: Vision-Language Model with Plug-In Diffusion Expert, 2025, arXiv:2502.05855, https://arxiv.org/abs/2502.05855</p>
+<p>[25] Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models, Shi et al., Physical Intelligence, 2025, arXiv:2502.19417, https://arxiv.org/abs/2502.19417</p>
+<p>[26] π0.5: A Vision-Language-Action Model with Open-World Generalization, Physical Intelligence, 2025, arXiv:2504.16054, https://arxiv.org/abs/2504.16054</p>
+<p>[27] UniVLA: Learning to Act Anywhere with Task-centric Latent Actions, 2025, arXiv:2505.06111, https://arxiv.org/abs/2505.06111</p>
+<p>[28] A Survey on Vision-Language-Action Models for Embodied AI, 2024, arXiv:2405.14093, https://arxiv.org/abs/2405.14093</p>
+<p>[29] Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI, 2024, arXiv:2407.06886, https://arxiv.org/abs/2407.06886</p>
+<p>[30] A Survey on Efficient Vision-Language-Action Models, 2025, arXiv:2510.24795, https://arxiv.org/abs/2510.24795</p>
+<p>[31] Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review, 2025, arXiv:2505.20503, https://arxiv.org/abs/2505.20503</p>
+<p>[32] Genie 3, Google DeepMind, 2025 [官方发布/产品页面，无 arXiv]</p>
+<p>[33] Gemini Robotics / Gemini Robotics-ER, Google DeepMind, 2025 [官方发布/技术报告，无 arXiv]</p>
+</article>
+<footer class="footer"><span>多模态图谱 · 由 Codex + sub-agent swarm 于 2026-09 调研撰写</span><a href="#top">回到顶部 ↑</a></footer>
+</main>
+</div>
+<div class="reading-bar" id="reading-bar"></div>
+<script src="../../js/site.js"></script>
+</body>
+</html>

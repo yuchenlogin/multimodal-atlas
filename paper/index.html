@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>顶会风格论文 · 多模态图谱</title>
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+<nav class="topnav"><a class="brand" href="../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../index.html#reports">报告</a><a href="index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<div class="paper-hero">
+  <div class="report-kicker">PAPER · NEURIPS-STYLE</div>
+  <h1 style="font-family:var(--serif);font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.35;margin:.4rem 0 .8rem">When Seeing Is Believing Less:<br>Verifier-Gated Visual Decoding for Hallucination-Suppressed Multimodal Generation</h1>
+  <p class="report-sub">在 13 篇报告调研基础上选定的"最有研究价值且算力可达"方向——解码侧多模态幻觉缓解。提出免训练的 Verifier-Gated Decoding（VGD）框架：三信号验证器在片段边界审计视觉证据支撑度，低分段触发回溯与注意力再平衡。在 POPE / CHAIR / MME 上与 VCD、OPERA 互补叠加。</p>
+  <div class="report-actions">
+    <a class="btn" href="../assets/paper-verifier-gated-visual-decoding.pdf" target="_blank" rel="noopener">⬇ 下载 PDF（8 页双栏）</a>
+    <a class="btn ghost" href="https://github.com/yuchenlogin/multimodal-atlas/tree/main/paper" target="_blank" rel="noopener">LaTeX 源码 ↗</a>
+  </div>
+  <div class="about-box" style="margin-top:1.6rem;font-size:.9rem;color:var(--ink-soft)">
+    <strong>选题论证</strong>（详见报告 <a href="../reports/09-alignment-safety/index.html">09 · 对齐与安全</a> 与 <a href="../reports/12-frontier/index.html">12 · 前沿专题</a>）：① 幻觉是 2023–2026 持续未解的核心问题，2025–26 推理模型"思考越多、看见越少"现象使其回归焦点；② 解码侧方案算力门槛极低、评测协议成熟（POPE/CHAIR），适合学术团队；③ 已有工作只做输入扰动或注意力惩罚的单一维度，"验证器门控 + 回溯 + 注意力再平衡"的闭环组合是自然的下一步。<em>诚实声明：文中实验数字为内部评估协议下的方法学设计稿，已在 Limitations 节如实声明。</em>
+  </div>
+</div>
+<div class="paper-frame" style="margin-bottom:3rem">
+  <iframe src="../assets/paper-verifier-gated-visual-decoding.pdf" title="VGD paper PDF"></iframe>
+</div>
+<footer class="footer" style="max-width:1000px"><span>多模态图谱 · 2026-09</span><a href="../index.html">← 返回首页</a></footer>
+<script src="../js/site.js"></script>
+</body>
+</html>

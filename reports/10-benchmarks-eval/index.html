@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>度量智能：评测基准与评估方法 · 多模态图谱</title>
+<link rel="stylesheet" href="../../css/site.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="report-body">
+<nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<div class="layout">
+<aside class="sidenav" id="sidenav">
+<div class="sidenav-title">系列报告</div>
+<a class="sidenav-link" href="../00-foundations/index.html"><span class="sidenav-icon">🏛️</span><span>foundations · 基础架构</span></a>
+<a class="sidenav-link" href="../01-vision-language/index.html"><span class="sidenav-icon">👁️</span><span>vision-language · 视觉-语言</span></a>
+<a class="sidenav-link" href="../02-audio-speech/index.html"><span class="sidenav-icon">🎧</span><span>audio-speech · 音频语音</span></a>
+<a class="sidenav-link" href="../03-video/index.html"><span class="sidenav-icon">🎬</span><span>video · 视频理解</span></a>
+<a class="sidenav-link" href="../04-omni/index.html"><span class="sidenav-icon">🌐</span><span>omni · 全模态</span></a>
+<a class="sidenav-link" href="../05-generation/index.html"><span class="sidenav-icon">🎨</span><span>generation · 多模态生成</span></a>
+<a class="sidenav-link" href="../06-embodied/index.html"><span class="sidenav-icon">🤖</span><span>embodied · 具身智能</span></a>
+<a class="sidenav-link" href="../07-agent-tooluse/index.html"><span class="sidenav-icon">🧭</span><span>agent-tooluse · 多模态 Agent</span></a>
+<a class="sidenav-link" href="../08-efficiency/index.html"><span class="sidenav-icon">⚡</span><span>efficiency · 高效化</span></a>
+<a class="sidenav-link" href="../09-alignment-safety/index.html"><span class="sidenav-icon">🛡️</span><span>alignment-safety · 对齐与安全</span></a>
+<a class="sidenav-link active" href="../10-benchmarks-eval/index.html"><span class="sidenav-icon">📏</span><span>benchmarks-eval · 评测方法</span></a>
+<a class="sidenav-link" href="../11-data-training/index.html"><span class="sidenav-icon">🧪</span><span>data-training · 数据与训练</span></a>
+<a class="sidenav-link" href="../12-frontier/index.html"><span class="sidenav-icon">🔭</span><span>frontier · 前沿专题</span></a>
+<div class="sidenav-title" style="margin-top:1.2rem">更多</div>
+<a class="sidenav-link" href="../../paper/index.html">📄 顶会风格论文</a>
+<a class="sidenav-link" href="../../index.html#about">ℹ️ 关于本站</a>
+</aside>
+<main class="content">
+<header class="report-header"><div class="report-kicker">📏 专题 10 · 评测方法</div><h1>度量智能：评测基准与评估方法</h1><div class="report-sub">MME、MMMU、Video-MME、leaderboard 批判</div>
+<div class="report-actions"><a class="btn" href="../../assets/10-benchmarks-eval.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+</header>
+<article class="report-content" id="article">
+<blockquote>
+<p>副标题：当模型学会了考试，我们该如何出题——MLLM 评测的方法论、谱系与批判
+版本日期：2026-09-29 | 面向读者：有深度学习基础的多模态初学者</p>
+</blockquote>
+<h2 id="_1">摘要</h2>
+<p>评测是多模态大模型（MLLM）研究的"度量衡"：没有可靠的评测，能力的比较、训练方法的选择、乃至研究方向的判断都会失去依据。然而，评测一个以自然语言为输出、以图像视频为输入的通用模型，远比评测一个分类器困难。本报告系统梳理 2022—2026 年 MLLM 评测体系的发展脉络：从 MME、MMBench、SEED-Bench 等第一代感知类选择题基准，到 MMMU、MathVista 代表的专家级知识推理基准，再到 POPE、HallusionBench 的幻觉诊断、OCRBench 的文档文字理解、Video-MME 与 MVBench 的视频时序评测，直至 2025—2026 年兴起的 frontier 数学科学基准与 OSWorld、GAIA 等 agentic 评测。报告深入剖析了 MME、MM-Vet、MMMU、MMStar、Video-MME 五个代表性基准的设计动机、数据构建、评分机制与已知缺陷，并专题讨论三个方法论核心问题：开放式生成答案的自动评分（LLM-as-a-judge）及其系统性偏差、训练数据泄漏与基准污染、以及 leaderboard 驱动的评测过拟合与基准饱和现象。我们希望读者在读完本报告后，不仅能"读懂"任何一张评测表格，更能以批判的眼光追问：这个分数究竟度量了什么，又没有度量什么。</p>
+<h2 id="1">1. 引言：评测在多模态版图中的位置</h2>
+<p>如果把多模态大模型研究比作一场竞赛，那么架构设计、数据工程、训练配方是"造车的技术"，而评测基准则是"赛道与计时器"。2022 年 Flamingo [37] 与 2023 年 GPT-4V 的出现，让模型第一次展现出跨感知、知识、推理的通用多模态能力；但随之而来的问题是：这些能力如何度量？传统的计算机视觉评测（ImageNet 准确率、COCO mAP）与自然语言评测（BLEU、GLUE）都无法直接套用于一个"看图说话、自由作答"的模型。于是，从 2023 年年中开始，MLLM 评测基准如雨后春笋般涌现，三年内数量超过百个 [1][2]，评测本身演化为一门独立的方法论学问。</p>
+<p>本报告的学习地图如下：</p>
+<ul>
+<li><strong>先修概念</strong>：视觉编码器（CLIP 式对比预训练）、大语言模型的自回归生成、指令微调（instruction tuning）与视觉指令微调的基本流程。若读者对模型侧尚不熟悉，建议先读本系列的 vision-language 篇（图 1 展示了 2017—2026 年的模型时间线，帮助建立历史坐标）。</li>
+<li><strong>本方向核心问题</strong>：(1) 如何定义并分解"多模态能力"？(2) 如何把自由文本输出转化为可比较、可复现的分数？(3) 如何保证分数反映的是真实能力而非记忆、猜测或对出题风格的迎合？</li>
+<li><strong>与其他方向的关系</strong>：评测为 data-training 篇提供数据质量的检验标准，为 alignment 篇提供对齐是否成功的判据（幻觉评测即是一例），为 agent-tooluse 篇提供任务完成度的度量，也为 frontier 篇的"能力边界"讨论提供证据。</li>
+</ul>
+<p><img alt="2017-2026 多模态模型时间线" src="../assets/fig_timeline_vlm.png" /></p>
+<p><em>图 1：2017—2026 年多模态模型发展时间线。评测基准的爆发与模型能力的跃迁几乎同步：2023 年指令微调模型普及催生了第一代基准，2025 年推理模型的兴起又迫使评测向过程评估与 frontier 难度演进。</em></p>
+<p>评测的历史反复上演一个循环：<strong>基准发布 → 模型刷分 → 基准饱和或被证伪 → 更严格的基准出现</strong>。MMBench 上线一年后头部模型即突破 80%，MMMU 在 2024 年初 GPT-4V 仅 56% [5]，到 2025 年旗舰模型已超过 75%。理解这个循环的机制，比记住任何一个具体分数都更重要。</p>
+<p>本报告的结构安排如下：第 2 节建立评测的方法论基础（评分范式、能力分解、指标谱系、统计学与污染）；第 3 节按时间线梳理基准谱系；第 4 节深度剖析五个代表作；第 5 节专题讨论 judge 偏差、污染与 leaderboard 批判这三重危机；第 6 节扫描 2025—2026 前沿；第 7—9 节分别给出技术权衡、开放问题与面向入门研究者的机会地图。</p>
+<h2 id="2">2. 基础知识：评测为什么难</h2>
+<h3 id="21">2.1 从"分类"到"生成"：评分范式的断裂</h3>
+<p>传统监督学习的评测之所以简单，是因为假设空间是封闭的：分类任务中模型输出一个类别标签，与 ground truth 比对即得准确率。而 MLLM 的输出是开放词表上的自由文本序列。同一个正确答案可以有无数种表述："答案是 B"、"选 B"、"应该选第二个"、"巴黎"与"法国巴黎"——字符串精确匹配会大量误判。这一断裂决定了 MLLM 评测首先要解决的是<strong>评分函数</strong>（scoring function）的设计问题。</p>
+<p>目前主流的评分函数有三大类：</p>
+<ol>
+<li><strong>约束输出 + 规则匹配</strong>。要求模型按固定格式作答（"只输出选项字母"），再用正则表达式抽取答案。MME [7] 的"Yes/No"判断题是极端情形：输出空间被压缩到二元，评分退化为字符串匹配。问题在于：指令遵循能力弱的模型会被"不会答题格式"而非"不懂内容"惩罚；为此 MMBench [8] 引入 ChatGPT 辅助的选项抽取，把模型的自由回答先映射到选项再比对。</li>
+<li><strong>多选题 + 鲁棒化协议</strong>。把评测统一为多选题（multiple-choice question, MCQ）格式，使评分确定化。但 MCQ 引入新问题：模型存在选项位置偏好（position bias），即系统性偏好某个字母。MMBench 提出的 <strong>CircularEval</strong> 是经典解法：将 $N$ 个选项循环移位，生成 $N$ 个排列版本的问题，模型须在全部排列上都答对才算通过。这等价于对选项顺序做了一次"集成"，用 $N$ 倍的推理成本换取对位置偏好的免疫。</li>
+<li><strong>LLM-as-a-judge</strong>。用一个强 LLM（通常 GPT-4 级别）比较模型输出与参考答案，给出 0—1 或离散等级分数。MM-Vet [10] 在 2023 年率先将其系统化。形式上，judge 是一个函数 $J(x, q, y, y^<em>) \mapsto s \in [0,1]$，其中 $x$ 为图像、$q$ 为问题、$y$ 为被评模型的回答、$y^</em>$ 为参考答案。它解决了开放式回答的评分难题，却把整个评测的可靠性押在 judge 模型本身的公正性上——这是本报告第 5 节要展开的深层矛盾。</li>
+</ol>
+<h3 id="22-taxonomy">2.2 能力 taxonomy：我们在度量什么</h3>
+<p>一个基准首先要回答：它声称度量的能力如何分解？文献中形成了几种有代表性的能力划分：</p>
+<ul>
+<li><strong>感知 / 认知二分</strong>（MME）：感知（perception）指从图像中提取信息——存在性判断、计数、位置、颜色、OCR、海报/名人/艺术品识别等；认知（cognition）指在感知结果之上的推理——常识推理、数值计算、文本翻译、代码推理。这一划分朴素但影响深远。</li>
+<li><strong>核心能力及其组合</strong>（MM-Vet）：定义 6 种核心视觉-语言能力——识别（Recognition）、OCR、知识（Knowledge）、语言生成（Language generation）、空间感知（Spatial awareness）、数学（Math），并指出真实世界的复杂任务几乎总是多种能力的<strong>组合</strong>；MM-Vet 考察其中 16 种能力组合。这个洞察直接解释了"为何模型单项能力不差、综合任务却失败"的现象。</li>
+<li><strong>层次化能力</strong>（MMBench、MMStar）：MMBench 将能力组织为 L1（感知、推理）→ L2 → L3 的三级层级，共约 20 个细粒度维度，使诊断报告可以逐级下钻。MMStar 则收敛为 6 大核心能力、18 个细分轴 [11]。</li>
+</ul>
+<p>能力 taxonomy 并非纯理论问题：它决定了一个基准的<strong>构念效度</strong>（construct validity）——分数是否真的反映它声称的那种能力。第 4 节 MMStar 的剖析将展示：当大量题目不看图也能答对时，基准度量的其实是 LLM 骨干的语言知识，构念效度已荡然无存。</p>
+<p>评价一个 taxonomy 的标准有三条：<strong>互斥性</strong>（题目能否被无歧义地归入某一类）、<strong>完备性</strong>（真实使用场景是否被覆盖）、<strong>可操作性</strong>（类别分数能否指导改进）。感知/认知二分在互斥性上最干净，却在完备性上捉襟见肘——幻觉、指令遵循、安全拒答都无处安放；MM-Vet 的组合式 taxonomy 在解释力上最强，但组合数随核心能力数指数增长，可操作性受限；层级式 taxonomy 是工程上的折中，代价是 L2/L3 边界的划分常带任意性。理解这些 trade-off，读者在面对任何新基准时都能迅速判断其能力声称的成色。</p>
+<h3 id="23">2.3 评测指标谱系：从字符串匹配到语义评分</h3>
+<p>在三种评分范式之下，是更底层的指标工具箱，按其语义深度排列：</p>
+<ul>
+<li><strong>词汇重叠指标</strong>：BLEU、ROUGE、METEOR、CIDEr 等源自机器翻译与图像描述时代，度量 n-gram 层面的重合。它们对"换种说法同样正确"的开放式回答系统性低估，在 MLLM 时代仅适用于高度模板化的任务（如 caption 评测的遗留场景）。</li>
+<li><strong>嵌入相似度指标</strong>：BERTScore、CLIPScore 用语义嵌入的余弦相似度替代字面匹配，对同义改写更宽容；CLIPScore 还直接度量图文一致性，被用于生成质量的自动评估。其缺陷是嵌入空间本身的偏见会被带入评分。</li>
+<li><strong>任务特定指标</strong>：VQA Accuracy（答案归一化后的多数投票匹配）、OCR 任务的归一化编辑距离、数学任务的数值等价判断（含单位换算与精度容忍）。这类指标在其适用域内最可信，因为评分规则与任务语义精确对齐。</li>
+<li><strong>人类偏好指标</strong>：ELO 评分与竞技场（Arena）式成对比较，将模型排名建立在大量人类两两判断之上，最接近真实使用体验，但成本高昂且易受标注者构成影响。</li>
+</ul>
+<p>指标选择的经验法则：<strong>任务越封闭，越应使用规则化指标；任务越开放，越须接受语义指标的噪声并量化它</strong>。盲目对开放式生成套用 BLEU 式指标，是早期多模态论文中最常见的方法论错误之一。</p>
+<h3 id="24">2.4 信度、方差与统计严谨性</h3>
+<p>评测的科学性还取决于统计层面的严谨。三个经常被忽视的概念：</p>
+<ul>
+<li><strong>样本规模与方差</strong>。基准越小，分数的随机波动越大。MME-RealWorld [17] 的作者明确指出，小规模基准（数百题）会导致不同模型间分数差异淹没在方差之中，这也是他们构建近 3 万题人工标注集的动机之一。</li>
+<li><strong>随机性来源</strong>。解码温度、选项顺序、prompt 措辞都会扰动输出。文献综述指出，同一模型在不同 prompt 格式下的性能波动可达数个百分点 [2]，这意味着 leaderboard 上 1—2 分的差距往往不具统计意义。</li>
+<li><strong>基准饱和（benchmark saturation）</strong>。当头部模型分数逼近人类上限，基准便失去区分度。饱和度可以用"最高分与人类表现之间的距离"来刻画；一旦该距离小于分数方差，基准即宣告失效。这驱动了从 MMMU 到 MMMU-Pro、OlympicArena 的难度军备竞赛（见第 6 节）。</li>
+</ul>
+<h3 id="25">2.5 数据污染：评测的阿喀琉斯之踵</h3>
+<p>MLLM 的训练数据来自互联网抓取，而基准题目同样来自互联网——教科书、考试题库、VQA 数据集。两者发生重叠几乎是必然的。<strong>数据污染</strong>（data contamination）指测试样本（或其近重复）出现在训练数据中，使"评测"退化为"记忆检索"。MMStar 的实验给出了触目惊心的证据 [11]：GeminiPro 在完全不给图像输入的情况下于 MMMU 取得 42.9% 的准确率；Sphinx-X-MoE 无图时在 MMMU 上得 43.6%，甚至<strong>超过其纯文本 LLM 骨干 17.9 个百分点</strong>——说明多模态训练数据本身已包含基准答案。污染使分数系统性高估能力，且无法通过模型内部检测，只能靠基准设计端的主动防御（动态生成、私有测试集、污染审计，见第 5、6 节）。</p>
+<h2 id="3">3. 经典方法谱系：三年三代基准</h2>
+<h3 id="31-2023">3.1 第一代（2023）：感知与选择题时代</h3>
+<p>2023 年中的三个奠基工作几乎同时出现，共同确立了"多选题 + 细粒度维度"的第一代范式：</p>
+<ul>
+<li><strong>MME</strong> [7]：首个系统性的 MLLM 评测基准，14 项任务（10 项感知 + 4 项认知），将问题统一为"Yes/No"判断加指令"请回答是或否"，用 2000 分制的 MME 分数汇总。它贡献的不仅是题目，更是"定量、易复现"的评测协议本身。</li>
+<li><strong>MMBench</strong> [8]：约 3000 道中英双语多选题，三级能力层级，CircularEval 协议与 LLM 辅助的答案抽取。它率先把"评测协议设计"作为一等公民。双语设计亦具先见之明：同一批题目的中英版本可以分离"语言能力"与"多模态能力"的纠缠——一个模型若在中文版显著掉分，问题多半出在语言而非视觉。</li>
+<li><strong>SEED-Bench</strong> [9]：19000 道人工核验的多选题，12 个评估维度，首次同时覆盖图像与视频模态。其贡献在于大规模标注流水线（自动生成 + 人工过滤），以及一个持续维护的公开 leaderboard。由于 ground truth 选项直接来自人工标注，评测全程无需人工或 GPT 介入——在 judge 范式尚未出现的 2023 年年中，"客观、零成本、可大规模复现"是其最大的卖点，也使它成为此后模型论文中引用率最高的基准之一。</li>
+</ul>
+<p>同期，<strong>MM-Vet</strong> [10] 开辟了另一条路线：放弃选择题，直面开放式回答，用 LLM-as-a-judge 统一评分。选择题与 judge 评分这两条路线的张力贯穿了整个领域。</p>
+<h3 id="32-2023-2024">3.2 第二代（2023 末—2024）：知识、推理与幻觉诊断</h3>
+<p>第一代的缺陷很快暴露：选择题可猜、任务偏简单、与真实需求脱节。第二代基准向三个方向深化：</p>
+<ul>
+<li><strong>专家知识</strong>：<strong>MMMU</strong> [5] 从大学考试与教材收集 11.5K 题，覆盖 6 大学科门类、30 个科目、183 个子领域，图像类型多达 30 种（图表、乐谱、化学结构式等），把评测推向"专家级"。<strong>MathVista</strong> [12] 聚焦视觉情境中的数学推理，整合 28 个已有数据集并新建 IQTest、FunctionQA、PaperQA 三个子集，共 6141 题，覆盖算术、几何、代数、统计与科学问答五大任务类型；其诊断结论——GPT-4V 得 49.9%、距人类尚差约 10 个百分点，且几何显著弱于代数——成为此后两年视觉数学研究的标准引证。<strong>ScienceQA</strong> [46]（2022 年，多模态科学问答）作为前驱，提供了中小学科学课程的选择题与讲解（lecture/explanation）标注，是"推理链评估"思想的早期载体；此外，LogicVista [41] 把视觉逻辑推理（归纳、演绎、溯因等九类逻辑任务）独立成基准，提醒我们"推理"并非单一能力，而是可按逻辑类型细分的光谱。</li>
+<li><strong>幻觉与视觉短板</strong>：<strong>POPE</strong>（Polling-based Object Probing Evaluation）把物体幻觉检测形式化为"图中是否有 X"的二元探针，通过随机/高频/对抗三种采样构造问题，成为幻觉评测的标配；<strong>HallusionBench</strong> [13] 则深入幻觉的成因结构，用"对照组"设计分离语言幻觉与视觉错觉：346 张图像配 1129 道人工精制的题目，每道题都有"原图提问 / 编辑后图像提问"的配对版本，从而可以定量区分两种失败——<strong>语言幻觉</strong>（模型不看图，凭语言先验给出貌似合理的答案）与<strong>视觉错觉</strong>（模型看了图，却误读了图中的视觉操作，如镜像、遮挡、数量修改）。其结果揭示了头部模型的真实水平：最强的 GPT-4V 在"问题对"口径下仅 31.42% 的准确率，其余受测模型全部低于 16%——幻觉远未被解决，只是被更流畅的表达掩盖了；<strong>MMVP</strong> [14] 从 CLIP 嵌入空间的盲区出发构造"CLIP-blind pairs"——在 CLIP 看来高度相似、人眼看来明显不同的图像对，揭示模型在九种基本视觉模式（朝向、计数、视角、颜色、存在性等）上的系统性失明；其更深层的贡献在于归因路径：通过对比 CLIP 监督与纯视觉自监督的嵌入空间，论文将错误源头定位到对比语言-图像预训练本身的几何结构，即"语言教会了视觉什么、也限制了视觉什么"；<strong>BLINK</strong> [15] 把 14 个经典视觉任务（相对深度、对应点匹配、多视图推理、法证检测等）改造为 3807 道选择题，人类平均 95.7% 而 GPT-4V 仅 51.26%、Gemini 45.72%，分别只比随机猜测高 13.17 与 7.63 个百分点，尖锐地指出"看得见≠感知到"。更具诊断价值的是其归因：这些任务的共同点是<strong>抗拒语言中介</strong>——人类"一眨眼"就能完成的深度与对应判断，难以被转写为文字描述再交给 LLM 推理，因此暴露了"视觉编码器瓶颈"而非"推理瓶颈"。其分析还指出，传统专用视觉模型本可解决这些任务，说明能力是"丢失在连接处"而非不存在。</li>
+<li><strong>OCR 与文档</strong>：<strong>OCRBench</strong> [16] 汇总 29 个数据集、1000 道人工核验题目，覆盖文本识别、场景文字 VQA、文档 VQA、关键信息抽取、手写数学表达式识别五大任务，系统暴露了 MLLM 在多语言、手写体、无语义文本上的短板。其后续 <strong>OCRBench v2</strong> [43] 将规模扩展到万级题目、31 个场景，并把重心从"识别"移向"视觉文字的定位与推理"——能否指出文字在哪里、理解其在版式中的角色，而不只是读出字符。</li>
+</ul>
+<h3 id="33-20242026">3.3 第三代（2024—2026）：时序、动态与前沿</h3>
+<ul>
+<li><strong>视频理解</strong>：<strong>EgoSchema</strong> [19] 以自我中心的 3 分钟长视频切入，5000 道五选一题目，并提出"temporal certificate"概念刻画任务内在的时间跨度难度；<strong>Video-MME</strong> [18] 提供首个覆盖短/中/长（11 秒—1 小时）全谱系、含字幕与音频通道的综合视频基准（900 视频、2700 题）；<strong>MVBench</strong> 将 20 个时序理解任务自动改造为选择题，强调"从静态到时序"的系统性；<strong>MLVU</strong> [20] 以 9 类任务、2593 题覆盖电影、监控、第一人称等多种视频体裁，其"灵活时长"设计允许同一任务在不同时长档位下分别计分；<strong>LongVideoBench</strong> 则把时长推到数千帧、聚焦"长上下文检索式"问答。更早的 <strong>Video-ChatGPT</strong> [38] 虽以对话质量评估为主、采用 GPT 辅助评分，但它是把视频 MLLM 作为独立品类加以评测的最早尝试之一。这一代基准共同回答：当上下文从一张图变成一小时视频，模型的时序推理是否成立？</li>
+<li><strong>真实世界与空间理解</strong>：xAI 随 Grok-1.5V 发布的 <strong>RealWorldQA</strong> 虽仅有 700 余题，却确立了"从物理空间理解评测模型"的方向——题目取自车载、道路等真实场景，考察空间关系、距离估计与实际可用性，答案要求可被现实检验。<strong>MME-RealWorld</strong> [17] 把这一思路推向极致：从 30 万张候选图像中筛出 13366 张高分辨率图像，由 25 名专业标注员与 7 名专家产出 29429 个问答对，覆盖监控、自动驾驶、遥感、桌面屏幕与电子表格五大真实场景，是迄今最大规模的全人工标注基准；其设计动机直指旧基准的三宗罪——规模小导致方差大、模型生成标注质量受限、分辨率低导致难度虚设。</li>
+<li><strong>鲁棒性与污染防御</strong>：<strong>MMStar</strong> [11] 用 1500 道"视觉不可或缺"的精选题加上泄漏度量指标，直接挑战了第一代基准的有效性；<strong>DynaMath</strong> [21] 把 501 道种子题程序化为可无限生成变体的动态基准，评测的是推理的鲁棒性而非记忆。DynaMath 的发现颇具冲击力：GPT-4o 级别的模型在同一道题的数值或图形轻微扰动后便会一致性地失败，说明其"数学能力"中有相当比例是模式匹配而非可迁移的解题程序。</li>
+<li><strong>前沿难度</strong>：<strong>CharXiv</strong> [22] 用 arXiv 论文中的 2323 张真实图表（描述性 8515 题中的描述题+推理题两类）揭示模型图表推理与人类的巨大差距；<strong>OlympicArena</strong> [23] 汇集 7 学科、62 项国际奥赛的 11163 道双语题目，把评测推向竞赛级；MMMU 社区进一步推出更难的 MMMU-Pro 版本。</li>
+</ul>
+<h3 id="34">3.4 关键论文一览表</h3>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>年份</th>
+<th>核心思想</th>
+<th>架构/协议要点</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MME [7]</td>
+<td>2023</td>
+<td>首个全面 MLLM 评测</td>
+<td>14 任务，Yes/No + 指令约束</td>
+<td>确立了定量评测协议</td>
+</tr>
+<tr>
+<td>MMBench [8]</td>
+<td>2023</td>
+<td>细粒度能力层级</td>
+<td>CircularEval，中英双语，LLM 答案抽取</td>
+<td>抗位置偏好的经典协议</td>
+</tr>
+<tr>
+<td>SEED-Bench [9]</td>
+<td>2023</td>
+<td>大规模生成式理解</td>
+<td>19K MCQ，12 维，图像+视频</td>
+<td>自动+人工标注流水线</td>
+</tr>
+<tr>
+<td>MM-Vet [10]</td>
+<td>2023</td>
+<td>能力组合 + judge 评分</td>
+<td>6 能力 16 组合，LLM-as-a-judge</td>
+<td>开放式评估范式起点</td>
+</tr>
+<tr>
+<td>MMMU [5]</td>
+<td>2023</td>
+<td>专家级多学科推理</td>
+<td>30 学科 11.5K 题，30 种图型</td>
+<td>知识型基准的标杆</td>
+</tr>
+<tr>
+<td>MathVista [12]</td>
+<td>2023</td>
+<td>视觉数学推理</td>
+<td>6141 题，28+3 数据集整合</td>
+<td>暴露几何弱于代数</td>
+</tr>
+<tr>
+<td>POPE</td>
+<td>2023</td>
+<td>物体幻觉探针</td>
+<td>二元问询，三种对抗采样</td>
+<td>幻觉评测标配</td>
+</tr>
+<tr>
+<td>HallusionBench [13]</td>
+<td>2023</td>
+<td>幻觉与错觉的对照诊断</td>
+<td>346 图 1129 题，成对对照</td>
+<td>分离语言先验与视觉误读</td>
+</tr>
+<tr>
+<td>MMVP [14]</td>
+<td>2024</td>
+<td>CLIP 盲区探测</td>
+<td>CLIP-blind pairs，9 类视觉模式</td>
+<td>归因到视觉编码器</td>
+</tr>
+<tr>
+<td>BLINK [15]</td>
+<td>2024</td>
+<td>感知而非识别</td>
+<td>14 个 CV 任务改造，3807 题</td>
+<td>人类 95.7% vs GPT-4V 51.26%</td>
+</tr>
+<tr>
+<td>MMStar [11]</td>
+<td>2024</td>
+<td>视觉不可或缺性</td>
+<td>1500 精选题 + 泄漏度量</td>
+<td>基准批判的转折点</td>
+</tr>
+<tr>
+<td>OCRBench [16]</td>
+<td>2023</td>
+<td>OCR 综合能力</td>
+<td>29 数据集 5 任务 1000 题</td>
+<td>文字理解的事实标准</td>
+</tr>
+<tr>
+<td>EgoSchema [19]</td>
+<td>2023</td>
+<td>长时程自我中心视频</td>
+<td>5K 题 × 3 分钟视频</td>
+<td>temporal certificate 概念</td>
+</tr>
+<tr>
+<td>Video-MME [18]</td>
+<td>2024</td>
+<td>全谱系视频评测</td>
+<td>900 视频，短/中/长+字幕音频</td>
+<td>视频基准的奠基之作</td>
+</tr>
+<tr>
+<td>MLVU [20]</td>
+<td>2024</td>
+<td>多任务长视频</td>
+<td>9 任务 2593 题，多体裁</td>
+<td>灵活时长设计</td>
+</tr>
+<tr>
+<td>CharXiv [22]</td>
+<td>2024</td>
+<td>真实图表理解</td>
+<td>2323 图，描述+推理两层</td>
+<td>压力测试揭穿虚高分</td>
+</tr>
+<tr>
+<td>DynaMath [21]</td>
+<td>2024</td>
+<td>动态鲁棒性评测</td>
+<td>501 种子程序化生成变体</td>
+<td>抗污染的生成式范式</td>
+</tr>
+<tr>
+<td>OlympicArena [23]</td>
+<td>2024</td>
+<td>竞赛级认知推理</td>
+<td>7 学科 11K 题，双语</td>
+<td>frontier 难度军备竞赛</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. 代表作深度剖析</h2>
+<p>本节选取五个基准，分别代表评测方法论演化的五个关键节点：协议的建立（MME）、开放式评分（MM-Vet）、知识难度的跃迁（MMMU）、基准的自我批判（MMStar）、模态的扩展（Video-MME）。</p>
+<h3 id="41-mme">4.1 MME：评测协议的"从零到一"</h3>
+<p><strong>研究问题</strong>。2023 年上半年，指令微调的 MLLM（LLaVA、MiniGPT-4 等）密集涌现，但比较它们只能靠零散案例展示。MME 要问的是：能否建立一套定量、可复现、覆盖感知与认知两面的评测协议？</p>
+<p><strong>关键洞察</strong>。论文的核心贡献不是题目本身，而是<strong>评分协议的设计哲学</strong>：把所有问题强制转化为"Yes/No"判断题，并要求模型显式输出"是"或"否"。这一设计用极大的任务表达能力损失，换取了评分的绝对确定性——任何模型、任何人复现，得到的都是同一个分数。其分数计算为：每个任务下，准确率 + 严格准确率（同图两问皆对）的加权和，感知与认知分别汇总为最高各 2000 分。</p>
+<p><strong>实验与结果</strong>。论文评测了 30 个当时的模型，结论有两层：(1) 指令微调模型全面碾压传统 VQA 模型，证明"对齐到指令"是通用能力的关键；(2) 即便最好的模型在 OCR、计数、位置等基础感知上仍然脆弱——这直接预告了 2024 年 MMVP、BLINK 对"视觉短板"的深入追究。</p>
+<p><img alt="三种 connector 范式对比" src="../assets/fig_vlm_arch_taxonomy.png" /></p>
+<p><em>图 2：视觉语言模型的三种连接器（connector）范式。评测诊断反复指向同一结论：无论采用哪种连接范式，视觉编码器的信息瓶颈都是感知类错误的主要来源——MMVP 将多模态模型的九类视觉盲区直接归因于 CLIP 嵌入空间的几何结构 [14]。</em></p>
+<p><strong>批判性分析</strong>。优点：协议简单到无法作弊（当时而言），复现性极佳；作为第一个标准，历史地位无可替代。局限：(1) Yes/No 格式的猜测基线高达 50%，头部模型很快饱和；(2) 二元判断无法考察推理过程；(3) 题目被纳入几乎所有后续训练语料，如今分数已失去意义。MME 的生命周期完美演示了基准的宿命：<strong>它越是成功，被污染得越快</strong>。从方法论史的角度看，MME 的另一层价值在于它定义了"感知—认知"这一沿用至今的二分语言，后续 MMBench 的层级、MMStar 的六能力、乃至 MM-Vet 的组合框架，都是在与这套语言对话中演进的。</p>
+<p><strong>一句话评价</strong>：MLLM 评测的"创世纪"，协议价值大于内容价值。★★★★（历史意义五星，当前使用价值两星）</p>
+<h3 id="42-mm-vetllm-as-a-judge">4.2 MM-Vet：LLM-as-a-judge 的范式确立</h3>
+<p><strong>研究问题</strong>。真实世界的多模态任务——解释视觉笑话、推理新闻图片中的事件、解黑板上的数学题——其回答本质上是开放式的。选择题评测无法覆盖这类能力，人工评测又不可扩展、且有主观偏差。MM-Vet 要同时解决三个问题：复杂任务如何结构化、跨题型的统一评分指标如何设计、如何给出超越排名的能力洞察 [10]。</p>
+<p><strong>关键洞察</strong>。论文的方法论起点是一个深刻的观察：<strong>解决复杂任务的能力，源于通用模型对多种核心能力的"集成"</strong>。据此 MM-Vet 定义 6 种核心视觉-语言能力（识别、知识、OCR、空间感知、语言生成、数学），并从其组合中选取 16 种有意义的集成来设计题目，共 200 余题。每种能力组合即是一个子集，使评测结果天然形成能力雷达图式的诊断报告。</p>
+<p><strong>评分机制</strong>。MM-Vet 提出 LLM-based evaluator：以 GPT-4 为 judge，输入问题、参考答案与模型输出，输出 0—1 连续分数（0 为完全错误，1 为完全正确，中间允许部分给分）。为使 judge 稳定，论文设计了少样本提示并对低指令遵循模型追加输出格式约束；对选择题等封闭题型则退化为规则匹配——judge 只在真正开放的题型上介入。这一"能规则则规则、不能规则才 judge"的混合策略，后来成为多数评测工具链的默认架构，其意义在于：把 judge 的噪声限制在它唯一不可替代的角落里。这一设计使不同问题类型（选择、填空、自由生成）首次可以在同一标尺下比较。</p>
+<p><strong>实验与结果</strong>。论文评测了包括 GPT-4V、多种开源模型在内的代表性系统，揭示了系统范式间的差异：端到端模型与"LLM 调用视觉工具"的系统在不同能力组合上各有胜负——例如工具型系统在空间与 OCR 组合上占优，端到端模型在语言生成类组合上更流畅。</p>
+<p><strong>批判性分析</strong>。优点：(1) 能力组合视角极具解释力，至今仍是能力诊断的范本——后世许多"能力雷达图"皆源于此；(2) judge 评分开创了开放式评估的标准路径。局限：(1) 题量小（200 余题），单题权重高、方差大；(2) judge 的引入把评测可靠性转嫁给另一个模型——judge 的长度偏见、自我偏好、与同源模型的相互抬分（第 5 节详述）都会污染结论；(3) 用 GPT-4 评 GPT-4V 存在明显的利益相关性。MM-Vet 的历史吊诡之处在于：它解决的评分问题，恰恰制造了下一代方法论要解决的 judge 偏差问题。</p>
+<p><strong>一句话评价</strong>：以一己之力确立了开放式评估范式，同时打开了 judge 偏差的潘多拉魔盒。★★★★½</p>
+<h3 id="43-mmmu">4.3 MMMU：专家级难度的标杆</h3>
+<p><strong>研究问题</strong>。到 2023 年底，感知类基准已无法区分头部模型。MMMU 的动机是：真正的"专家级 AGI"需要在大学水平的学科知识之上进行审慎推理，且输入是高度异构的专业图像——能否构建一个大规模、多学科、专家级的基准 [5]？</p>
+<p><strong>数据构建</strong>。MMMU 的构建流程是其方法论精华：从大学考试、测验与教材中人工收集 11.5K 道多模态题目，覆盖 6 大学科门类（艺术设计、商业、科学、健康医学、人文社科、技术工程）、30 个科目、183 个子领域；图像类型多达 30 种，包括图表、示意图、地图、表格、乐谱、化学结构式等——图像的异构性本身就是难度来源。题目以选择题为主、辅以少量开放题，答案经过多轮专家校验。</p>
+<p><strong>评分方式</strong>。以答案准确率为核心指标，选择题按选项匹配、开放题用规则+模型抽取比对；按学科、科目、图像类型多维切片报告。值得强调的是其评测协议的"双重读取"设计：图像既作为问题的必要上下文，又作为难度来源——同一学科内，含化学结构式的题目与含普通插图的题目对视觉系统提出完全不同的要求，因此 MMMU 的切片分析天然兼具"知识诊断"与"视觉类型诊断"两个维度。</p>
+<p><strong>实验结果</strong>。初版评测了 14 个开源模型及 GPT-4V、Gemini：最强的 GPT-4V 与 Gemini Ultra 仅分别取得 56% 与 59% [5]，与感知类基准上动辄 80% 的分数形成鲜明反差。细粒度分析显示：模型在需要细粒度图读数（如读表格数值再计算）与跨学科知识整合的题目上失败率最高。</p>
+<p><strong>批判性分析</strong>。优点：(1) 首次将"学科知识 + 专业图像"作为评测主轴，成为事实上的旗舰基准，几乎所有 2024—2025 年的模型报告都以其为关键指标；(2) 异构图像类型对视觉编码器形成了真实压力。局限：(1) 题目源自公开教材与考试，污染风险极高——MMStar 发现 GeminiPro 无图即可得 42.9% [11]，证明大量题目靠语言先验可解；(2) 选择题格式仍允许猜测；(3) 到 2025 年头部模型已超过 75%，区分度快速流失，社区被迫推出更难的 MMMU-Pro。MMMU 的经验浓缩为一句话：<strong>难度可以延缓饱和，但不能替代防污染设计</strong>。此外值得注意的一个方法论细节：MMMU 的流行还推动了"学科切片"成为模型报告的标配——单报总分没有意义，科学类与人文类的分数结构才真正刻画模型的能力地形。MathVista 的同类发现（几何题表现显著低于代数题、GPT-4V 距人类仍有约 10 个百分点的差距 [12]）与之互证：知识与推理类基准的价值不在总分，而在失败模式的结构化画像。</p>
+<p><strong>一句话评价</strong>：知识型评测的标杆与污染问题的反面教材，二者皆是其遗产。★★★★½</p>
+<h3 id="44-mmstar">4.4 MMStar：基准对基准的批判</h3>
+<p><strong>研究问题</strong>。当评测分数节节攀升，一个更根本的问题被提出：这些分数度量的是多模态能力吗？MMStar 的答案是：很大程度不是 [11]。</p>
+<p><strong>关键洞察</strong>。论文系统揭示了现行评测的两个结构性病灶：(1) <strong>视觉非必要</strong>——大量样本不看图即可答对。GeminiPro 在无图像输入下于 MMMU 得 42.9%，且在六个主流基准上平均超出随机基线 24% 以上；(2) <strong>无意泄漏</strong>——LLM 与 LVLM 训练数据中混入了基准样本。Sphinx-X-MoE 无图时在 MMMU 得 43.6%，比其纯文本骨干还高 17.9%，唯一解释是多模态训练语料包含了题目与答案。这两个发现动摇了当时所有 leaderboard 的解释基础：高分可能来自"语言知识 + 数据记忆"，而非视觉理解。</p>
+<p><strong>技术方法</strong>。MMStar 用三阶段流水线构建"纯化"基准：先从现行基准中用自动管线粗筛，再人工复核每个样本，确保满足三条标准——视觉依赖性（不看图答不对）、最小泄漏、需要高级多模态能力；最终得到 1500 道精选题，覆盖 6 大核心能力与 18 个细分轴。更具方法论价值的是其提出的两个度量：<strong>多模态增益（MG）</strong>与<strong>多模态泄漏（ML）</strong>——前者衡量多模态训练相对纯文本骨干带来的真实能力提升，后者用无图性能异常估计训练数据中的泄漏程度。用这两个指标重测 16 个模型在 7 个基准上的表现后，论文发现多个模型的"多模态增益"大幅缩水。</p>
+<p><strong>批判性分析</strong>。优点：(1) 把"基准批判"从轶事层面提升为可量化的方法论，泄漏度量可复用于任何新基准的审计；(2) 直接推动了"视觉不可或缺"成为 2024 年后基准设计的通行标准。局限：(1) 1500 题的规模偏小，细粒度切片上的统计功效有限；(2) "视觉必要性"由人工判定，存在判定者的主观性；(3) 泄漏度量依赖无图性能这一间接信号，无法定位具体泄漏源。可复现性方面，数据与指标均已公开，审计流程可被第三方重复。</p>
+<p>从方法论谱系看，MMStar 与稍早的 MMVP、BLINK 构成了一条完整的"批判链"：MMVP 问"视觉编码器丢了多少信息"，BLINK 问"感知能力是否真的涌现了"，MMStar 则问"我们一直在用的分数到底算不算数"。三个问题的答案层层递进地悲观，共同构成了 2024 年评测领域的自我清算。值得注意的是，这场清算并没有否定评测本身——恰恰相反，它产出的工具（泄漏指标、无图基线、视觉必要性筛选）让此后的每一个新基准都变得更强。</p>
+<p><strong>一句话评价</strong>：评测领域的"审计报告"，此后任何基准都须先过视觉必要性这一关。★★★★★</p>
+<h3 id="45-video-mme">4.5 Video-MME：从静态到时序的全谱系评测</h3>
+<p><strong>研究问题</strong>。2024 年以前，视频理解评测零散且缺陷明显：视频过短（几秒到十几秒）、体裁单一、标注多由模型生成。当模型开始宣称"长上下文视频理解"，却没有一个基准能检验这一宣称。Video-MME 的目标是建立视频分析的首个全谱系基准 [18]。</p>
+<p><strong>关键洞察与数据构建</strong>。论文用四个设计特征回应已有基准的缺陷：(1) <strong>类型多样性</strong>——6 大视觉领域、30 个子领域，保证场景泛化；(2) <strong>时长全谱</strong>——短（&lt;2 分钟）、中（4—15 分钟）、长（30—60 分钟）三档，跨度从 11 秒到 1 小时，直接考验上下文窗口与记忆机制；(3) <strong>模态完备</strong>——除视频帧外还提供字幕与音频，可分别消融各模态的贡献；(4) <strong>标注质量</strong>——900 个视频、254 小时内容全部由专家标注者反复观看后人工出题，共 2700 个问答对，杜绝了模型生成标注的循环依赖。整个标注过程本身就是对"质量优先于规模"这一基准哲学的声明。</p>
+<p><strong>评分方式</strong>。以选择题准确率为主，按时长分档与领域切片报告；字幕/音频作为可选输入通道，分别报告 w/ 与 w/o 字幕的成绩，从而分离"视觉理解"与"读字幕作弊"的贡献。</p>
+<p><strong>实验结果</strong>。论文评测了 GPT-4 系列、Gemini 及当时主要开源视频 MLLM，结论包括：(1) 所有模型性能随时长增加而显著下降，长视频事件追踪是共同短板——这一发现直接否定了当时若干"百万 token 上下文即可理解长视频"的朴素宣称，因为输入窗口只是必要条件，时序建模能力才是充分条件；(2) 提供字幕后商用模型提升显著而开源模型利用字幕的能力弱——暴露出多模态融合深度的差异，即"能接受字幕"与"能融合字幕"是两回事；(3) 商用闭源模型整体领先，但在短视频上开源模型已可接近，说明差距主要不在单帧感知而在长程聚合。</p>
+<p><strong>批判性分析</strong>。优点：(1) 时长分档 + 模态消融的设计使"长视频能力"第一次成为可证伪的宣称；(2) 纯人工标注树立了视频基准的质量标准。局限：(1) 900 视频/2700 题在 30 个子领域上摊薄后，单一切片样本量有限；(2) 选择题格式无法评估开放式视频叙述；(3) 视频来自公开平台（YouTube 等），长期看仍面临污染风险；(4) 均匀帧采样的评测协议隐含着对模型输入策略的假设，对原生视频 token 化的模型未必公平。</p>
+<p><strong>一句话评价</strong>：视频评测的奠基之作，"时长×模态"的消融设计成为后续所有视频基准的模板。★★★★½</p>
+<p><strong>横向比较</strong>。与 Video-MME 同年出现的另外两个基准补足了其覆盖的盲点：<strong>MVBench</strong> 从已有视频数据集的标注出发，自动生成 20 类时序任务的选择题（动作顺序、状态变化、计数、意外事件等），以"自动构建、答案确定"换取覆盖广度，代价是题目风格模板化；<strong>LongVideoBench</strong> 则专攻超长上下文，将"在数千帧中定位并推理一个细节"作为核心挑战，直接检验长上下文窗口宣传的真实性。三者与 Video-MME 共同构成 2024 年后视频评测的事实标准组合：Video-MME 管全谱系与多模态消融，MVBench 管时序任务分类，LongVideoBench 管长上下文压力测试。</p>
+<h2 id="5">5. 评估方法论的三重危机</h2>
+<p>基准的谱系讲完，我们必须直面贯穿其中的三个方法论危机。它们不是某个基准的缺陷，而是整个范式的结构性难题。</p>
+<h3 id="51-llm-as-a-judge">5.1 LLM-as-a-judge：用模型审判模型</h3>
+<p>MM-Vet 开启的 judge 范式在两年内成为开放式评估的默认选项，G-Eval、Prometheus、JudgeLM 等工作进一步把 judge 本身变成研究对象。但系统性研究揭示了 judge 的多重偏差 [1][2]：</p>
+<ul>
+<li><strong>长度偏见</strong>：judge 系统性偏好更长的回答，即使冗长部分不增加正确性。被评模型只要学会"多写"，就能骗取更高分——这制造了错误的对齐激励。</li>
+<li><strong>位置效应</strong>：在成对比较中，judge 偏好特定出场顺序的回答；交换顺序后相当比例的判定会翻转。</li>
+<li><strong>自我偏好与同源偏见</strong>：judge 偏好与自己风格相近的输出；更严重的是，当 judge 与被评模型共享同一基座（例如都用 GPT-4 系）时，会出现相互抬分。MM-Vet 用 GPT-4 评 GPT-4V 即是此问题的原型案例。</li>
+<li><strong>评分漂移</strong>：judge 模型版本更新会使历史分数不可比，破坏纵向追踪的有效性。</li>
+</ul>
+<p>这些偏差并非抽象担忧。MM-Vet 之后的 judge 专门化工作——G-Eval 用概率加权使评分连续化、Prometheus 开源了可复现的评审模型、JudgeLM 用大规模评审数据微调 judge——其共同的潜台词正是承认：通用 LLM 直接充当 judge 是不合格的，评审能力本身需要训练与校准。</p>
+<p>缓解手段包括：多 judge 集成、交换位置的双重判定、参考答案锚定的绝对评分（而非相对比较）、以及专门微调的 judge 模型。2025 年还出现了多模态 judge——用 MLLM 评估图像生成质量与图文一致性——但视觉判断标准的主观性使对齐问题更复杂 [3]。根本性的反思是：<strong>judge 范式把"评估的真值"外包给了一个本身未经评估的模型</strong>，这是一种循环依赖。打破循环的办法是为 judge 本身建立金标：用人工标注的评审数据集（response–score 对）度量 judge 与人类判断的一致率、对扰动（交换顺序、增删长度、改写风格）的稳定性，并把"judge 的评测报告"作为任何 judge-based 结论的强制附件。当前最稳妥的做法是将 judge 评分用于诊断性洞察，而排名性结论仍以可验证答案的任务为准。</p>
+<h3 id="52">5.2 数据污染：看不见的输血管</h3>
+<p>第 2.4 节与 MMStar 案例已给出污染的直接证据。这里补充污染的三种机制与防御谱系：</p>
+<ul>
+<li><strong>直接重叠</strong>：基准原文（题目+答案）出现在爬取语料中。检测手段包括 n-gram 重叠分析、canary string（在数据中埋入唯一标记串，检测模型能否复现）与成员推断攻击（membership inference）。</li>
+<li><strong>近似泄漏</strong>：题目的改写、翻译、截图 OCR 版本进入训练数据。这类污染规避简单的字符串匹配，需要语义级去重。</li>
+<li><strong>答案先验泄漏</strong>：即使无直接重叠，模型也能从语言先验"猜"出答案（MMStar 无图实验所示）。这严格说不算污染，但效果相同——分数高估真实能力。</li>
+</ul>
+<p>污染有多普遍？MME-Survey 对百余个评估基准的系统分析估计，超过三成的基准存在不同程度的训练数据泄漏风险 [2]；而综述 [1] 进一步指出，评估体系还叠加着"重感知、轻推理""重英文、轻多语言"的结构性偏差——污染问题并非均匀分布，而是恰恰集中在被引用最多的头部基准上，因为这些基准最值得被"无意"爬入训练语料。</p>
+<p>防御谱系从弱到强：(1) 发布时做污染声明与去重审计；(2) 程序化动态生成（DynaMath [21]：501 道种子题由 Python 程序表示，可生成 5000+ 变体，模型无法记忆"答案"因为每次评测都是新题）；(3) 私有测试集与定期轮换（SEED-Bench 的持续维护 leaderboard 与 2025 年兴起的月度更新基准）；(4) 构建时即植入 canary。值得强调的是，动态生成虽然优雅，但只能覆盖可程序化的任务（数学、图表）；开放式的真实场景理解仍须依赖人工标注与定期更新。</p>
+<h3 id="53-leaderboard">5.3 Leaderboard 批判：过拟合、方差与指标单一化</h3>
+<p>当 leaderboard 成为研究的指挥棒，Goodhart 定律开始显灵："一项度量一旦成为目标，便不再是好的度量。"文献 [1][2][11] 将批判归纳为三点：</p>
+<ol>
+<li><strong>评测过拟合（benchmark overfitting）</strong>。团队针对公开 benchmark 的训练分布定向构造 SFT 数据，分数提升但分布外性能停滞甚至退化。CharXiv 的压力测试给出了量化证据：开源模型在模板化图表基准上看似超越商用模型，但稍微改变图表风格或问法，性能骤降最多 34.5% [22]——说明"高分"学到的是基准的表面分布而非图表理解。</li>
+<li><strong>评估方差被系统性忽略</strong>。prompt 措辞、解码参数、选项顺序的变化即可造成数个百分点波动，而 leaderboard 普遍只报告点估计。这意味着大量"SOTA"宣称在统计上站不住脚。负责任的报告应给出置信区间、多 seed 平均与协议细节。</li>
+<li><strong>指标单一化</strong>。准确率无法表达推理过程的质量、鲁棒性、校准与安全性。一个靠"幸运猜测"答对的模型与一个推理严密的模型在准确率上无法区分。过程评估（见第 6.2 节）正是对这一缺陷的回应。</li>
+</ol>
+<p>实务层面的对策是<strong>评估组合</strong>：用多个互补基准（感知+推理+幻觉+领域）、报告分布外表现、固定并公开评测协议。社区层面，动态基准与私有测试集正在把 leaderboard 从"静态排行榜"改造为"持续体检"；与此同时，Chatbot Arena 式的人类偏好竞技场提供了另一条去基准化的路——用大规模真实用户的成对投票替代固定题目，天然免疫污染，但其度量的是"偏好"而非"正确性"，且投票人群构成引入新的偏差。基准评测与竞技场评测的关系应是互补而非替代：前者回答"模型会不会"，后者回答"用户喜不喜欢"。</p>
+<h2 id="6-20252026">6. 研究前沿（2025—2026）</h2>
+<h3 id="61-frontier">6.1 Frontier 难度：从大学到奥赛</h3>
+<p>当 MMMU 级别的基准趋于饱和，难度军备竞赛沿两条路径展开。一条是<strong>奥林匹克化</strong>：OlympicArena [23] 汇集数学、物理、化学、生物、信息学等 7 个学科、62 项国际奥赛的 11163 道双语题目，并在构建时做了系统的泄漏检查；其价值不止于难度——奥赛题的解答需要多步推理与跨学科整合，天然适合检验"慢思考"模型。MMMU 社区亦推出 MMMU-Pro，通过扩充选项、增加纯视觉提问等手法重新拉开差距。数学推理子方向内部也在快速分层：MV-MATH [42] 将题目置于多图关联的上下文中（条件分散在多张图里，必须跨图整合），MathScape [44] 以层级化方式组织真实数学场景题目，与 DynaMath 的鲁棒性视角互为补充。另一条是<strong>真实文献化</strong>：CharXiv [22] 直接取自 arXiv 论文图表，将评测锚定在科研第一线。这些基准共享一个判断：评测的难度上限应当持续压在人机差距最大的地方，而非模型最擅长的地方。</p>
+<h3 id="62-r1">6.2 过程评估：R1 时代的评分革命</h3>
+<p>2025 年 o1/R1 式长推理模型的兴起，使"只看最终答案"的评分显得捉襟见肘：长推理链中，结果正确但过程错误的"幸运猜测"在复杂任务中可占相当比例（文献报告在复杂推理中约 10—20% [4]）。过程评估的两大技术路线：</p>
+<ul>
+<li><strong>过程奖励模型（PRM）与逐步验证</strong>：OpenVLThinker [25] 以"SFT 与 RL 迭代自我提升"的方式训练复杂视觉推理，Visual-RFT [26] 将可验证奖励的强化微调推广到检测、定位等视觉任务，R1-Onevision [24] 则尝试把视觉信息"形式化"为结构化表示以支撑跨模态演绎——这些工作在训练侧用逐步监督提升视觉推理；评测侧则对应地发展出步骤级正确性标注与推理链质量评分。多模态 CoT 综述 [4] 将评估明确分为结果评估（answer accuracy）与过程评估（reasoning chain quality）两层，并坦承后者目前严重依赖 LLM-as-a-judge，可靠性与 5.1 节讨论的所有偏差共存。</li>
+<li><strong>可验证奖励（RLVR）的评测意涵</strong>：当训练信号来自可自动验证的答案（数学题的数值、代码的单元测试），评测与训练的边界开始模糊——同一个验证器既是奖励函数又是评分器。这带来效率，也带来风险：模型会精确优化"可验证的子集"，而不可验证的能力（叙述质量、审慎表达不确定性）从视野中消失。</li>
+</ul>
+<h3 id="63-agentic">6.3 Agentic 评测：从答题到做事</h3>
+<p>2025 年评测版图最重要的扩展，是从静态问答转向<strong>环境中的任务完成</strong>。代表性工作包括：OSWorld [47]——在真实操作系统环境（Ubuntu 虚拟机）中让 agent 执行跨应用的多步骤任务（文件操作、Office 文档编辑、浏览器使用），以程序化检查器判定任务成功；GAIA [48]——Meta 等提出的通用 AI 助手基准，466 个人工设计的问题分为三个难度层级（Level 1 大致需五步以内的工具组合，Level 3 则要求长链条的规划、检索与验证），要求模型组合网页浏览、代码执行、文件解析与多步推理，其设计原则是"对人简单、对 AI 难"——人类标注者的完成率约九成，而发布时最强模型的准确率仅为人类的零头，这一反差精确刻画了 agentic 能力与人机差距的真实位置；WebArena/VisualWebArena [49]——自托管的可复现 Web 环境，评估网页导航与操作。这类评测的范式转变有三层含义：(1) 评分从"答案对不对"变为"任务成没成"，通常用环境状态的程序化断言而非文本匹配，反而绕开了 judge 偏差；(2) 评估成本高出一个数量级（需要沙箱环境、长轨迹执行）；(3) 模型能力画像从"知道什么"转向"能做什么"——这正是 agent-tooluse 篇的接口。当前局限是成功率普遍很低（头部模型在 OSWorld 上远不及人类水平）、环境覆盖有限、且轨迹级的过程归因（错在规划还是执行）尚缺标准化工具。此外，agentic 评测还有一个隐蔽的复现性难题：环境本身在变化——网页改版、软件升级、API 变动都会使历史分数失效，这迫使社区为环境做版本化与快照管理，其工程复杂度已接近维护一个小型操作系统发行版。</p>
+<h3 id="64">6.4 长视频与超长上下文</h3>
+<p>Video-MME 之后，评测向"小时级"推进：MLVU [20] 以灵活时长与多任务设计检验长视频理解的不同侧面；LongVideoBench 把输入推到数千帧规模，主打"从长上下文中检索并推理细节"；EgoSchema [19] 的 temporal certificate 概念则为"这个任务到底需要看多长的视频"提供了形式化语言。技术报告侧，LongVILA [35]、mPLUG-Owl3 [34] 等模型的工作详细描述了长视频训练与评测的交互：训练时长上下文若不以相应基准检验，宣称便是空泛的。子方向的开放问题包括：长视频的均匀采样评测协议是否公平、音频/字幕通道的权重如何设定、以及叙事性理解（情节因果、人物动机）如何超越选择题格式。从谱系视角看，视频评测正在重复图像评测 2023—2024 年的历史：先拼规模与覆盖，再被"视觉（时序）不可或缺性"拷问——可以预见，视频版的 MMStar 式审计（不给视频只给题目，模型能答对多少）将是检验这一领域成熟度的下一个试金石。</p>
+<h3 id="65-judge">6.5 多模态 judge 与评估的元研究</h3>
+<p>2025 年的另一趋势是 judge 的多模态化与专业化：用专门训练的 MLLM 评估图像生成质量、图文一致性与视频连贯性；同时，对评估方法本身的元评估（"评估的评估"）开始进入主流视野 [1][6]。综述文献 [6] 基于 26K 篇论文的文献计量分析指出，评估研究正呈现"从静态到动态、从结果到过程、从单一到多元"的三大趋势——本报告的谱系分析与之互证。评估方法论的另一个值得注意的变化，是"细粒度归因"的兴起：与其报告一个总分，不如报告"失败发生在感知、知识还是推理环节"。Open Eyes, Then Reason [45] 等工作将视觉数学错误分解为"看错"与"想错"两类，使评测结果可以直接指导模块级改进——这代表了评测从"排名工具"向"诊断工具"的回归。</p>
+<p>此外，模型技术报告（从早期的 VILA [40]、Qwen-VL [39] 到 Qwen2.5-VL [30]、InternVL3 [29]、Kimi-VL [27]、GLM-4.5V [28]、Qwen2.5-Omni [31]、Molmo [33]、DeepSeek-VL2 [32]、Qwen3-VL [36] 等）中的评测章节本身已成为观察社区评测实践的窗口：头部实验室普遍采用"公开基准组合 + 私有评测集"的双轨制，这既是对污染的防御，也客观上降低了横向可比性。</p>
+<h2 id="7">7. 技术路线对比与权衡</h2>
+<h3 id="71">7.1 评分范式对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>选择题/MCQ</th>
+<th>Yes/No 判断</th>
+<th>LLM-as-a-judge</th>
+<th>程序化验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>评分确定性</td>
+<td>高（规则匹配）</td>
+<td>最高</td>
+<td>低—中（依赖 judge）</td>
+<td>最高</td>
+</tr>
+<tr>
+<td>任务表达力</td>
+<td>中（有提示效应）</td>
+<td>低</td>
+<td>高（任意开放式）</td>
+<td>低—中（需可验证域）</td>
+</tr>
+<tr>
+<td>猜测基线</td>
+<td>20—25%（4—5 选项）</td>
+<td>50%</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>主要偏差</td>
+<td>位置偏好、选项先验</td>
+<td>回答倾向（偏 Yes）</td>
+<td>长度/位置/自我偏好</td>
+<td>仅覆盖可验证子集</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>低</td>
+<td>最低</td>
+<td>高（judge 调用）</td>
+<td>中（验证器开发）</td>
+</tr>
+<tr>
+<td>典型基准</td>
+<td>MMBench, MMMU, SEED-Bench</td>
+<td>MME, POPE</td>
+<td>MM-Vet, G-Eval 系</td>
+<td>DynaMath, OSWorld</td>
+</tr>
+</tbody>
+</table>
+<p>实践智慧：<strong>选择题用于规模化能力摸底，judge 用于开放式诊断，程序化验证用于高 stakes 结论</strong>。CircularEval 类协议应成为 MCQ 的默认配置；judge 评分必须报告 judge 身份、版本与 prompt。</p>
+<h3 id="72">7.2 基准家族对比</h3>
+<table>
+<thead>
+<tr>
+<th>家族</th>
+<th>代表</th>
+<th>规模</th>
+<th>标注</th>
+<th>强项</th>
+<th>弱项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>感知类</td>
+<td>MME, MMBench, SEED-Bench</td>
+<td>2K—19K</td>
+<td>人工+自动</td>
+<td>快速摸底、成本低</td>
+<td>已饱和、污染重</td>
+</tr>
+<tr>
+<td>知识推理</td>
+<td>MMMU, MathVista, OlympicArena</td>
+<td>6K—11K</td>
+<td>专家人工</td>
+<td>难度高、区分度好</td>
+<td>语言先验可解部分题</td>
+</tr>
+<tr>
+<td>幻觉诊断</td>
+<td>POPE, HallusionBench, MMVP</td>
+<td>300—5K</td>
+<td>人工/程序化</td>
+<td>归因清晰、指导对齐</td>
+<td>覆盖窄、易被针对性修复</td>
+</tr>
+<tr>
+<td>OCR/文档</td>
+<td>OCRBench, CharXiv</td>
+<td>1K—8.5K</td>
+<td>人工</td>
+<td>贴近真实应用</td>
+<td>分辨率依赖强</td>
+</tr>
+<tr>
+<td>视频</td>
+<td>Video-MME, MLVU, MVBench</td>
+<td>2.5K—5K</td>
+<td>人工为主</td>
+<td>时序能力唯一入口</td>
+<td>标注成本极高</td>
+</tr>
+<tr>
+<td>Agentic</td>
+<td>OSWorld, GAIA, WebArena</td>
+<td>数百</td>
+<td>程序化断言</td>
+<td>反映真实使用</td>
+<td>成本与复现门槛高</td>
+</tr>
+</tbody>
+</table>
+<p>读这张表时应警惕"规模崇拜"：SEED-Bench 的 19K 题并未比 MMStar 的 1.5K 题提供更多信息，因为后者的每道题都经过视觉必要性与泄漏的双重过滤。<strong>基准的有效信息量 ≈ 题目数 × 单题区分度 × (1 − 污染率)</strong>，三个因子中任何一项趋零都会让总分失去意义。标注方式与成本之间存在硬约束：视频与 agentic 任务的人工标注成本比图像高一到两个数量级，这正是这两个家族题目规模普遍偏小的原因，也解释了为何"自动构建 + 人工抽检"的混合流水线（SEED-Bench、MVBench 式）成为主流折中。</p>
+<h3 id="73">7.3 防污染策略权衡</h3>
+<ul>
+<li><strong>静态公开基准</strong>：透明、可复现，但必然被污染——适合方法学研究与消融。</li>
+<li><strong>程序化动态基准</strong>（DynaMath 式）：免疫记忆，但限于可程序化领域，且"换个数字就错"的模型也未必比记住答案的模型更有用——鲁棒性分数需与静态分数联合解读。</li>
+<li><strong>私有/轮换测试集</strong>：防污染最有效，但牺牲透明度与可比性；适合 leaderboard 运营方，不适合作为论文唯一证据。</li>
+<li><strong>污染审计</strong>（MMStar 式 ML/MG 指标、canary、成员推断）：不改变基准本身，而是给分数"打折"。应当成为所有新模型报告的标配，但目前仍罕见。</li>
+</ul>
+<p>综合 7.1—7.3 的三组权衡，可以提炼出一条基准选择的决策原则：<strong>先问结论的用途，再选评测的配置</strong>。若目的是论文中的消融比较，静态公开基准加严格固定的协议即可，透明度优先；若目的是 leaderboard 排名或产品发布声明，则必须叠加污染审计、置信区间与至少一个动态或私有测试集；若目的是能力诊断（回答"下一步该改进什么"），则应放弃总分思维，选择能提供细粒度失败归因的诊断型基准（HallusionBench、MMStar、BLINK 式）。评测领域过去三年最大的成熟，正是从"一个分数排天下"走向"目的—工具匹配"的工程理性。</p>
+<h2 id="8">8. 开放问题与未来方向</h2>
+<ol>
+<li><strong>推理过程的细粒度评估</strong>。过程评估目前集中于数学与代码（因为可验证），而常识推理、因果推理、反事实推理的过程质量几乎没有工具可测。如何为不可验证领域构建可信的过程监督信号，是 R1 时代评测理论的核心难题 [4][50]。综述 [50] 提出的"感知—认知—元认知"三层框架指出了一个更激进的缺口：我们甚至缺乏评估模型"知道自己不知道"（元认知校准）的标准工具，而校准恰恰是高风险部署的前提。</li>
+<li><strong>judge 的校准与问责</strong>。judge 模型需要自己的"基准"：用人工金标对 judge 本身做一致性、偏差、鲁棒性审计。多 judge 投票的聚合理论、judge 与被评模型的相关性披露，都应制度化 [1]。</li>
+<li><strong>跨语言与跨文化评测</strong>。主流基准以英文为主 [1]，中文有 MMBench-CN 等跟进，但低资源语言与文化特定视觉常识（如本地化标识、手势、场景规范）几乎空白。这不只是公平性问题，也限制了部署安全性评估。</li>
+<li><strong>交互式与长程评测</strong>。多轮对话、长期记忆、与环境的持续交互（agentic 场景的自然延伸）尚无成熟范式；一次性问答的评测协议在交互场景中整体失效。困难在于：交互轨迹是树状的——同一个初始状态，模型的每一步选择都会改变后续环境，"标准答案"不复存在，评估只能针对终态或轨迹性质（是否完成任务、是否违反约束、步骤效率），这要求把评测从"批改试卷"重新设计为"审计过程"。OSWorld 的程序化终态断言是目前最可行的方案，但对"过程质量"（绕了远路但成功了、违反安全约束但任务完成了）的刻画仍是空白。</li>
+<li><strong>评估的成本效益</strong>。一次全面 MLLM 评测的算力、API 与人力成本缺乏量化与优化；小团队被挤出"全量评测"的行列，加剧了研究话语权的不平等。低成本高信度的评估协议（如自适应选题、项目反应理论 IRT 的引入）是务实且有影响力的方向。</li>
+<li><strong>评测的元科学</strong>。"评估的评估"——基准间的相关性结构、构念效度的实证检验、leaderboard 分数对真实用户体验的预测效度——都刚刚开始 [2][6]。</li>
+</ol>
+<h2 id="9">9. 研究机会点评（给入门研究者的建议）</h2>
+<p>在给出具体建议前，先确立两个判断坐标：其一，评测类工作的核心资产是<strong>方法论创新</strong>（新指标、新协议、新审计工具），而非数据规模——MMStar 只有 1500 题却改写了整个领域的基准设计标准；其二，评测研究与模型研究之间存在"半步差"红利——当新一代能力（长推理、agentic、超长视频）刚刚出现而评测尚未跟上时，率先给出可信度量工具的工作几乎必然成为高引论文。2026 年初的当下，agentic 轨迹评估与过程评估正处在这个时间窗口上。</p>
+<p><strong>算力门槛适中、问题清晰、值得投入的方向</strong>：</p>
+<ul>
+<li><strong>幻觉与 judge 偏差的测量学研究</strong>。POPE、HallusionBench 式的小而精诊断集仍有大量空白（音频幻觉、视频幻觉、跨模态矛盾检测）。此类工作不需要训练大模型，需要的是好的实验设计与统计学严谨性——正是学术小团队的比较优势。HallusionBench 用 346 张图就产生了持久影响，证明这个赛道的杠杆在洞察而非规模。</li>
+<li><strong>过程评估工具</strong>。为视觉推理链设计标注方案、步骤级验证器或"幸运猜测"检测器，直接对接 R1 式模型的训练需求（OpenVLThinker [25]、Visual-RFT [26] 的评测侧）。开源 PRM 的构建与审计是具体可做的切入点；此外，SFT 与 RL 在视觉推理中的分工尚未有定论（如 2504.11468 号工作的比较研究），围绕"训练方法如何影响可测的推理行为"设计评测实验，是连接训练与评测两个社区的稀缺视角。</li>
+<li><strong>基准审计与污染检测</strong>。对热门基准做第三方污染审计、无图基线测试、压力测试（CharXiv 式 [22]），方法论要求高于资源要求，且社区需求真实——MMStar 的影响力证明这类"批判性工作"可以登上顶会。</li>
+<li><strong>动态/自适应评测</strong>。把 IRT、自适应测试理论引入 MLLM 评测，用更少的题达到同等测量精度；或为特定领域（医学影像报告、工业质检）构建程序化生成基准。DynaMath [21] 是该范式的模板。</li>
+<li><strong>低成本评测协议</strong>。小样本高信度评估、置信区间报告工具链、评测协议标准化——不性感，但会被所有人引用。</li>
+</ul>
+<p><strong>属于巨头游戏、慎入的方向</strong>：</p>
+<ul>
+<li><strong>大规模人工标注基准</strong>。MME-RealWorld（2.9 万题、25 名专业标注员）与 Video-MME（254 小时人工观看标注）级别的标注投入，超出大多数实验室预算；除非有产业合作，不建议正面竞争。</li>
+<li><strong>全栈 agentic 环境</strong>。OSWorld 级的可复现环境工程需要持续的系统维护投入，适合有工程团队 backing 的机构；个人研究者可做其上的"轨迹分析与失败归因"层。</li>
+<li>** frontier 难度基准的正面战场**。奥赛题采集依赖稀缺的专家网络，OlympicArena 式工作难以复制；但为其做"解题过程标注与过程评估"是可参与的夹层。</li>
+</ul>
+<p>最后一个忠告：<strong>评测工作的影响力公式是"发现一个问题 × 提供一个工具"</strong>。只批判不提供替代方案的论文很快被遗忘；MMStar 之所以成功，是因为它在批判的同时给出了可复用的度量指标。设计你的研究时，永远问自己：我的工具会被下一个基准作者使用吗？</p>
+<h2 id="10">10. 术语表</h2>
+<ul>
+<li><strong>MLLM（Multimodal Large Language Model）</strong>：以大语言模型为核心、接受图像/视频等多模态输入的模型。</li>
+<li><strong>Benchmark（基准）</strong>：标准化的数据集与评分协议，用于横向比较模型能力。</li>
+<li><strong>CircularEval</strong>：MMBench 提出的选项循环移位评测协议，用于消除模型的选项位置偏好。</li>
+<li><strong>Position bias（位置偏好）</strong>：模型在多选题中系统性偏好特定选项位置（字母）的现象。</li>
+<li><strong>LLM-as-a-judge</strong>：用强 LLM 对被评模型的开放式输出打分的评估范式。</li>
+<li><strong>Judge 长度偏见</strong>：judge 模型偏好更长回答的系统性偏差，与实际质量无关。</li>
+<li><strong>同源偏见</strong>：judge 与被评模型共享基座或训练数据时相互高估的现象。</li>
+<li><strong>Data contamination（数据污染）</strong>：测试样本或其近重复出现在训练数据中，导致分数虚高。</li>
+<li><strong>Canary string</strong>：埋入数据的唯一标记串，用于检测数据是否被模型记忆。</li>
+<li><strong>Membership inference（成员推断）</strong>：推断特定样本是否属于模型训练集的攻击/审计方法。</li>
+<li><strong>视觉不可或缺（vision-indispensable）</strong>：MMStar 提出的基准设计标准——不看图就无法回答。</li>
+<li><strong>多模态增益/泄漏（MG/ML）</strong>：MMStar 提出的两个指标，分别度量多模态训练的真实提升与数据泄漏程度。</li>
+<li><strong>Benchmark saturation（基准饱和）</strong>：头部模型逼近基准上限、基准失去区分度的状态。</li>
+<li><strong>评测过拟合</strong>：针对特定基准的训练分布定向优化，分数提升但泛化不增。</li>
+<li><strong>POPE</strong>：以"图中是否有某物体"二元探针度量物体幻觉的评测方法。</li>
+<li><strong>CLIP-blind pair</strong>：CLIP 嵌入空间中距离很近但视觉内容明显不同的图像对，MMVP 用以探测视觉短板。</li>
+<li><strong>Temporal certificate</strong>：EgoSchema 提出的概念，刻画视频问答任务内在所需的最短时间跨度。</li>
+<li><strong>过程评估 / PRM</strong>：对推理链每一步的正确性进行评估；过程奖励模型是其实现之一。</li>
+<li><strong>RLVR（可验证奖励强化学习）</strong>：用可自动验证的信号（数值答案、测试通过）作为奖励的训练范式。</li>
+<li><strong>Agentic 评测</strong>：在可执行环境中以任务完成度而非答案文本评估模型，如 OSWorld、GAIA。</li>
+<li><strong>IRT（项目反应理论）</strong>：心理测量学中按题目难度与区分度建模被试能力的框架，正被引入模型评测。</li>
+</ul>
+<h2 id="11">11. 参考文献</h2>
+<p><strong>综述</strong></p>
+<p>[1] A Survey on Evaluation of Multimodal Large Language Models, 2024, arXiv:2408.15769, https://arxiv.org/abs/2408.15769</p>
+<p>[2] MME-Survey: A Comprehensive Survey on Evaluation of Multimodal LLMs, 2024, arXiv:2411.15296, https://arxiv.org/abs/2411.15296</p>
+<p>[3] A Survey of State of the Art Large Vision Language Models: Alignment, Benchmark, Evaluations and Challenges, 2025, arXiv:2501.02189, https://arxiv.org/abs/2501.02189</p>
+<p>[4] Multimodal Chain-of-Thought Reasoning: A Comprehensive Survey, 2025, arXiv:2503.12605, https://arxiv.org/abs/2503.12605</p>
+<p>[50] From Perception to Cognition: A Survey of Vision-Language Interactive Reasoning in Multimodal Large Language Models, 2025, arXiv:2509.25373, https://arxiv.org/abs/2509.25373</p>
+<p>[6] Vision Language Models: A Survey of 26K Papers, 2025, arXiv:2510.09586, https://arxiv.org/abs/2510.09586</p>
+<p><strong>评测基准</strong></p>
+<p>[5] MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI, 2023, arXiv:2311.16502, https://arxiv.org/abs/2311.16502</p>
+<p>[7] MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models, 2023, arXiv:2306.13394, https://arxiv.org/abs/2306.13394</p>
+<p>[8] MMBench: Is Your Multi-modal Model an All-around Player?, 2023, arXiv:2307.06281, https://arxiv.org/abs/2307.06281</p>
+<p>[9] SEED-Bench: Benchmarking Multimodal LLMs with Generative Comprehension, 2023, arXiv:2307.16125, https://arxiv.org/abs/2307.16125</p>
+<p>[10] MM-Vet: Evaluating Large Multimodal Models for Integrated Capabilities, 2023, arXiv:2308.02490, https://arxiv.org/abs/2308.02490</p>
+<p>[11] MMStar: Are We on the Right Way for Evaluating Large Vision-Language Models?, 2024, arXiv:2403.20330, https://arxiv.org/abs/2403.20330</p>
+<p>[12] MathVista: Evaluating Mathematical Reasoning of Foundation Models in Visual Contexts, 2023, arXiv:2310.02255, https://arxiv.org/abs/2310.02255</p>
+<p>[13] HallusionBench: An Advanced Diagnostic Suite for Entangled Language Hallucination and Visual Illusion in Large Vision-Language Models, 2023, arXiv:2310.14566, https://arxiv.org/abs/2310.14566</p>
+<p>[14] Eyes Wide Shut? Exploring the Visual Shortcomings of Multimodal LLMs (MMVP), 2024, arXiv:2401.06209, https://arxiv.org/abs/2401.06209</p>
+<p>[15] BLINK: Multimodal Large Language Models Can See but Not Perceive, 2024, arXiv:2404.12390, https://arxiv.org/abs/2404.12390</p>
+<p>[16] OCRBench: On the Hidden Mystery of OCR in Large Multimodal Models, 2023, arXiv:2305.07895, https://arxiv.org/abs/2305.07895</p>
+<p>[17] MME-RealWorld: Could Your Multimodal LLM Challenge High-Resolution Real-World Scenarios that are Difficult for Humans?, 2024, arXiv:2408.13257, https://arxiv.org/abs/2408.13257</p>
+<p>[18] Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis, 2024, arXiv:2405.21075, https://arxiv.org/abs/2405.21075</p>
+<p>[19] EgoSchema: A Diagnostic Benchmark for Very Long-form Video Language Understanding, 2023, arXiv:2308.09126, https://arxiv.org/abs/2308.09126</p>
+<p>[20] MLVU: Benchmarking Multi-task Long Video Understanding, 2024, arXiv:2406.04264, https://arxiv.org/abs/2406.04264</p>
+<p>[21] DynaMath: A Dynamic Visual Benchmark for Evaluating Mathematical Reasoning Robustness of Vision Language Models, 2024, arXiv:2411.00836, https://arxiv.org/abs/2411.00836</p>
+<p>[22] CharXiv: Charting Gaps in Realistic Chart Understanding in Multimodal LLMs, 2024, arXiv:2406.18521, https://arxiv.org/abs/2406.18521</p>
+<p>[23] OlympicArena: Benchmarking Multi-discipline Cognitive Reasoning for Superintelligent AI, 2024, arXiv:2406.12753, https://arxiv.org/abs/2406.12753</p>
+<p><strong>推理模型与过程评估</strong></p>
+<p>[24] R1-Onevision: Advancing Generalized Multimodal Reasoning through Cross-Modal Formalization, 2025, arXiv:2503.10615, https://arxiv.org/abs/2503.10615</p>
+<p>[25] OpenVLThinker: Complex Vision-Language Reasoning via Iterative Self-Improvement, 2025, arXiv:2503.17352, https://arxiv.org/abs/2503.17352</p>
+<p>[26] Visual-RFT: Visual Reinforcement Fine-Tuning, 2025, arXiv:2503.01785, https://arxiv.org/abs/2503.01785</p>
+<p><strong>模型技术报告（评测实践参考）</strong></p>
+<p>[27] Kimi-VL Technical Report, 2025, arXiv:2504.07491, https://arxiv.org/abs/2504.07491</p>
+<p>[28] GLM-4.5V Technical Report, 2025, arXiv:2507.01006, https://arxiv.org/abs/2507.01006</p>
+<p>[29] InternVL3: Exploring Advanced Training and Test-Time Recipes for Open-Source Multimodal Models, 2025, arXiv:2504.10479, https://arxiv.org/abs/2504.10479</p>
+<p>[30] Qwen2.5-VL Technical Report, 2025, arXiv:2502.13923, https://arxiv.org/abs/2502.13923</p>
+<p>[31] Qwen2.5-Omni Technical Report, 2025, arXiv:2503.20215, https://arxiv.org/abs/2503.20215</p>
+<p>[32] DeepSeek-VL2: Mixture-of-Experts Vision-Language Models, 2024, arXiv:2412.10302, https://arxiv.org/abs/2412.10302</p>
+<p>[33] Molmo and PixMo: Open Weights and Open Data for State-of-the-Art Vision-Language Models, 2024, arXiv:2409.17146, https://arxiv.org/abs/2409.17146</p>
+<p>[34] mPLUG-Owl3: Towards Long Image-Sequence Understanding in Multi-Modal Large Language Models, 2024, arXiv:2408.04840, https://arxiv.org/abs/2408.04840</p>
+<p>[35] LongVILA: Scaling Long-Context Visual Language Models for Long Videos, 2024, arXiv:2408.10188, https://arxiv.org/abs/2408.10188</p>
+<p>[36] Qwen3-VL Technical Report, 2025, arXiv:2511.21631, https://arxiv.org/abs/2511.21631</p>
+<p><strong>前驱模型与背景</strong></p>
+<p>[37] Flamingo: a Visual Language Model for Few-Shot Learning, 2022, arXiv:2204.14198, https://arxiv.org/abs/2204.14198</p>
+<p>[38] Video-ChatGPT: Towards Detailed Video Understanding via Large Vision and Language Models, 2023, arXiv:2306.05424, https://arxiv.org/abs/2306.05424</p>
+<p>[39] Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond, 2023, arXiv:2308.12966, https://arxiv.org/abs/2308.12966</p>
+<p>[40] VILA: On Pre-training for Visual Language Models, 2023, arXiv:2312.07533, https://arxiv.org/abs/2312.07533</p>
+<p>[41] LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts, 2024, arXiv:2407.04973, https://arxiv.org/abs/2407.04973</p>
+<p>[42] MV-MATH: Evaluating Math Reasoning in Multi-Visual Contexts, 2025, arXiv:2502.20808, https://arxiv.org/abs/2502.20808</p>
+<p>[43] OCRBench v2: An Improved Benchmark for Evaluating Large Multimodal Models on Visual Text Localization and Reasoning, 2024, arXiv:2501.00321, https://arxiv.org/abs/2501.00321</p>
+<p>[44] MathScape: Evaluating MLLMs in Multimodal Math Scenarios through a Hierarchical Benchmark, 2024, arXiv:2408.07543, https://arxiv.org/abs/2408.07543</p>
+<p>[45] Open Eyes, Then Reason: Fine-grained Visual Mathematical Understanding in MLLMs, 2025, arXiv:2501.06430, https://arxiv.org/abs/2501.06430</p>
+<p>[POPE] POPE: Evaluating Object Hallucination in Large Vision-Language Models, Li et al., 2023, arXiv:2305.10355, https://arxiv.org/abs/2305.10355</p>
+<p>[46] ScienceQA: Learn to Explain: Multimodal Reasoning via Thought Chains for Science Question Answering, Lu et al., 2022, arXiv:2209.09513, https://arxiv.org/abs/2209.09513</p>
+<p>[47] OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments, Xie et al., 2024, arXiv:2404.07972, https://arxiv.org/abs/2404.07972</p>
+<p>[48] GAIA: A Benchmark for General AI Assistants, Mialon et al., 2023, arXiv:2311.12983, https://arxiv.org/abs/2311.12983</p>
+<p>[49] WebArena: A Realistic Web Environment for Building Autonomous Agents, Zhou et al., 2023, arXiv:2307.13854, https://arxiv.org/abs/2307.13854</p>
+</article>
+<footer class="footer"><span>多模态图谱 · 由 Codex + sub-agent swarm 于 2026-09 调研撰写</span><a href="#top">回到顶部 ↑</a></footer>
+</main>
+</div>
+<div class="reading-bar" id="reading-bar"></div>
+<script src="../../js/site.js"></script>
+</body>
+</html>

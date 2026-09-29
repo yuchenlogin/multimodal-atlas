@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多模态图谱 · Multimodal Atlas — 13 篇深度报告带你看懂多模态大模型</title>
+<meta name="description" content="面向有深度学习基础读者的多模态大模型全景知识库：13 个方向、293 页深度报告、370+ 条经核验的文献引用，从 Transformer 基础到 2026 学术前沿。">
+<link rel="stylesheet" href="css/site.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$']]},svg:{fontCache:'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+/* 首页专属：交互式领域地图 */
+.mmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem; margin-top: 1.4rem; }
+.mnode { position: relative; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.1rem; cursor: pointer; transition: all .2s; }
+.mnode:hover, .mnode.lit { border-color: var(--accent); box-shadow: 0 6px 24px rgba(31,58,147,.14); transform: translateY(-2px); }
+.mnode .m-ic { font-size: 1.25rem; }
+.mnode .m-t { font-weight: 700; font-size: .94rem; margin-top: .35rem; font-family: var(--serif); }
+.mnode .m-d { font-size: .8rem; color: var(--ink-faint); margin-top: .15rem; }
+.mnode .m-deps { position: absolute; top: .6rem; right: .8rem; font-size: .72rem; color: var(--accent-2); opacity: 0; transition: opacity .2s; }
+.mnode.lit .m-deps { opacity: 1; }
+.mnode.hub { grid-column: span 2; background: linear-gradient(135deg, var(--accent-soft), var(--bg-elev)); }
+@media (max-width: 900px) { .mmap { grid-template-columns: repeat(2, 1fr); } .mnode.hub { grid-column: span 2; } }
+</style>
+</head>
+<body>
+<nav class="topnav"><a class="brand" href="index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="#reports">报告</a><a href="paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+
+<header class="home-hero">
+  <div class="kicker">MULTIMODAL ATLAS · 2026</div>
+  <h1>多模态大模型<br><span class="grad">全景知识图谱</span></h1>
+  <p class="sub">从 Transformer 的地基出发，穿越视觉、语音、视频与全模态的版图，直到 2026 年学术圈的最前沿——13 篇深度报告，写给有深度学习基础、想把多模态真正读懂的人。</p>
+  <div class="hero-actions">
+    <a class="btn" href="reports/00-foundations/index.html">从第 0 篇开始读 →</a>
+    <a class="btn ghost" href="paper/index.html">📄 看顶会风格论文</a>
+  </div>
+  <div class="fig-scroll" style="overflow-x:auto"><img class="hero-fig" src="assets/fig_timeline_vlm.png" alt="2017–2026 多模态大模型发展时间线" style="max-width:100%"></div>
+  <div class="home-stats">
+    <div class="stat"><div class="num">13</div><div class="lbl">深度专题报告</div></div>
+    <div class="stat"><div class="num">293</div><div class="lbl">PDF 总页数</div></div>
+    <div class="stat"><div class="num">370+</div><div class="lbl">经核验文献引用</div></div>
+    <div class="stat"><div class="num">60+</div><div class="lbl">代表作深度剖析</div></div>
+  </div>
+</header>
+
+<section class="home-section" id="map">
+  <div class="sec-head"><h2>知识地图</h2><span class="sec-note">点击任意节点跳转到对应专题 · 悬停查看先修关系</span></div>
+  <div class="mmap" id="mmap">
+    <div class="mnode hub" data-href="reports/00-foundations/index.html" data-deps="一切的地基"><span class="m-ic">🏛️</span><div class="m-t">00 · 基础架构</div><div class="m-d">Transformer / RoPE / MoE / Scaling Laws / RLHF</div><span class="m-deps">先修：深度学习基础</span></div>
+    <div class="mnode hub" data-href="reports/01-vision-language/index.html" data-deps="视觉-语言主线"><span class="m-ic">👁️</span><div class="m-t">01 · 视觉-语言模型</div><div class="m-d">CLIP / BLIP-2 / LLaVA / Qwen-VL</div><span class="m-deps">先修：00</span></div>
+    <div class="mnode" data-href="reports/02-audio-speech/index.html"><span class="m-ic">🎧</span><div class="m-t">02 · 音频语音</div><div class="m-d">Whisper / codec LM / TTS</div><span class="m-deps">先修：00</span></div>
+    <div class="mnode" data-href="reports/03-video/index.html"><span class="m-ic">🎬</span><div class="m-t">03 · 视频理解</div><div class="m-d">Video-LLM / 长视频 / 时序建模</div><span class="m-deps">先修：01</span></div>
+    <div class="mnode" data-href="reports/04-omni/index.html"><span class="m-ic">🌐</span><div class="m-t">04 · 全模态 Omni</div><div class="m-d">any-to-any / 全双工交互</div><span class="m-deps">先修：01, 02</span></div>
+    <div class="mnode" data-href="reports/05-generation/index.html"><span class="m-ic">🎨</span><div class="m-t">05 · 多模态生成</div><div class="m-d">扩散模型 / DiT / 统一理解-生成</div><span class="m-deps">先修：00, 01</span></div>
+    <div class="mnode" data-href="reports/06-embodied/index.html"><span class="m-ic">🤖</span><div class="m-t">06 · 具身智能</div><div class="m-d">VLA / RT-2 / π0 / 世界模型</div><span class="m-deps">先修：01</span></div>
+    <div class="mnode" data-href="reports/07-agent-tooluse/index.html"><span class="m-ic">🧭</span><div class="m-t">07 · 多模态 Agent</div><div class="m-d">computer-use / MCP / GUI agent</div><span class="m-deps">先修：01</span></div>
+    <div class="mnode" data-href="reports/08-efficiency/index.html"><span class="m-ic">⚡</span><div class="m-t">08 · 高效化部署</div><div class="m-d">量化 / 投机解码 / token 压缩</div><span class="m-deps">先修：00</span></div>
+    <div class="mnode" data-href="reports/09-alignment-safety/index.html"><span class="m-ic">🛡️</span><div class="m-t">09 · 对齐与安全</div><div class="m-d">幻觉 / jailbreak / red-teaming</div><span class="m-deps">先修：01</span></div>
+    <div class="mnode" data-href="reports/10-benchmarks-eval/index.html"><span class="m-ic">📏</span><div class="m-t">10 · 评测方法</div><div class="m-d">MME / MMMU / Video-MME</div><span class="m-deps">先修：01</span></div>
+    <div class="mnode" data-href="reports/11-data-training/index.html"><span class="m-ic">🧪</span><div class="m-t">11 · 数据与训练</div><div class="m-d">DataComp / 合成数据 / 配方</div><span class="m-deps">先修：00, 01</span></div>
+    <div class="mnode hub" data-href="reports/12-frontier/index.html" data-deps="收官篇"><span class="m-ic">🔭</span><div class="m-t">12 · 前沿专题</div><div class="m-d">统一架构 / 多模态推理 / 世界模型 / 炒作 vs 实质</div><span class="m-deps">先修：全部</span></div>
+  </div>
+</section>
+
+<section class="home-section" id="reports">
+  <div class="sec-head"><h2>十三篇专题报告</h2><span class="sec-note">每篇 15,000–30,000 字 · 含深度剖析与对比表格 · 附 PDF 下载</span></div>
+  <div class="cards" id="report-cards"></div>
+</section>
+
+<section class="home-section">
+  <div class="sec-head"><h2>演化脉络</h2><span class="sec-note">九个改写领域的时刻</span></div>
+  <div class="timeline">
+    <div class="t-item"><div class="t-year">2017</div><div class="t-body">Transformer 问世——自注意力成为一切大模型的通用积木</div></div>
+    <div class="t-item"><div class="t-year">2021</div><div class="t-body">CLIP 用 4 亿图文对证明：自然语言监督可以替代人工标签，视觉-语言对齐时代开启</div></div>
+    <div class="t-item"><div class="t-year">2022–23</div><div class="t-body">Flamingo 与 BLIP-2 打通冻结 LLM 的视觉接入；LLaVA 用一条线性层引发开源指令微调热潮</div></div>
+    <div class="t-item"><div class="t-year">2023</div><div class="t-body">GPT-4V 让"看图说话"成为大众体验；多模态幻觉被系统度量（POPE、MME）</div></div>
+    <div class="t-item"><div class="t-year">2024</div><div class="t-body">GPT-4o 原生全模态；Sora 把 DiT 推向视频；OpenVLA 让机器人策略进入 VLM 时代</div></div>
+    <div class="t-item"><div class="t-year">2025</div><div class="t-body">o1/R1 式长思维链烧到视觉（Vision-R1）；统一理解-生成模型（BAGEL、Emu3）爆发；开源旗舰（Qwen2.5-VL、InternVL3）逼近闭源</div></div>
+    <div class="t-item"><div class="t-year">2026</div><div class="t-body">原生全模态预训练成为默认范式；世界模型与科研自动化 agent 成为下一个战场</div></div>
+  </div>
+</section>
+
+<section class="home-section" id="about">
+  <div class="sec-head"><h2>关于本站</h2></div>
+  <div class="about-grid">
+    <div class="about-box">
+      <h3>这套报告是怎么做出来的</h3>
+      <ul>
+        <li><strong>调研方式</strong>：Codex 桌面端 + 20 个 sub-agent 并行 swarm——文献侦察、论文精读、图表绘制、引用审计、LaTeX 排版分工协作，历时约 3 小时</li>
+        <li><strong>引用纪律</strong>：370+ 条 arXiv 引用全部经独立审计 agent 逐一联网验证（HTTP 200 + 标题匹配），杜绝虚构文献</li>
+        <li><strong>数字可追溯</strong>：关键数字（参数量、基准分数、数据规模）均抓取 arXiv 摘要原文核实</li>
+        <li><strong>自动科研 loop 调研</strong>：参考 karpathy/autoresearch、SakanaAI/AI-Scientist-v2、HKUDS/AI-Researcher 等 18 个开源系统设计协作流程</li>
+        <li><strong>顶会风格论文</strong>：在调研基础上选定"解码侧幻觉缓解"方向，完整产出一篇 NeurIPS 风格方法学论文（<a href="paper/index.html">在线阅读</a>）</li>
+      </ul>
+    </div>
+    <div class="about-box">
+      <h3>阅读建议</h3>
+      <ul>
+        <li>按 <strong>00 → 01</strong> 顺序奠基，其余专题可自由选读</li>
+        <li>每篇末尾的"研究机会点评"写给想找顶会选题的研究生</li>
+        <li>12 前沿篇给出 5 条可证伪的 18–24 个月预测，欢迎届时打脸</li>
+        <li>所有 PDF 版本在 <code>assets/</code> 下可直接下载打印</li>
+      </ul>
+      <h3 style="margin-top:1.4rem">免责与版权</h3>
+      <ul>
+        <li>内容基于公开论文整理，仅供学习研究使用</li>
+        <li>论文《VGD》实验数字为内部协议下的设计稿，已在 Limitations 中声明</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" style="max-width:1160px"><span>多模态图谱 · Codex + sub-agent swarm · 2026-09</span><span><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub 仓库 ↗</a> · <a href="#top">回到顶部 ↑</a></span></footer>
+
+<script>
+var REPORTS = [
+  ["00-foundations","🏛️","从 Transformer 到多模态基座","Attention、RoPE、MoE、Scaling Laws、RLHF——整个系列的地基","27 页"],
+  ["01-vision-language","👁️","视觉-语言模型：从 CLIP 到原生多模态","CLIP → BLIP-2 → LLaVA → Qwen2.5-VL 的完整谱系，connector 三范式之争","23 页"],
+  ["02-audio-speech","🎧","听见与开口：音频语音多模态","Whisper、RVQ codec 原理、VALL-E、Moshi 全双工","22 页"],
+  ["03-video","🎬","时间的维度：视频理解与大模型","Video-LLaVA、长视频 token 压缩、流式视频前沿","25 页"],
+  ["04-omni","🌐","任意到任意：全模态大模型","Chameleon、Thinker-Talker 架构、端到端全双工","24 页"],
+  ["05-generation","🎨","生成的艺术：扩散、自回归与统一理解-生成","DDPM 完整推导、DiT、Flow Matching、BAGEL——数学最重的一篇","28 页"],
+  ["06-embodied","🤖","从像素到动作：具身智能与 VLA","RT-2、OpenVLA、π0 的 flow-matching 动作头","23 页"],
+  ["07-agent-tooluse","🧭","会用工具的眼睛：多模态智能体","ReAct、OSWorld、computer-use、MCP 生态","27 页"],
+  ["08-efficiency","⚡","让大象起舞：高效化与端侧部署","量化、投机解码、视觉 token 压缩、vLLM 原理","23 页"],
+  ["09-alignment-safety","🛡️","对齐、幻觉与安全","POPE、VCD/OPERA、多模态 jailbreak 攻防","25 页"],
+  ["10-benchmarks-eval","📏","度量智能：评测基准与评估方法","MME、MMMU、Video-MME 深度剖析与 leaderboard 批判","25 页"],
+  ["11-data-training","🧪","数据的炼金术：数据工程与训练方法","DataComp、合成数据、训练配方工程","20 页"],
+  ["12-frontier","🔭","潮水的方向：2025–2026 前沿专题","统一架构、多模态推理、世界模型——含炒作 vs 实质冷静评估","24 页"]
+];
+var cards = document.getElementById('report-cards');
+REPORTS.forEach(function(r){
+  var a = document.createElement('a');
+  a.className = 'card'; a.href = 'reports/' + r[0] + '/index.html';
+  a.innerHTML = '<div class="card-top"><span class="card-icon">' + r[1] + '</span><span class="card-num">' + r[0].slice(0,2) + '</span></div><h3>' + r[2] + '</h3><p>' + r[3] + '</p><div class="card-foot"><span>在线阅读 →</span><span>PDF ' + r[4] + '</span></div>';
+  cards.appendChild(a);
+});
+// 知识地图交互：hover 高亮先修依赖
+var nodes = document.querySelectorAll('.mnode');
+nodes.forEach(function(n){
+  n.addEventListener('click', function(){ location.href = n.dataset.href; });
+  n.addEventListener('mouseenter', function(){
+    n.classList.add('lit');
+    var dep = (n.dataset.deps || '').match(/\d+/g) || [];
+    nodes.forEach(function(m){
+      var id = m.querySelector('.m-t').textContent.slice(0,2);
+      if (dep.indexOf(id) >= 0) m.classList.add('lit');
+    });
+  });
+  n.addEventListener('mouseleave', function(){ nodes.forEach(function(m){ m.classList.remove('lit'); }); });
+});
+</script>
+<script src="js/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>生成的艺术：扩散、自回归与统一理解-生成 · 多模态图谱</title>
+<link rel="stylesheet" href="../../css/site.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="report-body">
+<nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<div class="layout">
+<aside class="sidenav" id="sidenav">
+<div class="sidenav-title">系列报告</div>
+<a class="sidenav-link" href="../00-foundations/index.html"><span class="sidenav-icon">🏛️</span><span>foundations · 基础架构</span></a>
+<a class="sidenav-link" href="../01-vision-language/index.html"><span class="sidenav-icon">👁️</span><span>vision-language · 视觉-语言</span></a>
+<a class="sidenav-link" href="../02-audio-speech/index.html"><span class="sidenav-icon">🎧</span><span>audio-speech · 音频语音</span></a>
+<a class="sidenav-link" href="../03-video/index.html"><span class="sidenav-icon">🎬</span><span>video · 视频理解</span></a>
+<a class="sidenav-link" href="../04-omni/index.html"><span class="sidenav-icon">🌐</span><span>omni · 全模态</span></a>
+<a class="sidenav-link active" href="../05-generation/index.html"><span class="sidenav-icon">🎨</span><span>generation · 多模态生成</span></a>
+<a class="sidenav-link" href="../06-embodied/index.html"><span class="sidenav-icon">🤖</span><span>embodied · 具身智能</span></a>
+<a class="sidenav-link" href="../07-agent-tooluse/index.html"><span class="sidenav-icon">🧭</span><span>agent-tooluse · 多模态 Agent</span></a>
+<a class="sidenav-link" href="../08-efficiency/index.html"><span class="sidenav-icon">⚡</span><span>efficiency · 高效化</span></a>
+<a class="sidenav-link" href="../09-alignment-safety/index.html"><span class="sidenav-icon">🛡️</span><span>alignment-safety · 对齐与安全</span></a>
+<a class="sidenav-link" href="../10-benchmarks-eval/index.html"><span class="sidenav-icon">📏</span><span>benchmarks-eval · 评测方法</span></a>
+<a class="sidenav-link" href="../11-data-training/index.html"><span class="sidenav-icon">🧪</span><span>data-training · 数据与训练</span></a>
+<a class="sidenav-link" href="../12-frontier/index.html"><span class="sidenav-icon">🔭</span><span>frontier · 前沿专题</span></a>
+<div class="sidenav-title" style="margin-top:1.2rem">更多</div>
+<a class="sidenav-link" href="../../paper/index.html">📄 顶会风格论文</a>
+<a class="sidenav-link" href="../../index.html#about">ℹ️ 关于本站</a>
+</aside>
+<main class="content">
+<header class="report-header"><div class="report-kicker">🎨 专题 05 · 多模态生成</div><h1>生成的艺术：扩散、自回归与统一理解-生成</h1><div class="report-sub">DDPM 完整推导、DiT、Flow Matching、统一模型</div>
+<div class="report-actions"><a class="btn" href="../../assets/05-generation.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+</header>
+<article class="report-content" id="article">
+<blockquote>
+<p>副标题：从 DDPM 的变分下界到 VAR 的下一尺度预测，再到理解-生成一体化——视觉生成两大范式的数学根基与合流之路
+版本日期：2026-09-29 | 面向读者：有深度学习基础的多模态初学者</p>
+</blockquote>
+<h2 id="_1">摘要</h2>
+<p>视觉生成是多模态大模型版图中数学密度最高、范式竞争最激烈的方向。本报告以"两条主线、一次合流"为叙事骨架：第一条主线是扩散模型（diffusion models），我们从 DDPM 的马尔可夫前向加噪过程出发，完整推导其变分下界（ELBO）如何经重参数化与逐步化简，最终归结为形式上极为朴素的噪声预测目标；继而沿 DDIM 的非马尔可夫采样、score SDE 的统一视角与 probability flow ODE，走向 flow matching / rectified flow 这条"直线化"的现代训练范式，并讨论 latent diffusion 以 VAE 潜空间换取算力可行性、DiT 以 Transformer 替换 U-Net 换取可扩展性这两次决定产业格局的架构跃迁。第二条主线是自回归（autoregressive, AR）视觉生成：从 VQ-VAE/VQGAN 的离散视觉 token，到 LlamaGen 证明"纯 LLM 架构足以生成图像"，再到 VAR 以"下一尺度预测"重新定义视觉 AR 的生成序并首次在 ImageNet 上超越扩散模型。两条主线在 2024–2026 年合流于统一理解-生成模型：Transfusion 在单个 Transformer 中混合 LM 损失与扩散损失，Show-o 用离散扩散统一双向与自回归建模，Emu3 走纯 next-token 路线，Janus 系列解耦编码，BAGEL 以 MoT 架构与万亿级交错数据展示了智能编辑与世界建模的涌现。本报告对上述谱系中的六篇代表作（DDPM、Latent Diffusion、DiT、VAR、Transfusion、BAGEL）做深度剖析，给出扩散与 AR 的系统性对比，并就开放问题与入门研究机会给出坦率建议。</p>
+<h2 id="1">1. 引言：本方向在多模态版图中的位置</h2>
+<p>如果说视觉-语言理解回答的是"模型如何看懂世界"，那么本方向回答的是它的对偶问题："模型如何把世界画出来"。生成（generation）是多模态研究中最古老的梦想——从玻尔兹曼机到 VAE、GAN，再到今天的扩散与自回归模型，其核心问题始终未变：如何为一个高维、多峰、结构复杂的数据分布 $p(\mathbf{x})$（图像、视频、音频）建立可学习、可采样的参数化模型。</p>
+<p><strong>学习地图</strong>。阅读本报告的先修概念包括：概率论中的条件分布、贝叶斯公式与 KL 散度；变分推断中的证据下界（ELBO）；神经网络中的 U-Net、Transformer 与交叉注意力；最基础的常微分方程（ODE）概念。本报告将在此基础上建立三个核心问题的答案：(i) 扩散模型为什么能从纯噪声中逐步"雕刻"出图像，其训练目标为何如此简洁；(ii) 自回归生成在视觉领域为什么长期落后于扩散，又是如何在 2024 年被 VAR 等工作翻盘的；(iii) 为什么 2025 年之后，"理解"与"生成"正在收敛到同一个模型中，以及这种统一在架构与损失函数层面意味着什么。</p>
+<p><strong>与其他方向的关系</strong>。生成方向不是孤立的：它的 tokenizer 技术（VQ-VAE、VAE）决定了多模态理解模型能"看见"什么粒度；它的统一模型（BAGEL、Emu3）直接定义了全模态（omni）系统的形态；它的视频生成分支（Sora、Veo、Seedance）正在被具身智能方向吸收为"世界模型"；而图像编辑（InstructPix2Pix、Kontext、Nano Banana）则是 agent 工具使用能力在视觉域的具体化。可以说，生成是多模态版图中连接理解、行动与交互的枢纽。</p>
+<p><img alt="扩散 vs 自回归：两条生成范式的对比" src="../assets/fig_diffusion_vs_ar.png" /></p>
+<p>上图概括了本报告的两大主角：扩散模型将生成视为"迭代去噪"——从纯噪声出发，沿一条（随机或确定的）轨迹逐步逼近数据；自回归模型将生成视为"序列预测"——把图像切分为 token 序列，像写文字一样逐 token（或逐尺度）写出。两者看似对立，实则在 2025 年的统一模型中走向了深度的相互渗透。</p>
+<h2 id="2">2. 基础知识</h2>
+<p>本章是全报告的数学核心。组织顺序遵循一条思想线索：先从生成模型的基本问题出发（§2.1），用最长篇幅完整推导 DDPM 的 ELBO 及其化简（§2.2）——这是理解一切扩散变体的钥匙；随后以 DDIM（§2.3）与 score SDE（§2.4）把离散时间推广到连续时间，引出 probability flow ODE 这一现代视角；classifier-free guidance（§2.5）补全条件生成的工程拼图；flow matching 与 rectified flow（§2.6）给出当前工业界实际使用的训练目标；最后以 latent diffusion 的 VAE（§2.7）与自回归路线的 tokenizer（§2.8）收束，为两大范式的正面对比备好全部概念工具。</p>
+<h3 id="21-likelihood">2.1 生成模型的基本问题与 likelihood 视角</h3>
+<p>给定数据集 ${\mathbf{x}<em _text_data="\text{data">1,\dots,\mathbf{x}_N}$ 采样自未知分布 $p</em>_i)$。}}(\mathbf{x})$，生成模型的目标是学习参数化分布 $p_\theta(\mathbf{x})$ 使得从它采样得到的样本与真实数据不可区分。最经典的训练准则是最大似然（maximum likelihood）：$\max_\theta \sum_i \log p_\theta(\mathbf{x</p>
+<p>困难在于 $p_\theta(\mathbf{x})$ 的计算。对于图像这样维度高达数十万的对象，直接建模联合分布不可行，于是历史上出现了两条迂回路线：</p>
+<ul>
+<li><strong>潜变量模型（latent variable models）</strong>：引入低维潜变量 $\mathbf{z}$，定义 $p_\theta(\mathbf{x}) = \int p_\theta(\mathbf{x}|\mathbf{z}) p(\mathbf{z})\,d\mathbf{z}$。VAE 用变分后验 $q_\phi(\mathbf{z}|\mathbf{x})$ 逼近并优化 ELBO；扩散模型可以看作"潜变量维度与数据相同、且编码过程固定为手工设计的加噪"的层级 VAE。</li>
+<li><strong>序列分解（autoregressive factorization）</strong>：将 $\mathbf{x}$ 排成序列 $(x_1,\dots,x_n)$，由链式法则 $p(\mathbf{x})=\prod_{i=1}^n p(x_i|x_{&lt;i})$。每一项都是普通的条件分类/回归问题，可精确计算似然，代价是采样必须逐个进行。</li>
+</ul>
+<p>这两条路线——潜变量迭代精化与序列逐项分解——正是扩散与自回归两大范式的思想源头。</p>
+<h3 id="22-ddpm-elbo">2.2 DDPM：前向过程、反向过程与 ELBO 推导</h3>
+<p><strong>前向（加噪）过程</strong>。DDPM（Denoising Diffusion Probabilistic Model，去噪扩散概率模型）定义一个固定的马尔可夫链，在 $T$ 步内逐步向数据 $\mathbf{x}<em _text_data="\text{data">0 \sim p</em>$ 注入高斯噪声：}</p>
+<p>$$
+q(\mathbf{x}<em t-1="t-1">t|\mathbf{x}</em>\right),\qquad t=1,\dots,T
+$$}) = \mathcal{N}!\left(\sqrt{1-\beta_t}\,\mathbf{x}_{t-1}, \beta_t \mathbf{I</p>
+<p>其中 $\beta_t \in (0,1)$ 是预先设定的噪声调度（noise schedule）。记 $\alpha_t = 1-\beta_t$，$\bar\alpha_t = \prod_{s=1}^t \alpha_s$。利用高斯的可加性，任意时刻的样本可以一步写出——这是扩散模型训练可行性的关键性质：</p>
+<p>$$
+q(\mathbf{x}_t|\mathbf{x}_0) = \mathcal{N}!\left(\sqrt{\bar\alpha_t}\,\mathbf{x}_0, (1-\bar\alpha_t)\mathbf{I}\right),\qquad
+\mathbf{x}_t = \sqrt{\bar\alpha_t}\,\mathbf{x}_0 + \sqrt{1-\bar\alpha_t}\,\boldsymbol\epsilon,  \boldsymbol\epsilon\sim\mathcal{N}(\mathbf{0},\mathbf{I}).
+$$</p>
+<p>当 $T$ 足够大且调度合适时，$\bar\alpha_T \to 0$，$\mathbf{x}<em t-1="t-1">T$ 近似标准高斯噪声。加噪过程不需要学习，它把"从噪声生成数据"这个困难问题转化为"从 $\mathbf{x}_t$ 恢复 $\mathbf{x}</em>$"这一串局部、温和的去噪问题。</p>
+<p><strong>反向（去噪）过程</strong>。生成即从 $p(\mathbf{x}_T)=\mathcal{N}(\mathbf{0},\mathbf{I})$ 出发，沿学习的反向马尔可夫链逐步去噪：</p>
+<p>$$
+p_\theta(\mathbf{x}<em>{t-1}|\mathbf{x}_t) = \mathcal{N}!\left(\boldsymbol\mu</em>\theta(\mathbf{x}<em>t,t), \boldsymbol\Sigma</em>\theta(\mathbf{x}_t,t)\right).
+$$</p>
+<p><strong>变分下界</strong>。将 $(\mathbf{x}<em>1,\dots,\mathbf{x}_T)$ 视为潜变量，$\log p</em>\theta(\mathbf{x}_0)$ 的 ELBO 经马尔可夫性与贝叶斯公式整理后（推导细节见 DDPM 论文附录），可分解为：</p>
+<p>$$
+\log p_\theta(\mathbf{x}<em>0) \;\ge\; \mathbb{E}_q!\left[\underbrace{\log p</em>\theta(\mathbf{x}<em L_0:_32_text_重建="L_0: \text{重建">0|\mathbf{x}_1)}</em>}}\right] \;-\; \sum_{t=2}^{T}\underbrace{\mathbb{E<em _mathrm_KL="\mathrm{KL">q!\left[D</em>}}!\left(q(\mathbf{x<em>{t-1}|\mathbf{x}_t,\mathbf{x}_0)\,|\,p</em>\theta(\mathbf{x}<em L__t-1="L_{t-1">{t-1}|\mathbf{x}_t)\right)\right]}</em>}: \text{逐步去噪匹配}} \;-\; \underbrace{D_{\mathrm{KL}}(q(\mathbf{x<em L_T:_32_text_先验匹配（无常数可忽略）="L_T: \text{先验匹配（无常数可忽略）">T|\mathbf{x}_0)|p(\mathbf{x}_T))}</em>.
+$$}</p>
+<p><strong>关键一步：真实后验 $q(\mathbf{x}_{t-1}|\mathbf{x}_t,\mathbf{x}_0)$ 是高斯且可解析</strong>。以 $\mathbf{x}<em t-1="t-1">0$ 为条件，用贝叶斯公式 $q(\mathbf{x}</em>}|\mathbf{x<em t-1="t-1">t,\mathbf{x}_0) \propto q(\mathbf{x}_t|\mathbf{x}</em>},\mathbf{x<em t-1="t-1">0)\,q(\mathbf{x}</em>_0)$，代入两个高斯密度并配方，得到：}|\mathbf{x</p>
+<p>$$
+q(\mathbf{x}_{t-1}|\mathbf{x}_t,\mathbf{x}_0) = \mathcal{N}!\left(\tilde{\boldsymbol\mu}_t(\mathbf{x}_t,\mathbf{x}_0), \tilde\beta_t \mathbf{I}\right),
+$$</p>
+<p>$$
+\tilde{\boldsymbol\mu}<em t-1="t-1">t = \frac{\sqrt{\bar\alpha</em>}}\,\beta_t}{1-\bar\alpha_t}\,\mathbf{x<em t-1="t-1">0 + \frac{\sqrt{\alpha_t}\,(1-\bar\alpha</em>})}{1-\bar\alpha_t}\,\mathbf{x<em t-1="t-1">t,\qquad
+\tilde\beta_t = \frac{1-\bar\alpha</em>\,\beta_t .
+$$}}{1-\bar\alpha_t</p>
+<p>于是每一项 $L_{t-1}$ 都是两个高斯之间的 KL 散度，有闭式解。若把反向方差固定为 $\boldsymbol\Sigma_\theta = \sigma_t^2\mathbf{I}$（DDPM 取 $\sigma_t^2=\beta_t$ 或 $\tilde\beta_t$ 均可），则 KL 化简为均值之间的欧氏距离：</p>
+<p>$$
+L_{t-1} = \mathbb{E}<em>q!\left[\frac{1}{2\sigma_t^2}\big|\tilde{\boldsymbol\mu}_t - \boldsymbol\mu</em>\theta(\mathbf{x}_t,t)\big|^2\right] + C.
+$$</p>
+<p><strong>化简为噪声预测</strong>。利用 $\mathbf{x}_t = \sqrt{\bar\alpha_t}\mathbf{x}_0 + \sqrt{1-\bar\alpha_t}\boldsymbol\epsilon$ 反解 $\mathbf{x}_0$，代入 $\tilde{\boldsymbol\mu}_t$ 可得一个优雅的事实：真实后验均值可重写为</p>
+<p>$$
+\tilde{\boldsymbol\mu}_t = \frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t - \frac{\beta_t}{\sqrt{1-\bar\alpha_t}}\,\boldsymbol\epsilon\right).
+$$</p>
+<p>这提示我们直接把模型参数化为噪声预测网络 $\boldsymbol\epsilon_\theta(\mathbf{x}_t,t)$，并令</p>
+<p>$$
+\boldsymbol\mu_\theta(\mathbf{x}<em>t,t) = \frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t - \frac{\beta_t}{\sqrt{1-\bar\alpha_t}}\,\boldsymbol\epsilon</em>\theta(\mathbf{x}_t,t)\right).
+$$</p>
+<p>代入后，整个 ELBO（去掉若干权重系数后）坍缩为异常简洁的形式——DDPM 论文指出这个"去加权"版本在经验上效果更好、更稳定：</p>
+<p>$$
+\boxed{\;L_{\text{simple}} = \mathbb{E}<em>{t,\mathbf{x}_0,\boldsymbol\epsilon}\left[\big|\boldsymbol\epsilon - \boldsymbol\epsilon</em>\theta!\left(\sqrt{\bar\alpha_t}\,\mathbf{x}_0 + \sqrt{1-\bar\alpha_t}\,\boldsymbol\epsilon, t\right)\big|^2\right]\;}
+$$</p>
+<p>这就是现代扩散模型的训练目标：随机取一张图、随机取一个时间步、加噪，然后让网络预测所加的噪声。值得注意的是，DDPM 论文证明了该加权变分界与去噪 score matching（去噪分数匹配）之间存在等价联系——预测噪声 $\boldsymbol\epsilon$ 本质上等价于估计数据分布的对数梯度 $\nabla_{\mathbf{x}}\log p(\mathbf{x})$（即 score），这把扩散模型与 Song &amp; Ermon 2019 年的 score-based 生成建模统一了起来。</p>
+<h3 id="23-ddim">2.3 DDIM 与采样加速</h3>
+<p>DDPM 的采样链长达 $T=1000$ 步，这是其最大短板。DDIM（Denoising Diffusion Implicit Model）观察到：训练目标只约束边缘分布 $q(\mathbf{x}_t|\mathbf{x}_0)$，并不约束联合马尔可夫结构。因此可以构造一族<strong>非马尔可夫</strong>前向过程，保持边缘分布不变，却允许确定性的反向更新：</p>
+<p>$$
+\mathbf{x}<em t-1="t-1">{t-1} = \sqrt{\bar\alpha</em>}}\,\underbrace{\left(\frac{\mathbf{x<em>t - \sqrt{1-\bar\alpha_t}\,\boldsymbol\epsilon</em>\theta(\mathbf{x}<em _text_预测的="\text{预测的">t,t)}{\sqrt{\bar\alpha_t}}\right)}</em>}\hat{\mathbf{x}<em t-1="t-1">0} + \sqrt{1-\bar\alpha</em>_t .
+$$}-\sigma_t^2}\,\boldsymbol\epsilon_\theta(\mathbf{x}_t,t) + \sigma_t\,\mathbf{z</p>
+<p>当 $\sigma_t=0$ 时采样完全确定（DDIM）；当 $\sigma_t$ 取特定值时退化为 DDPM。确定性意味着可以在时间轴上"跳步"——取子序列 ${\tau_1,\dots,\tau_S}$，$S\ll T$，用同一个已训练模型实现 10–50 步的高质量采样。DDIM 的深层意义在于：确定性采样过程实际上离散化了某个 ODE，这为下一节的连续时间视角埋下伏笔。此外，DDIM 的确定性还带来了<strong>可逆性</strong>：把同一条更新规则从 $t=0$ 反向积分到 $t=T$，可以将真实图像无训练地"编码"回噪声空间（DDIM inversion），再以新文本条件解码——这是大量零训练编辑方法（SDEdit 系、inversion 系）的共同引擎。</p>
+<h3 id="24-score-sde-probability-flow-ode">2.4 Score SDE：连续时间统一视角与 probability flow ODE</h3>
+<p>Song 等人（2021）将扩散推广到连续时间。令 $t\in[0,T]$ 连续变化，前向加噪过程写为随机微分方程（stochastic differential equation, SDE）：</p>
+<p>$$
+d\mathbf{x} = \mathbf{f}(\mathbf{x},t)\,dt + g(t)\,d\mathbf{w},
+$$</p>
+<p>其中 $\mathbf{w}$ 是维纳过程（布朗运动）。DDPM 与 score matching 分别是两类 SDE（VE-SDE 与 VP-SDE）的离散化。Anderson（1982）的经典结果表明，反向时间的 SDE 同样是 SDE：</p>
+<p>$$
+d\mathbf{x} = \left[\mathbf{f}(\mathbf{x},t) - g(t)^2\,\nabla_{\mathbf{x}}\log p_t(\mathbf{x})\right]dt + g(t)\,d\bar{\mathbf{w}} .
+$$</p>
+<p>唯一的未知量是 score $\nabla_\mathbf{x}\log p_t(\mathbf{x})$，由噪声预测网络估计（$\nabla\log p_t \approx -\boldsymbol\epsilon_\theta/\sqrt{1-\bar\alpha_t}$）。更重要的是，存在一族与边缘分布 ${p_t}$ 完全一致的<strong>确定性</strong>常微分方程——probability flow ODE：</p>
+<p>$$
+d\mathbf{x} = \left[\mathbf{f}(\mathbf{x},t) - \tfrac{1}{2}g(t)^2\,\nabla_{\mathbf{x}}\log p_t(\mathbf{x})\right]dt .
+$$</p>
+<p>这条 ODE 给出了"噪声空间"与"数据空间"之间的一个可逆映射：从 $\mathbf{x}_T$ 出发沿 ODE 积分到 $t=0$ 得到样本，反向积分则把样本编码回噪声（latent）。从几何上看，这条 ODE 的每一条积分曲线都是一条"生成轨迹"，不同的初始噪声被连续地运输到不同的数据点——运输过程中轨迹互不相交，这正是"流"（flow）一词的含义。DDIM 正是该 ODE 的一种一阶离散化。这个视角的价值在于：(i) 采样变成了数值 ODE 求解问题，可以直接借用高阶求解器（如 Heun、Runge–Kutta）大幅加速；(ii) 可逆映射使得精确似然计算、图像插值、语义编辑成为可能；(iii) 它直接通向 flow matching 的现代表述。</p>
+<h3 id="25-classifier-free-guidance">2.5 Classifier-free guidance：条件生成的关键工程</h3>
+<p>扩散模型的强大很大程度来自条件生成（text-to-image 等）。设条件为 $\mathbf{c}$（文本、类别）。早期的 <strong>classifier guidance</strong>（Dhariwal &amp; Nichol 2021）在采样时混入一个外部分类器的梯度 $\nabla_\mathbf{x}\log p(\mathbf{c}|\mathbf{x})$ 来增强条件一致性，代价是需要额外训练噪声鲁棒的分类器且会引入其偏差。Ho &amp; Salimans 提出的 <strong>classifier-free guidance（CFG，无分类器引导）</strong> 更为优雅：训练时以一定概率（如 10%）把条件随机丢弃，让同一个网络同时学会条件模型 $\boldsymbol\epsilon_\theta(\mathbf{x}<em>t,t,\mathbf{c})$ 与无条件模型 $\boldsymbol\epsilon</em>\theta(\mathbf{x}_t,t,\varnothing)$；采样时线性外推：</p>
+<p>$$
+\hat{\boldsymbol\epsilon}<em>\theta = \boldsymbol\epsilon</em>\theta(\mathbf{x}<em>t,t,\varnothing) + w\left[\boldsymbol\epsilon</em>\theta(\mathbf{x}<em>t,t,\mathbf{c}) - \boldsymbol\epsilon</em>\theta(\mathbf{x}_t,t,\varnothing)\right],
+$$</p>
+<p>其中 $w$ 是引导强度（guidance scale）。$w$ 越大，样本越贴合条件但多样性越差——这是所有 T2I 系统里"相似度 vs 多样性"旋钮的理论原型。其理论依据可追溯到贝叶斯公式：$\nabla_\mathbf{x}\log p(\mathbf{c}|\mathbf{x}) = \nabla_\mathbf{x}\log p(\mathbf{x}|\mathbf{c}) - \nabla_\mathbf{x}\log p(\mathbf{x})$，即分类器梯度恰好等于条件与无条件 score 之差；CFG 用同一个网络的两路前向隐式地实现了这一差分，而引导强度 $w&gt;1$ 则相当于把温度压低、把分布质量集中到高条件似然区域——这也解释了为何大 $w$ 会导致过饱和与细节崩坏的伪影。CFG 几乎零额外成本，却成为 Stable Diffusion 以来所有工业级扩散系统的标配。</p>
+<h3 id="26-flow-matching-rectified-flow">2.6 Flow matching 与 rectified flow：从"弯轨"到"直轨"</h3>
+<p>扩散模型学习的是一条从噪声到数据的弯曲轨迹；2022–2023 年兴起的 flow matching（FM）与 rectified flow（整流流）则直接问一个更干净的问题：能不能直接学习一条<strong>直线</strong>连接噪声与数据的确定性流？</p>
+<p><strong>连续正则化流与 FM</strong>。考虑一个由 ODE 定义的流：$d\boldsymbol\psi_t(\mathbf{x})/dt = \mathbf{v}_t(\boldsymbol\psi_t(\mathbf{x}))$，其中向量场 $\mathbf{v}_t$ 把简单分布 $p_0=\mathcal{N}(\mathbf{0},\mathbf{I})$ 输运到数据分布 $p_1$。直接回归边际向量场不可行（不知道真实的 $\mathbf{v}_t$），flow matching（Lipman et al. 2023）的核心洞察是：<strong>条件向量场</strong>是可知的。取插值路径</p>
+<p>$$
+\mathbf{x}<em _text_data="\text{data">t = (1-t)\,\mathbf{x}_0 + t\,\mathbf{x}_1,\qquad \mathbf{x}_0\sim\mathcal{N}(\mathbf{0},\mathbf{I}), \mathbf{x}_1\sim p</em>,
+$$}</p>
+<p>（注意此处时间约定：$t=0$ 为噪声，$t=1$ 为数据），则沿该路径的瞬时速度恒为</p>
+<p>$$
+\frac{d\mathbf{x}_t}{dt} = \mathbf{x}_1 - \mathbf{x}_0 .
+$$</p>
+<p>于是训练目标极其直白——回归这个条件速度：</p>
+<p>$$
+\boxed{\;L_{\text{FM}} = \mathbb{E}<em>{t,\mathbf{x}_0,\mathbf{x}_1}\left[\big|\mathbf{v}</em>\theta(\mathbf{x}_t,t) - (\mathbf{x}_1-\mathbf{x}_0)\big|^2\right]\;}
+$$</p>
+<p>Lipman 等人证明：对条件向量场回归与对不可知的边际向量场回归具有相同的最优解（二者梯度期望相等），因此这个可计算的目标恰好学到正确的边际流。</p>
+<p><strong>Rectified flow 与 reflow</strong>。Liu 等人独立提出的 rectified flow 采用同一形式，并指出其独特的<strong>拉直（reflow）</strong>性质：用训练好的流生成配对样本 $(\mathbf{x}_0', \mathbf{x}_1')$（$\mathbf{x}_1'$ 为 ODE 终点），再以这些配对重训，轨迹会变得更直；理论上，完全直的轨迹意味着一步欧拉积分即可精确采样。实践中一次 reflow 即可获得显著的少步生成能力。采样侧，训练完成后生成只需从 $t=0$ 向 $t=1$ 数值积分 ODE：</p>
+<p>$$
+\mathbf{x}<em>{t+\Delta t} = \mathbf{x}_t + \Delta t\cdot \mathbf{v}</em>\theta(\mathbf{x}_t, t).
+$$</p>
+<p><strong>与扩散的关系</strong>。SD3 论文给出了统一视角：扩散与 flow matching 都可写成 $\mathbf{x}_t = a_t\mathbf{x}_0 + b_t\boldsymbol\epsilon$ 的插值族，区别只在调度 $(a_t, b_t)$ 与权重；DDPM 的 VP 调度是其中一种"弯"的选择，而 $(a_t,b_t)=(t,1-t)$ 的直线插值在理论上给出更短、更易学习的传输路径。这一公式层面的统一解释了一个产业事实：2024 年后几乎所有旗舰 T2I 模型（SD3、FLUX、Seedream 等）都迁移到了 rectified-flow 类目标上。</p>
+<h3 id="27-latent-diffusion-vae">2.7 Latent diffusion 与 VAE：感知压缩</h3>
+<p>像素空间扩散的两个痛点：训练/推理成本高，且模型被迫在高频细节上浪费容量。Latent Diffusion Model（LDM）的方案是<strong>两阶段</strong>：先用自编码器把图像压缩到感知上等价但维度小得多的潜空间，再在潜空间做扩散。编码器 $\mathcal{E}$ 将 $H\times W\times 3$ 的图像映射为 $h\times w\times c$ 的潜表示（下采样因子 $f=H/h$，SD 1.x 取 $f=8$，即 $64^2\times4$ 对应 $512^2$ 图像），解码器 $\mathcal{D}$ 重建。自编码器以感知损失（perceptual loss）与 patch 级对抗损失训练，保证潜空间保留语义与视觉细节；论文系统比较了不同 $f$：压缩过小则算力收益有限，过大则重建保真度崩塌，$f\in{4,8}$ 附近是质量-效率的甜点。潜空间扩散还有一个架构上的关键创新：在 U-Net 中引入<strong>交叉注意力（cross-attention）</strong>层，把任意模态的条件（文本 embedding、边界框、语义图）注入去噪网络——这使 LDM 成为通用的条件生成引擎。</p>
+<h3 id="28-tokenizer">2.8 自回归视觉生成：tokenizer 决定论</h3>
+<p>自回归生成的三要素是：序列化（图像如何变成序列）、分解序（按什么顺序预测）、tokenizer（序列的元素是什么）。其中 <strong>tokenizer</strong>（分词器）是视觉 AR 的胜负手。<strong>VQ-VAE</strong>（Vector Quantized VAE）在编码器输出处引入可学习的码本（codebook）${\mathbf{e}<em k="1">k}</em>^K$，将每个空间位置的连续特征替换为最近码本向量的索引：</p>
+<p>$$
+z_q = \arg\min_k |z_e(\mathbf{x})_{ij} - \mathbf{e}_k|_2,\qquad
+L = |\mathbf{x}-\hat{\mathbf{x}}|^2 + |\mathrm{sg}[z_e]-e|^2 + \beta|z_e-\mathrm{sg}[e]|^2 ,
+$$</p>
+<p>其中 $\mathrm{sg}[\cdot]$ 为 stop-gradient。后两项分别拉近码本向量与编码器输出（commitment loss）。<strong>VQGAN</strong> 在此基础上加入感知损失与对抗损失，使码本成为视觉语义的"词汇表"。此后图像 AR 简化为：把图像量化成 $n$ 个离散 token，用 Transformer 做 next-token 预测。这条路线长期被两个问题压制：(i) 光栅扫描（raster-scan）的生成序违背图像的二维结构，远处像素的相关性建模困难；(ii) 为保真度所需的长序列（$16\times16=256$ 甚至 $32\times32=1024$ token）使训练与采样昂贵。MaskGIT/Muse 以掩码并行解码缓解速度问题，而 VAR 的"下一尺度预测"（见第 4 章）则正面重构了分解序，成为这条路线翻盘的转折点。</p>
+<h2 id="3">3. 经典方法谱系</h2>
+<p>按时间线，视觉生成 2019–2026 年的演进可以概括为五个浪潮：</p>
+<ol>
+<li><strong>扩散奠基期（2019–2021）</strong>：score matching（Song &amp; Ermon）与 DDPM 确立噪声预测范式；DDIM 解决采样速度；classifier guidance 使扩散首次在 FID 上击败 BigGAN；score SDE 给出连续统一框架。同期 Improved DDPM 以学习方差与 cosine 调度同时改善 log-likelihood 与样本质量，EDM（Karras et al. 2022）则系统梳理了预处理、采样器与增广的设计空间，成为此后调参的事实标准。</li>
+<li><strong>潜空间与文本条件期（2021–2022）</strong>：LDM/Stable Diffusion 用 VAE 潜空间把扩散带入消费级 GPU；DALL·E 2 以 CLIP 潜空间做先验；Imagen 证明冻结大语言模型编码器（T5-XXL）对文本理解的关键作用。</li>
+<li><strong>Transformer 化与工业化期（2022–2024）</strong>：DiT 证明扩散 backbone 与 LLM 一样服从 scaling law；SDXL 完善工程细节；SD3 以 rectified flow + MM-DiT 定义现代 T2I 架构；视频方向出现 Video Diffusion、Imagen Video，直至 Sora 以 spacetime patches + DiT 展示"世界模拟器"雏形。</li>
+<li><strong>AR 复兴期（2024）</strong>：LlamaGen 证明纯 Llama 架构可媲美扩散；VAR 以 next-scale prediction 首次反超 DiT 并获 NeurIPS 2024 最佳论文；TiTok 把图像压到 32 个 1D token；Infinity 用 bitwise 量化扩展 VAR 至高分辨率。</li>
+<li><strong>统一理解-生成期（2024–2026）</strong>：Transfusion、Show-o、Emu3 分别代表连续扩散混合、离散扩散、纯 AR 三种统一损失；Janus 系列解耦编码；BAGEL 以 MoT 与万亿 token 展示涌现能力；GPT-4o 图像生成与 Nano Banana 定义了闭源标杆；Qwen-Image、FLUX Kontext、OmniGen2 等把文字渲染与上下文编辑推向 SOTA。</li>
+</ol>
+<p><strong>关键论文一览表</strong></p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>年份</th>
+<th>核心思想</th>
+<th>架构要点</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Score Matching with Langevin</td>
+<td>2019</td>
+<td>估计数据分布梯度 + 退火 Langevin 采样</td>
+<td>RefineNet score 网络</td>
+<td>score-based 生成奠基</td>
+</tr>
+<tr>
+<td>DDPM (2006.11239)</td>
+<td>2020</td>
+<td>变分界化简为噪声预测</td>
+<td>U-Net，$T=1000$</td>
+<td>扩散复兴起点</td>
+</tr>
+<tr>
+<td>DDIM (2010.02502)</td>
+<td>2020</td>
+<td>非马尔可夫确定性采样</td>
+<td>同 DDPM，免重训</td>
+<td>10–50 步加速</td>
+</tr>
+<tr>
+<td>Score SDE (2011.13456)</td>
+<td>2021</td>
+<td>SDE 统一 + probability flow ODE</td>
+<td>连续时间 score 网络</td>
+<td>理论框架</td>
+</tr>
+<tr>
+<td>Classifier Guidance (2105.05233)</td>
+<td>2021</td>
+<td>分类器梯度引导 + 架构改进</td>
+<td>改进 U-Net</td>
+<td>扩散首超 GAN</td>
+</tr>
+<tr>
+<td>LDM / Stable Diffusion (2112.10752)</td>
+<td>2021</td>
+<td>VAE 潜空间扩散</td>
+<td>U-Net + 交叉注意力</td>
+<td>开源 T2I 蓝本</td>
+</tr>
+<tr>
+<td>DALL·E 2 / unCLIP (2204.06125)</td>
+<td>2022</td>
+<td>CLIP 图像 embedding 先验</td>
+<td>先验 + 扩散解码器</td>
+<td>语义先验路线</td>
+</tr>
+<tr>
+<td>Imagen (2205.11487)</td>
+<td>2022</td>
+<td>冻结 T5-XXL 文本编码器</td>
+<td>级联扩散 U-Net</td>
+<td>大 LM 对 T2I 的价值</td>
+</tr>
+<tr>
+<td>DiT (2212.09748)</td>
+<td>2022</td>
+<td>Transformer 替换 U-Net</td>
+<td>ViT 式 patch + adaLN</td>
+<td>扩散 scaling law</td>
+</tr>
+<tr>
+<td>Consistency Models (2303.01469)</td>
+<td>2023</td>
+<td>一致性映射单步生成</td>
+<td>蒸馏/独立训练</td>
+<td>少步采样</td>
+</tr>
+<tr>
+<td>SDXL (2307.01952)</td>
+<td>2023</td>
+<td>双文本编码器 + 尺寸条件化</td>
+<td>更大 U-Net</td>
+<td>开源高清标准</td>
+</tr>
+<tr>
+<td>SD3 (2403.03206)</td>
+<td>2024</td>
+<td>rectified flow + MM-DiT</td>
+<td>双流文本-图像注意力</td>
+<td>现代 T2I 架构模板</td>
+</tr>
+<tr>
+<td>MaskGIT (2202.04200) / Muse (2301.00704)</td>
+<td>2022/2023</td>
+<td>掩码并行迭代解码</td>
+<td>双向 Transformer</td>
+<td>非顺序 AR</td>
+</tr>
+<tr>
+<td>LlamaGen (2406.06525)</td>
+<td>2024</td>
+<td>纯 Llama 架构生成图像</td>
+<td>标准 LLM + VQ tokenizer</td>
+<td>AR 复兴信号</td>
+</tr>
+<tr>
+<td>VAR (2404.02905)</td>
+<td>2024</td>
+<td>next-scale prediction</td>
+<td>多尺度 VQVAE + GPT</td>
+<td>NeurIPS 2024 最佳论文</td>
+</tr>
+<tr>
+<td>TiTok (2406.07550)</td>
+<td>2024</td>
+<td>1D 32-token 图像表示</td>
+<td>1D tokenizer</td>
+<td>极短序列</td>
+</tr>
+<tr>
+<td>Infinity (2412.04431)</td>
+<td>2024</td>
+<td>bitwise 无限词表分类器</td>
+<td>VAR 变体</td>
+<td>高分辨率 AR</td>
+</tr>
+<tr>
+<td>Video Diffusion (2204.03458)</td>
+<td>2022</td>
+<td>3D U-Net 视频扩散</td>
+<td>时空分解注意力</td>
+<td>视频扩散起点</td>
+</tr>
+<tr>
+<td>Sora（官方报告；综述 2402.17177）</td>
+<td>2024</td>
+<td>spacetime patches + 大规模 DiT</td>
+<td>视频 DiT</td>
+<td>世界模拟器雏形</td>
+</tr>
+<tr>
+<td>CogVideoX (2408.06072) / HunyuanVideo (2412.03603) / Wan (2503.20314)</td>
+<td>2024–2025</td>
+<td>开源视频 DiT</td>
+<td>3D 全注意力变体</td>
+<td>开源视频主力</td>
+</tr>
+<tr>
+<td>Seedance 1.0 (2506.09113)</td>
+<td>2025</td>
+<td>原生多镜头叙事</td>
+<td>视频 DiT</td>
+<td>10s 1080p 多镜头</td>
+</tr>
+<tr>
+<td>Transfusion (2408.11039)</td>
+<td>2024</td>
+<td>单模型混合 LM + diffusion 损失</td>
+<td>单 Transformer</td>
+<td>统一模型三范式之一</td>
+</tr>
+<tr>
+<td>Show-o (2408.12528)</td>
+<td>2024</td>
+<td>离散扩散统一</td>
+<td>单 Transformer + 全注意力</td>
+<td>混合 AR/扩散建模</td>
+</tr>
+<tr>
+<td>Emu3 (2409.18869)</td>
+<td>2024</td>
+<td>纯 next-token 统一</td>
+<td>视觉 tokenizer + LLM</td>
+<td>无扩散路线</td>
+</tr>
+<tr>
+<td>Janus / Janus-Pro (2410.13848 / 2501.17811)</td>
+<td>2024–2025</td>
+<td>理解/生成解耦编码</td>
+<td>双编码器 + 共享 LLM</td>
+<td>解耦路线代表</td>
+</tr>
+<tr>
+<td>BAGEL (2505.14683)</td>
+<td>2025</td>
+<td>MoT + 万亿交错 token</td>
+<td>扩散 + AR 双损失</td>
+<td>涌现编辑与世界建模</td>
+</tr>
+<tr>
+<td>Qwen-Image (2508.02324)</td>
+<td>2025</td>
+<td>中文长文本渲染</td>
+<td>MMDiT + 双任务课程</td>
+<td>文字渲染 SOTA</td>
+</tr>
+<tr>
+<td>FLUX.1 Kontext (2506.15742)</td>
+<td>2025</td>
+<td>flow-matching 上下文编辑</td>
+<td>多图串联 DiT</td>
+<td>2025 编辑标杆</td>
+</tr>
+<tr>
+<td>InstructPix2Pix (2211.09800)</td>
+<td>2022</td>
+<td>GPT-3 + P2P 合成编辑数据</td>
+<td>微调 LDM</td>
+<td>指令编辑开山</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. 代表作深度剖析</h2>
+<p>本章选取六篇在思想或工程上具有范式意义的论文。选择标准：要么引入了新的数学对象（DDPM、flow matching 已融入基础章），要么改变了产业的成本结构（LDM）、架构范式（DiT）、生成序（VAR），要么定义了统一模型的可能形态（Transfusion、BAGEL）。</p>
+<h3 id="41-ddpmho-et-al-2020">4.1 DDPM（Ho et al., 2020）：让扩散"能训、能采样、能赢"</h3>
+<p><strong>研究问题</strong>。扩散概率模型的思想早在 2015 年（Sohl-Dickstein 等，受非平衡热力学启发）就已提出，但五年来始终停留在玩具规模：样本质量远逊于 GAN，训练目标复杂，无人相信它能在高分辨率图像上竞争。问题是：扩散模型能否以足够简洁的形式，达到甚至超越当时最强的 GAN？</p>
+<p><strong>关键洞察</strong>。两点。(i) <strong>参数化的力量</strong>：不直接预测反向均值 $\tilde{\boldsymbol\mu}<em _text_simple="\text{simple">t$，而是预测注入的噪声 $\boldsymbol\epsilon$——这把每一步的去噪问题转化为一个输入输出同维度、目标平稳的回归问题，与网络结构天然契合。(ii) <strong>目标函数的减法</strong>：完整 ELBO 中各项带有复杂的方差权重，作者发现直接去掉权重（即 $L</em>$，见 §2.2）反而得到更好、更稳的样本质量，因为它等效于在不同噪声水平间做了更合理的容量分配（大噪声步主导语义结构，小噪声步负责细节，去加权后大噪声步获得更大梯度）。}</p>
+<p><strong>技术方法</strong>。前向过程 $T=1000$，线性噪声调度 $\beta_1=10^{-4}\to\beta_T=0.02$；网络为带自注意力的 U-Net，时间步经正弦位置编码注入每个残差块。采样从 $\mathbf{x}<em>T\sim\mathcal{N}(\mathbf{0},\mathbf{I})$ 出发，逐步应用 $p</em>\theta(\mathbf{x}<em _text_simple="\text{simple">{t-1}|\mathbf{x}_t)$，方差固定为 $\beta_t$ 或 $\tilde\beta_t$（两者结果接近）。训练即 §2.2 的 $L</em>$：均匀采样 $t$、加噪、回归噪声。}</p>
+<p><strong>实验结果</strong>。CIFAR-10 无条件生成取得 FID 3.17、Inception Score 9.46，超过当时绝大多数 GAN（仅差于个别蒸馏模型）；在 LSUN $256\times256$ 上样本质量与 ProgressiveGAN 相当。作者还展示了一个有理论意味的性质：扩散的逐步去噪可被视为渐进有损解压，生成过程是"自回归解码的一种推广"——这句不经意的评论在四年后的 VAR 与统一模型中得到了戏剧性的回响。</p>
+<p><strong>为什么扩散能避免 GAN 的模式塌缩</strong>。GAN 的对抗目标只要求生成器骗过判别器，丢弃难以建模的数据模式是理性策略；而扩散的训练目标是逐点回归——每一个训练样本、每一个时间步都贡献明确的监督信号，模型不存在"逃避"某个模式的自由。这是扩散样本多样性天然占优的根本原因，也是它在需要精确条件控制（文本、布局）时更可靠的原因。</p>
+<p><strong>批判性分析</strong>。优点：目标函数与训练流程极度简洁（核心训练代码仅数行），理论根基扎实（VAE、score matching 双重视角），样本多样性与模式覆盖天然优于 GAN（不存在模式塌缩问题，因为训练目标是似然导向的逐点回归而非对抗博弈）。局限：(i) 1000 步串行采样使推理成本比 GAN 高两个数量级，这一短板直接催生了 DDIM、consistency models、蒸馏等整个加速子领域；(ii) 像素空间操作限制了分辨率与文本条件的扩展，这一点由 LDM 补上；(iii) 固定方差与线性调度均非最优（Improved DDPM 后续证明学习方差与 cosine 调度可显著改善 log-likelihood）。可复现性极佳——代码开源且超参数透明，是整个领域可复现性的标杆。</p>
+<p><strong>一句话评价与评级</strong>：以一次教科书级的"化繁为简"把扩散模型从理论好奇心变为生成建模的新主线；本方向一切后续工作的共同祖先。评级：★★★★★（必读）。</p>
+<h3 id="42-latent-diffusionrombach-et-al-20212022">4.2 Latent Diffusion（Rombach et al., 2021/2022）：把扩散搬进"压缩后的世界"</h3>
+<p><strong>研究问题</strong>。2021 年的扩散模型已在质量上击败 GAN，但代价是训练动辄数百 GPU 天、采样每张图数分钟，且对 $1024^2$ 级高分辨率几乎不可行。根本原因在于扩散在<strong>像素空间</strong>进行：模型必须把大量容量浪费在感知上无关紧要的逐像素细节上。问题是：能否在保留扩散质量与灵活性的同时，把它搬到算力友好的空间？</p>
+<p><strong>关键洞察</strong>。图像生成可以分解为<strong>感知压缩（perceptual compression）</strong>与<strong>语义生成（semantic generation）</strong>两个阶段：自编码器负责把图像压缩到一个"感知上等价"的潜空间（丢弃人眼不敏感的高频冗余），扩散模型只需在这个小空间里学习语义结构。作者系统扫描了下采样因子 $f\in{2,4,8,16,32}$：$f$ 过小收益有限，$f$ 过大（16 以上）重建保真度明显下降，FID 随训练算力的曲线显示 $f\in{4,8}$ 处于甜点——这是本文最具工程指导意义的定量结论。值得注意的是，这一甜点并非普适常数：它依赖于自编码器的训练预算与正则方式。2024 年后的高压缩自编码器（如 SANA 采用的深度压缩自编码器，下采样 32 倍）证明，只要压缩模型本身足够强，甜点可以大幅右移——压缩比之争至今仍是 T2I 效率竞赛的核心战场。</p>
+<p><strong>技术方法</strong>。(i) 自编码器：KL 正则（类 VAE）或 VQ 正则的编码器-解码器，以感知损失 + patch 级对抗损失训练；(ii) 潜空间扩散：在 $\mathcal{E}(\mathbf{x})$ 上按 DDPM 目标训练 U-Net；(iii) <strong>通用条件机制</strong>：把条件信息 $\mathbf{c}$ 用领域专用编码器 $\tau_\theta$ 映射为中间表示，通过交叉注意力 $\mathrm{softmax}(QK^\top/\sqrt{d})V$（$Q$ 来自 U-Net 特征，$K,V$ 来自 $\tau_\theta(\mathbf{c})$）注入 U-Net 的每一层。文本、布局、语义图均可即插即用。推理时先在潜空间完成扩散，再经解码器 $\mathcal{D}$ 一次上采样到像素空间。</p>
+<p><strong>实验结果</strong>。LDM 在 ImageNet 类别条件生成上达到与当时像素空间 SOTA 竞争甚至更优的 FID，而训练成本与推理开销均大幅降低；在 inpainting 任务上取得新的 SOTA；Stable Diffusion（LDM 在 LAION 大规模图文数据上的训练版本）随后成为开源 T2I 的事实标准。相比之下，同时期的 DALL·E 2 走 CLIP 潜空间 + 扩散先验路线，Imagen 则以 T5-XXL 冻结编码器证明"文本理解质量决定 T2I 上限"——三者共同确立了 2022 年后 T2I 系统的基本组件：强文本编码器 + 潜空间生成器。</p>
+<p><strong>批判性分析</strong>。优点：算力民主化——扩散训练从"数百 GPU 天"降到"数十 GPU 天"，直接催生了 Stable Diffusion 生态与整个开源生成社区；交叉注意力条件机制成为此后所有条件扩散（包括视频与 3D）的通用接口。局限：(i) VAE 是信息瓶颈——精细纹理、细小文字、复杂空间关系在压缩中丢失，这成为后续文字渲染难、人脸细节失真等问题的结构性根源，直到高压缩比 tokenizer（如 DC-AE 系）与像素级细化策略才部分缓解；(ii) 两阶段训练使误差累积不可控，扩散模型无法"补偿"编码器丢掉的细节；(iii) U-Net 的卷积归纳偏置在规模化时成为天花板，这一点由 DiT 正面解决。可复现性极佳：论文、代码、预训练 VAE 全部公开。</p>
+<p><strong>一句话评价与评级</strong>：一次教科书级的"正确抽象"——把感知压缩与语义生成解耦，让扩散模型从实验室奢侈品变成全民基础设施。评级：★★★★★（必读）。</p>
+<h3 id="43-ditpeebles-xie-20222023transformer">4.3 DiT（Peebles &amp; Xie, 2022/2023）：扩散模型迎来"Transformer 时刻"</h3>
+<p><strong>研究问题</strong>。2022 年之前，扩散模型的 backbone 几乎清一色是卷积 U-Net——一个为多尺度特征提取设计的、充满手工归纳偏置的架构。与此同时，语言与视觉理解领域已被 Transformer 的 scaling law（规模定律：性能随算力/参数/数据呈幂律提升）主导。问题是：扩散模型是否也服从 scaling law？U-Net 的归纳偏置是必需的，还是可抛弃的？</p>
+<p><strong>关键洞察</strong>：U-Net 并非扩散的本质，<strong>Gflops（前向计算量）才是</strong>。作者以 ViT 为蓝本设计 Diffusion Transformer（DiT），系统改变深度、宽度与输入 token 数（patch 尺寸），发现 FID 与前向 Gflops 之间存在平滑、单调、近似幂律的关系——无论通过加深、加宽还是减小 patch 来提高算力，FID 都一致下降。这意味着扩散模型第一次进入了"堆算力即有回报"的可预测时代。作者进一步证明，在此规律下，为达到目标 FID 所需的总训练算力可以被预先估算——扩散研究从此具备了与 LLM 相同的"预算规划"能力。</p>
+<p><strong>技术方法</strong>。DiT 在 LDM 的 VAE 潜空间上工作：将潜表示切成 patch 序列，输入标准 ViT 式 Transformer。条件注入测试了三种方案（in-context 拼接、交叉注意力、adaptive layer norm），结论是 <strong>adaLN-Zero</strong>（用条件向量回归每层 LayerNorm 的缩放/平移/门控参数，并将门控初始化为零）最优且最省算力：它把条件信息"调制"进每个块，而非以 token 形式显式拼接。零初始化门控的用意是让每个 DiT 块在训练初期等价于恒等映射，稳定深度堆叠的优化——这一技巧与 LLM 中常见的残差初始化策略一脉相承。推理沿用 LDM 的 VAE 解码器与 classifier-free guidance。</p>
+<p><strong>实验结果</strong>。最大的 DiT-XL/2（patch 尺寸 2）在 ImageNet $256\times256$ 类别条件生成上取得 FID 2.27，超越此前所有扩散模型（包括精心调优的 U-Net 系），在 $512\times256$ 基准同样 SOTA。更重要的是趋势本身：scaling 曲线在四个数量级的 Gflops 上没有饱和迹象。</p>
+<p><strong>批判性分析</strong>。优点：(i) 架构极简——Transformer 是跨模态的通用算子，DiT 使视觉生成直接继承 LLM 领域十年积累的所有基础设施（并行训练、混合精度、kernel 优化、MoE 等）；(ii) 可预测性——scaling law 让"加大模型是否值得"从赌博变为工程决策；(iii) 它是 Sora、SD3、HunyuanVideo 等一切现代视频/图像生成系统的骨架。局限：(i) 全注意力对 token 数呈平方复杂度，高分辨率与视频场景下成本爆炸（后续 SANA 的线性注意力、稀疏注意力、下采样 tokenizer 都在回应这一点）；(ii) adaLN 的条件方式对文本这类富语义条件不够，SD3 的 MM-DiT（双流注意力）正是为弥补这一点；(iii) 论文局限于类别条件 ImageNet，T2I 的验证由 SD3 完成。可复现性好：代码与权重公开，ImageNet 基准透明。</p>
+<p><strong>一句话评价与评级</strong>：把扩散模型从"精巧的卷积工艺"带入"可规模化的 Transformer 工程"，是连接 DDPM 时代与 Sora 时代的桥梁。评级：★★★★★（必读）。</p>
+<h3 id="44-vartian-et-al-2024">4.4 VAR（Tian et al., 2024）：重新定义"视觉自回归"的生成序</h3>
+<p><strong>研究问题</strong>。自回归模型统治语言，却在视觉生成上长期输给扩散。主流解释归咎于"离散 tokenizer 有损"或"AR 不适合二维数据"。VAR 提出了一个更尖锐的质疑：<strong>问题不在 AR，而在我们强加给图像的生成序</strong>——光栅扫描（从左到右、从上到下逐 token）既违背图像的二维局部性，又使早期 token 的微小误差在长序列中累积。能否找到一种符合视觉结构先验的分解序？</p>
+<p><strong>关键洞察</strong>：图像天然的"序"不是空间扫描，而是<strong>分辨率尺度</strong>。人类看画先看构图再看细节；VAR 把 AR 重新定义为 coarse-to-fine 的"下一尺度预测"（next-scale prediction）：从 $1\times1$ 的 token 图出发，每一步预测下一个更高分辨率的整个 token 图（$2\times2, 3\times3, \dots$），同一步内的所有 token 并行生成。这一改动同时解决三个问题：(i) 生成序符合从全局到局部的视觉先验，早期预测决定构图、后期补充细节，误差不易灾难性累积；(ii) 每步内 token 并行，推理步数从序列长度（数百上千）降到尺度数（约 10），速度提升约 20 倍；(iii) 每个尺度内的双向注意力保留了二维结构的完整建模。</p>
+<p><strong>技术方法</strong>。(i) <strong>多尺度 VQVAE</strong>：训练一个码本共享的多尺度量化自编码器，将图像表示为 $K$ 个尺度递增的 token 图 $(\mathbf{r}<em _k="&lt;k">1,\dots,\mathbf{r}_K)$，第 $k$ 个尺度是残差式量化——编码当前尺度下真实特征与"由前序尺度上采样重建特征"之差；这种残差结构与音频领域的残差向量量化（RVQ）异曲同工：每个尺度只需学习"上一尺度没表达好的部分"，码本压力被逐层分摊；(ii) <strong>VAR Transformer</strong>：标准 GPT 式结构，条件分布 $p(\mathbf{r}_k|\mathbf{r}</em>_1$ 由类别/文本条件嵌入生成。整个模型仍是纯粹的 next-token（确切说 next-scale）预测，与 LLM 训练范式完全同构。})$ 用因果掩码在尺度间自回归、尺度内双向注意力；起点 $\mathbf{r</p>
+<p><strong>实验结果</strong>。ImageNet $256\times256$ 类别条件生成：VAR 将 AR 模型的 FID 从基线的 18.65 一举拉到 1.73（IS 从 80.4 到 350.2），推理速度约为 AR 基线的 20 倍，并<strong>首次使 GPT 式 AR 模型在 FID、推理速度、数据效率与可扩展性上全面超过 DiT</strong>。论文还报告了两件对领域影响深远的事：(i) VAR 的性能随模型规模呈清晰幂律 scaling law，与 LLM 中观察到的幂律线性相关系数接近 $-0.998$；(ii) VAR 在未训练的情况下展现了零样本泛化——inpainting、outpainting、类别条件编辑——这正是"LLM 式"能力的视觉版初现。</p>
+<p><strong>批判性分析</strong>。优点：(i) 概念贡献大于技术贡献——它证明了生成序是视觉 AR 的一等公民，"AR 不适合图像"是一个由错误序列化造成的伪命题；(ii) 与 LLM 完全同构的训练-推理范式，使视觉生成可以直接复用 LLM 的全部工程栈（kv-cache、投机采样、vLLM 式 serving，LlamaGen 也验证了这一点）；(iii) 零样本编辑能力暗示尺度分解天然携带"构图→细节"的语义层次。局限：(i) 多尺度 VQVAE 的残差量化对 tokenizer 训练要求极高，高分辨率下码本容量成为瓶颈（Infinity 用 bitwise 量化把"词表"推向无限维来回应这一点）；(ii) next-scale 的并行步内仍有大量 token，与扩散的迭代步数相比数量级优势在 4K 级分辨率下收窄；(iii) 论文的 SOTA 声明针对类别条件 ImageNet，T2I 场景与顶级扩散模型的全面对决在其后继工作中才完成。可复现性极佳：全部代码与模型开源，获 NeurIPS 2024 最佳论文奖。</p>
+<p><strong>一句话评价与评级</strong>：一个"重新定义问题"级别的洞察——AR 没有输给扩散，输给的只是光栅扫描；视觉生成从此有了与 LLM 完全同构的第二条 scaling 赛道。评级：★★★★★（必读）。</p>
+<h3 id="45-transfusionchameleon-team-meta-2024">4.5 Transfusion（Chameleon Team, Meta, 2024）：一个模型，两种损失</h3>
+<p><strong>研究问题</strong>。多模态大模型在"理解"上已被纯自回归范式统一（图像 token 化后全部 next-token），但"生成"却被迫二选一：要么把图像离散化为 token 走纯 AR（受量化损失与长序列之苦），要么外挂一个独立扩散模型（系统复杂、理解与生成能力割裂）。问题是：<strong>能否在单个 Transformer 中，同时以各自最自然的损失处理离散模态（文本）与连续模态（图像）</strong>？</p>
+<p><strong>关键洞察</strong>：语言建模与扩散并不是两种模型，而是<strong>两种损失函数</strong>。Transfusion 让同一个 Transformer 同时优化两者：文本部分按 next-token 的 LM 损失训练；图像部分则把图像表示为连续潜向量序列，在序列内部按扩散目标训练——每个图像被加噪后，模型学习预测其噪声（等价于 DDPM/flow 目标的序列内版本）。一个序列中可以任意交错文本与图像：理解图像时按离散/连续特征读入，生成图像时在序列中"原地扩散"。</p>
+<p><strong>技术方法</strong>。(i) 混合模态序列：文本为 BPE token，图像经 VAE 编码为连续潜向量并 patch 化，用特殊 token（如 BOI/EOI）标记图像段边界；(ii) 双损失：$L = L_{\text{LM}} + \lambda\, L_{\text{DDPM}}$，共享同一 Transformer 权重；(iii) 模态特定的轻量编码/解码层（图像 patch 的进出投影）——消融显示这些薄层收益显著，甚至可将每张图压缩到仅 16 个 patch；这一发现耐人寻味——16 个 patch 的信息量远少于典型 VQ tokenizer 的 256 token，却在扩散目标下足以重建高质量图像，说明连续表示的信息密度远高于离散码本；(iv) 从零预训练最大 7B 参数、2T 多模态 token，并系统建立跨模态的 scaling law。</p>
+<p><strong>实验结果</strong>。关键发现是<strong>效率</strong>：在同等 FLOPs 下，Transfusion 的图像生成质量显著优于"图像量化 + 纯 LM"的 Chameleon 式基线——扩散损失用远少于离散 token 的序列长度达到了更好的生成保真，说明量化信息损失是真实且昂贵的；同时文本理解能力与同规模纯 LM 相当，图像理解与扩散模型各自的强项被"兼得"。7B 规模下与同等级的专用扩散模型、专用语言模型打平。</p>
+<p><strong>批判性分析</strong>。优点：(i) 范式意义——它把"统一"从口号变成可复现的训练配方，"不同模态配不同损失、共享同一骨干"成为此后统一模型的主流思想（BAGEL 直接继承了这一设计）；(ii) 连续表示避免了 tokenizer 瓶颈，图像质量不受码本限制；(iii) scaling law 的系统测量为后续工作提供了可比较的基准。局限：(i) 序列内扩散在推理时仍需多步去噪，生成的图像段与文本段的速度不对称；(ii) 论文的 T2I 质量仍落后于当时的顶级专用扩散模型，统一与专用之间仍有差距；(iii) 双向图像段注意力与因果文本注意力的掩码混合增加了训练系统的工程复杂度。可复现性中等：配方披露充分，但完整数据配方未开源。</p>
+<p><strong>一句话评价与评级</strong>：用"损失函数级统一"而非"表示级统一"打开了理解-生成一体化的主战场，是 2025 统一模型浪潮的直接思想源头。评级：★★★★☆（深入研读）。</p>
+<h3 id="46-bagelbytedance-seed-2025">4.6 BAGEL（ByteDance Seed, 2025）：统一模型的"涌现时刻"</h3>
+<p><strong>研究问题</strong>。Transfusion 证明了统一的<strong>可行性</strong>，但一个更激进的问题悬而未决：统一模型能否不仅是"理解模型 + 生成模型的缝合"，而是像 GPT-4o 那样展现出<strong>两者交互产生的涌现能力</strong>——自由形式的智能编辑（"把这张图改成梵高的风格但保留构图"）、未来帧预测、3D 视角操作、世界导航？这些能力需要模型同时"理解语义"并"操纵像素"，是任何单一功能模型无法完成的。</p>
+<p><strong>关键洞察</strong>：能力涌现需要三个条件同时满足——(i) <strong>原生交错数据</strong>（interleaved data）：不是图文配对，而是数万亿 token 规模的文本-图像-视频-网页任意交错序列，让模型学到模态间的因果与推理结构；(ii) <strong>架构上的模态专化</strong>：BAGEL 采用 MoT（Mixture-of-Transformer-Experts）设计，理解与生成各有专家权重，总参数 14B（激活 7B），避免两种任务在同一组权重上互相干扰——与混合专家（MoE）按 token 路由不同，MoT 按模态/任务路由，每个输入确定性地走对应专家的参数，路由无随机性、训练更稳定；(iii) <strong>双损失</strong>：延续 Transfusion 思路，文本与理解走 next-token，图像生成走扩散损失（具体为连续潜空间上的去噪目标）。</p>
+<p><strong>技术方法</strong>。统一的 decoder-only Transformer；视觉侧以 ViT 编码器提供理解特征、VAE 提供生成潜空间（生成时模型自身输出扩散条件）；在 trillions of tokens 的大规模交错数据上从零预训练；后训练阶段针对编辑、推理等能力做指令微调。论文以罕见的坦诚公开了预训练细节、数据构建协议与失败案例。</p>
+<p><strong>实验结果</strong>。在标准理解与生成基准上显著超越此前所有开源统一模型；更关键的是定性能力：自由形式图像操纵、根据当前帧预测未来帧、保持身份一致性的 3D 旋转与场景导航——这些"世界建模"性质的能力此前只在闭源的 GPT-4o 图像系统中展示过。论文的标题"Emerging Properties"刻意呼应 LLM 文献中的涌现概念：这些能力在小规模或不充分数据下不出现，随数据与规模增长而突然显现。</p>
+<p><strong>批判性分析</strong>。优点：(i) 开源社区第一个在"智能编辑/世界建模"维度上接近闭源标杆的统一模型，且代码、权重、数据协议全部开放；(ii) MoT 架构是"解耦 vs 共享"之争的第三条路（Janus 解耦编码器、Emu3 全共享 token，BAGEL 解耦参数但共享计算图）；(iii) 失败案例与训练细节的公开为后来者节省了大量试错成本。局限：(i) 万亿 token 级数据与 14B 参数的门槛决定了这条路线本质上是算力密集游戏，学术团队难以从零复现其完整配方；(ii) "涌现"仍主要是定性展示，缺乏可量化的基准来追踪这些能力随规模的曲线（这本身是开放问题）；(iii) 生成质量与同期最强的专用 T2I 模型（如 FLUX、Qwen-Image）仍有可感知差距。可复现性在开源统一模型中最好。</p>
+<p><strong>一句话评价与评级</strong>：把统一模型从"benchmark 缝合怪"推进到"能力涌现"的临界点，是理解 2025 年多模态格局不可绕过的一篇。评级：★★★★★（必读）。</p>
+<h2 id="5-20252026">5. 研究前沿（2025–2026）</h2>
+<h3 id="51">5.1 视频扩散：从"会动的图"到"世界模拟器"</h3>
+<p><strong>Sora 及其解读</strong>。OpenAI 于 2024 年 2 月发布的 Sora 未公开论文，但其技术报告与随之而来的逆向工程式综述（Liu et al., arXiv:2402.17177）勾勒出的图景已被广泛接受：Sora 本质是 DiT 的视频化——将视频压缩到时空潜空间（spacetime latent），切成跨越时间的 patches，用大规模 Transformer 扩散训练；关键的工程创新是以<strong>原生分辨率与时长</strong>训练（不裁剪、不统一比例），使模型天然支持多种画幅与最长约 60 秒的生成。Sora 展示的涌现性质——长程一致性、简单的 3D 相机运动、物体持久性——被 OpenAI 称为"世界模拟器的雏形"，这个定位深刻改变了视频生成的研究议程：目标不再是"生成好看的短片"，而是"学习一个可交互的世界模型"。另一个被广泛复用的工程启示是"原生时长与分辨率训练"：传统视频生成把所有训练片段裁剪缩放到统一规格，Sora 则保留了数据的原始纵横比与时长分布，论文级综述推测这使模型学到了构图与运镜的自然分布，而非被裁剪伪影污染。</p>
+<p><strong>开源追赶</strong>。Latte（2024）是视频 DiT 的开源先声；CogVideoX（2408.06072）以专家自适应 LayerNorm 的 3D 全注意力成为重要的开源基座；HunyuanVideo（2412.03603，13B）采用双流-单流混合架构；Wan（2503.20314）提供了 T2V/I2V/首尾帧的完整开源套件。这条线的共同主题是：在注意力结构（分解时空 vs 3D 全注意力）、条件注入与数据工程上逼近 Sora 类系统。</p>
+<p><strong>2025–2026 的新赛点</strong>。三个方向正在重新定义前沿：(i) <strong>多镜头叙事</strong>——Seedance 1.0（2506.09113）原生支持多镜头、10 秒 1080p 生成，镜头切换间保持主体与风格一致，把视频生成从"单镜头片段"推向"可剪辑的叙事单元"；(ii) <strong>音视联合</strong>——Veo 3（2025-05，Google 官方）实现原生音视频同步生成（对白、音效与画面联合建模），MOVA（2602.08794）是 2026 年的开源跟进；(iii) <strong>作为推理器的视频生成</strong>——MME-CoF（2510.26802）等评测开始把视频生成模型当作推理器来测试（物理规律、因果链），世界模型的评测范式正在成形。Meta 的 Movie Gen（2410.13720）则以 30B 视频 + 13B 音频的全家桶展示了个性化与精确编辑的产品化方向。</p>
+<h3 id="52">5.2 自回归生成的持续进化</h3>
+<p>VAR 之后，视觉 AR 的活力集中在 tokenizer 与规模化两端。TiTok（2406.07550）证明图像可以压缩为 32 个 1D token——彻底抛弃二维网格先验，把 AR 序列长度降一个数量级；Infinity（2412.04431）用 bitwise 量化与"无限词表分类器"把 VAR 推到高分辨率；QLIP（2502.05178）与 UniTok（2502.20321）探索文本对齐的统一 tokenizer，试图让同一套离散表示同时服务理解与生成——这是统一模型中最关键的未决组件问题之一。另一条暗线是推理侧：LlamaGen 早已验证 vLLM 式 serving 可为图像 AR 带来 3–4 倍加速，AR 生成与 LLM 基础设施的融合还在继续加深。Liquid（2412.04332）则把统一 AR 推进到连续 VQ 特征层面，验证了大语言模型作为多模态生成器的可扩展性。一个值得记录的历史观察：视觉 AR 在 2024 年的复兴几乎完全由 LLM 社区的方法论反哺驱动——tokenizer 设计对应词表工程，scaling law 测量对应 LLM 的算力规划，serving 优化直接复用推理框架；两个领域的方法论边界正在消融。</p>
+<h3 id="53-20252026">5.3 统一理解-生成：2025–2026 的主战场</h3>
+<p>统一模型在 2025 年从"方向"变成了"战场"。三个对照范式值得并列理解：<strong>Transfusion</strong>（连续扩散损失混合）、<strong>Show-o</strong>（离散扩散：图像 token 用掩码扩散、文本用 AR，单 Transformer 全注意力）、<strong>Emu3</strong>（纯 next-token：视觉 tokenizer 之后理解、生成、视频全部自回归，彻底无扩散）。其中 Show-o 的注意力设计值得单独说明：文本部分保持因果掩码，图像 token 段内部则允许全双向注意力——这种按模态自适应切换因果/双向结构的"omni-attention"，是单一 Transformer 同时胜任两类建模的关键。三者代表了"离Transformer 原生范式多远"的光谱：Emu3 最纯粹（一切皆可 next-token，推理栈完全复用 LLM），Transfusion 保真度最高（连续表示无量化损失），Show-o 居中（离散但非纯因果）。<strong>Janus / Janus-Pro</strong>（DeepSeek）则指出了另一条正交维度：理解与生成对视觉编码的需求本质冲突（理解要抽象语义、生成要保留细节），因此解耦两个编码器、共享 LLM 主干；JanusFlow 进一步把 rectified flow 生成头直接嵌入 LLM。<strong>Emu3.5</strong>（2510.26583）把 native 多模态 next-token 模型推向更大规模，自称"世界学习者"；<strong>OmniGen2</strong>（2506.18871）专注指令对齐的统一生成。闭源侧，GPT-4o 图像生成（2025-03）以自回归式原生生成引发"吉卜力"现象级传播，Echo-4o（2508.09987）随后研究了用其合成数据反哺开源模型的数据飞轮——闭源系统的输出正在成为开源社区的训练资源，这是 2025 年最微妙的数据生态变化。</p>
+<h3 id="54">5.4 图像编辑：从指令到上下文</h3>
+<p>图像编辑是 2025 年感知最强的能力跃迁。谱系清晰：<strong>Prompt-to-Prompt</strong>（2208.01618）发现交叉注意力图携带布局信息，零训练即可实现文本驱动的局部修改；<strong>InstructPix2Pix</strong>（2211.09800）用 GPT-3 生成编辑指令 + P2P 生成前后图像对，合成数据训练出"听懂人话"的编辑模型，开创了指令编辑范式；2025 年范式升级为<strong>上下文编辑（in-context editing）</strong>：<strong>FLUX.1 Kontext</strong>（2506.15742）把参考图与指令同时作为 DiT 的上下文 token，在 flow-matching 框架内实现角色、风格、物体的精确保持式编辑；Google 的 <strong>Nano Banana</strong>（Gemini 2.5 Flash Image，官方发布）以惊人的角色一致性与多轮编辑稳定性引发社区热潮，成为与 Kontext 并列的双标杆。学术侧，Step1X-Edit（2504.17761）将 MLLM 与 DiT 级联为通用编辑框架；<strong>EditScore</strong>（2509.23909）把 reward model + 在线 RL 引入编辑后训练——编辑模型开始拥有自己的"RLHF"。值得注意的概念转变：编辑能力正从"专用 pipeline"被吸收为统一模型的内禀能力（BAGEL 的智能编辑、4o 的多轮编辑），专用编辑模型的存在意义正在被重新拷问。</p>
+<h3 id="55">5.5 文字渲染与效率</h3>
+<p><strong>文字渲染</strong>曾是扩散模型的著名短板（VAE 压缩 + 无字符级建模），2025 年被系统性攻克：Qwen-Image（2508.02324）在中文长文本渲染上达到开源 SOTA（多行段落、复杂版式），Seedream 与 GPT-4o 在闭源侧同样成熟——其共同配方是强文本编码器（LLM 级）+ 文本渲染专项数据课程。<strong>效率侧</strong>，SANA（2410.10629）以线性注意力 DiT + 高压缩 DC-AE 把高分辨率生成推向边缘设备；SnapFusion 与一致性/蒸馏方法则继续压缩采样步数。效率进步的深层意义：当单图生成成本趋近于零，研究的重心自然转向交互性（编辑）、组合性（多图一致性）与智能性（统一模型）——这正是 5.3–5.4 节的繁荣背后的经济逻辑。</p>
+<h2 id="6">6. 技术路线对比与权衡</h2>
+<h3 id="61-flow-matching-vs">6.1 扩散（含 flow matching） vs 自回归：核心权衡</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>扩散 / Flow Matching</th>
+<th>自回归（next-token / next-scale）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成过程</td>
+<td>迭代精化：全体像素/token 同时逐步去噪</td>
+<td>序列分解：逐项（或逐尺度）预测</td>
+</tr>
+<tr>
+<td>似然</td>
+<td>近似（ELBO / ODE 可精确但昂贵）</td>
+<td>精确，逐 token 对数似然可算</td>
+</tr>
+<tr>
+<td>采样步数</td>
+<td>少步可行（DDIM 20–50 步，rectified flow / 蒸馏可至 1–8 步）</td>
+<td>与序列长度成正比（VAR 后按尺度数计，约 10 步）</td>
+</tr>
+<tr>
+<td>训练稳定性</td>
+<td>高（回归目标，无对抗、无曝光偏差）</td>
+<td>高（交叉熵），但存在 teacher-forcing 与推理分布的偏差</td>
+</tr>
+<tr>
+<td>全局一致性</td>
+<td>每步都"看到"全图，构图稳定</td>
+<td>早期 token 决定构图，误差可累积（VAR 大幅缓解）</td>
+</tr>
+<tr>
+<td>与文本统一</td>
+<td>损失函数异构，统一需 Transfusion 式混合</td>
+<td>同构：图像 token 与文本 token 共享 next-token 范式</td>
+</tr>
+<tr>
+<td>基础设施复用</td>
+<td>需专用采样器与调度</td>
+<td>直接复用 LLM 训练/推理栈（kv-cache、serving）</td>
+</tr>
+<tr>
+<td>编辑能力</td>
+<td>天然支持（inpainting、注意力注入、SDEdit）</td>
+<td>需零样本改造（VAR 展示了初步能力）</td>
+</tr>
+<tr>
+<td>典型代表</td>
+<td>DDPM、LDM/SD、DiT、SD3/FLUX</td>
+<td>LlamaGen、VAR、Infinity、Emu3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析</strong>。两条路线的差异正在从"本质差异"退化为"工程权衡"。扩散的优势——连续表示、全局精化、少步采样——在 rectified flow 与蒸馏技术下愈发锋利；AR 的优势——与 LLM 同构、精确似然、基础设施复用——在 VAR 重新定义生成序后同样成立。2025 年的真实格局是：<strong>专用生成模型几乎全是扩散/flow 系（FLUX、SD3、Qwen-Image、视频模型），而统一模型内部的生成头则在三种范式间自由选配</strong>（Transfusion 连续扩散、Show-o 离散扩散、Emu3 纯 AR、BAGEL 扩散+AR）。这意味着对研究者而言，重要的不是押注某条路线，而是理解两种范式各自的数学结构及其可组合性。</p>
+<p>一个更本质的观察来自信息论视角：Transfusion 的消融显示连续潜表示以 16 个 patch 即可承载一张图的信息，而离散 tokenizer 通常需要 256 个以上的 token——<strong>表示的信息密度</strong>决定了序列长度，进而决定训练与推理成本。扩散范式的隐优势正是它默认工作在连续空间；AR 范式若要竞争，必须在 tokenizer 的信息密度上持续逼近（TiTok 的 32 token、Infinity 的 bitwise 都是这一逻辑的产物）。</p>
+<h3 id="62">6.2 统一模型的架构权衡</h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>视觉表示</th>
+<th>生成损失</th>
+<th>编码器设计</th>
+<th>规模</th>
+<th>代表权衡</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transfusion</td>
+<td>连续 VAE 潜向量</td>
+<td>序列内扩散</td>
+<td>共享编码 + 薄投影层</td>
+<td>至 7B</td>
+<td>保真度高；推理不对称</td>
+</tr>
+<tr>
+<td>Show-o</td>
+<td>离散 token</td>
+<td>离散扩散（掩码）</td>
+<td>共享</td>
+<td>1.3B 级</td>
+<td>单 Transformer 极简；双向注意力与因果混排复杂</td>
+</tr>
+<tr>
+<td>Emu3 / Emu3.5</td>
+<td>离散 token</td>
+<td>纯 next-token</td>
+<td>共享</td>
+<td>8B+</td>
+<td>完全复用 LLM 栈；量化损失与长序列成本</td>
+</tr>
+<tr>
+<td>Janus / Janus-Pro</td>
+<td>离散（生成）+ 连续（理解）</td>
+<td>AR + 扩散头</td>
+<td><strong>解耦双编码器</strong></td>
+<td>1B–7B</td>
+<td>解决编码冲突；系统复杂度上升</td>
+</tr>
+<tr>
+<td>BAGEL</td>
+<td>ViT（理解）+ VAE（生成）</td>
+<td>扩散 + AR 双损失</td>
+<td>共享计算图、<strong>MoT 解耦参数</strong></td>
+<td>14B（激活 7B）</td>
+<td>涌现能力最强；训练成本最高</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析</strong>。统一模型设计的三个轴——表示（离散 vs 连续）、损失（AR vs 扩散 vs 混合）、参数（共享 vs 解耦）——目前没有定论，但已有清晰的经验倾向：(i) 理解侧吃离散/语义化表示，生成侧吃连续/细节化表示，试图用单一 tokenizer 通吃两端的工作（QLIP、UniTok）尚未证明能与专用组合抗衡；(ii) MoT 式"参数解耦、计算共享"在 BAGEL 上显示了最好的能力-成本平衡；(iii) 规模与交错数据质量比架构细节更能预测"涌现"——这与 LLM 的历史经验一致。</p>
+<p>对入门者的阅读建议：将 Transfusion、Show-o、Emu3 三篇作为一组对照阅读——它们几乎同期出现、目标相同、技术路线各异，是理解"统一损失设计空间"的最佳样本；再以 Janus-Pro（解耦派）与 BAGEL（MoT 派）补全架构维度，即可建立该子领域的完整心智地图。</p>
+<h3 id="63">6.3 图像编辑范式对比</h3>
+<table>
+<thead>
+<tr>
+<th>范式</th>
+<th>代表</th>
+<th>机制</th>
+<th>优点</th>
+<th>局限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>注意力注入</td>
+<td>Prompt-to-Prompt</td>
+<td>操纵交叉注意力图</td>
+<td>零训练</td>
+<td>仅支持结构性小改</td>
+</tr>
+<tr>
+<td>指令微调</td>
+<td>InstructPix2Pix、Step1X-Edit</td>
+<td>合成数据监督微调</td>
+<td>自然语言交互</td>
+<td>数据合成质量决定上限</td>
+</tr>
+<tr>
+<td>上下文编辑</td>
+<td>FLUX Kontext、Nano Banana</td>
+<td>参考图+指令作为上下文 token</td>
+<td>角色/风格一致性极强</td>
+<td>闭源或高训练成本</td>
+</tr>
+<tr>
+<td>统一模型内禀编辑</td>
+<td>BAGEL、GPT-4o</td>
+<td>理解-生成联合推理</td>
+<td>可组合、可推理、多轮</td>
+<td>需要万亿级交错数据</td>
+</tr>
+<tr>
+<td>RL 后训练</td>
+<td>EditScore</td>
+<td>编辑 reward model + 在线 RL</td>
+<td>对齐人类偏好</td>
+<td>reward hacking 风险</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7">7. 开放问题与未来方向</h2>
+<p>以下七个问题按"组件 → 能力 → 理论 → 评测"的层次排列，均为 2026 年视角下活跃且未决的方向。</p>
+<ol>
+<li><strong>统一 tokenizer 的终极形态</strong>。理解要高层语义、生成要像素细节、视频要时空连贯——单一表示能否同时满足？bitwise/1D/文本对齐三条探索线（Infinity、TiTok、QLIP）都未给出终局答案。这或许是统一模型时代最重要的组件级问题。</li>
+<li><strong>"涌现"的度量与预测</strong>。BAGEL 与 GPT-4o 展示的智能编辑、世界导航目前主要靠定性案例，缺乏类似 scaling law 的定量预测工具。建立"统一能力"的可测基准（何种数据、何种规模触发何种涌现）是从艺术走向科学的关键一步。</li>
+<li><strong>视频生成的物理与因果</strong>。Sora 类系统的"世界模拟"仍经不起细查（物体凭空出现、物理不一致）。MME-CoF 等把视频模型当推理器评测的方向刚刚起步；把显式物理约束或因果结构注入视频扩散仍是空白。</li>
+<li><strong>长视频与记忆的架构</strong>。当前视频模型以 5–10 秒为单位，分钟级叙事需要分层规划（剧本→镜头→帧）与跨镜头记忆机制——多镜头生成（Seedance）只是开端，"导演模型"尚无公认架构。</li>
+<li><strong>少步生成的理论极限</strong>。rectified flow 的 reflow、consistency models、蒸馏都把步数压到个位数甚至 1 步，但质量-步数的帕累托前沿在哪里、不同蒸馏目标之间的关系如何，理论理解仍不完整。</li>
+<li><strong>生成与理解的相互促进</strong>。直觉上"会画应该帮助会看"（生成式表征学习）且反之亦然，但目前的统一模型中两个方向的能力迁移证据还很初步。证明或证伪统一训练的跨向增益，将决定统一模型是终局架构还是过渡形态。</li>
+<li><strong>评测危机</strong>。FID 与人类偏好的相关性在高水平模型间持续恶化，T2I/编辑/视频领域都在转向人类评审与 VLM-as-judge，但后者的可靠性与可操纵性本身成为问题。生成领域的"评测科学"严重滞后于模型能力。</li>
+</ol>
+<h2 id="8">8. 研究机会点评（给入门研究者的建议）</h2>
+<p><strong>算力门槛适中、问题清晰的方向</strong>：</p>
+<ul>
+<li><strong>tokenizer 研究</strong>。VQ/1D/bitwise/文本对齐 tokenizer 只需单卡到 8 卡即可做出有意义的贡献，且影响面覆盖理解、生成、统一三个方向。一个能同时服务理解与生成、且在标准基准上可复现的 tokenizer，具备顶会潜力。评判标准也已在社区中收敛：重建保真度（rFID）、码本利用率、下游理解与生成任务的双向增益，四者缺一不可——许多工作只报告其中一两项，恰是审稿人最敏感的空洞。代表切入点：在 QLIP/UniTok 框架上解决其保真度短板。</li>
+<li><strong>编辑评测与后训练</strong>。EditScore 开辟的 reward model + RL 路线尚处早期：编辑奖励的偏置分析、reward hacking 的检测、多轮编辑的偏好建模，都是数据规模小、问题定义清楚的好题目。</li>
+<li><strong>少步采样与蒸馏分析</strong>。在开源 SD/FLUX 权重上做蒸馏方法的系统性比较与理论分析，算力需求可控，且社区需求真实。</li>
+<li><strong>VAR 系的扩展分析</strong>。next-scale 范式在视频、3D 上的推广尚未定型；在开源 VAR/Infinity 代码上验证新模态的可行性是低风险高可见度的工作。</li>
+</ul>
+<p><strong>需要掂量算力、但可借力开源的方向</strong>：</p>
+<ul>
+<li><strong>统一模型的组件研究</strong>。从零训练 BAGEL 级模型是巨头游戏，但在开源统一模型（BAGEL、Emu3、Janus-Pro 权重均已公开）上做能力分析、微调研究、失败模式归因，算力门槛是推理级而非训练级的。</li>
+<li><strong>视频生成的世界模型评测</strong>。MME-CoF 式"把生成模型当推理器"的评测构建只需调用 API 或推理开源模型，是典型的问题驱动、算力轻量机会。</li>
+</ul>
+<p><strong>坦诚说明属于巨头游戏的</strong>：从零预训练旗舰 T2I/视频模型、GPT-4o 级原生多模态系统、Veo 3 级音视联合——这些方向的入场券是千卡级集群与万亿 token 级数据工程，学术团队应以其开源副产品（权重、蒸馏版、合成数据）为杠杆而非正面竞争。一个务实的定位策略是：选择巨头路线图上的"组件级科学问题"——他们必须解决但无暇发表的环节（tokenizer 评估、数据配比消融、失败模式归因），以开放科学的方式建立个人影响力。</p>
+<h2 id="9">9. 术语表</h2>
+<ol>
+<li><strong>扩散模型（Diffusion Model）</strong>：通过逐步加噪定义前向过程、学习其逆过程以从噪声生成数据的一类生成模型。</li>
+<li><strong>Score（分数）</strong>：对数数据分布的梯度 $\nabla_\mathbf{x}\log p(\mathbf{x})$，指向数据密度增加的方向；噪声预测与之等价。</li>
+<li><strong>ELBO（证据下界）</strong>：潜变量模型对数似然的可优化下界，VAE 与 DDPM 的共同训练依据。</li>
+<li><strong>噪声调度（Noise Schedule）</strong>：各时间步噪声强度 $\beta_t$ 的安排（线性、cosine、logit-normal 等），决定训练信号的分布。</li>
+<li><strong>DDIM</strong>：非马尔可夫确定性扩散采样器，允许跳步加速，等价于 probability flow ODE 的离散化。</li>
+<li><strong>Probability Flow ODE</strong>：与扩散 SDE 共享边缘分布的确定性常微分方程，连接噪声与数据的可逆流。</li>
+<li><strong>Flow Matching / Rectified Flow</strong>：直接学习连接噪声与数据的（直线）速度场的训练范式，SD3/FLUX 的目标函数。</li>
+<li><strong>Classifier-Free Guidance（CFG）</strong>：训练时随机丢条件、采样时在条件/无条件预测间外推的引导技术，T2I 标配。</li>
+<li><strong>VAE / 潜空间（Latent Space）</strong>：变分自编码器学得的压缩表示空间；LDM 在此空间扩散以节省算力。</li>
+<li><strong>交叉注意力（Cross-Attention）</strong>：将外部条件（文本等）以 K/V 形式注入生成网络层的注意力机制。</li>
+<li><strong>DiT</strong>：以 Transformer 替换 U-Net 的扩散骨干，确立扩散模型的 scaling law。</li>
+<li><strong>MM-DiT</strong>：SD3 提出的双流多模态 DiT，文本与图像各有权重、通过联合注意力交换信息。</li>
+<li><strong>VQ-VAE / VQGAN</strong>：带离散码本的量化自编码器，把图像变为离散 token 序列，视觉 AR 的"分词器"。</li>
+<li><strong>Next-Scale Prediction</strong>：VAR 提出的生成序——从粗到细逐尺度并行预测 token 图，替代光栅扫描。</li>
+<li><strong>MaskGIT / 离散扩散</strong>：以掩码-重建方式并行迭代生成离散 token 的非顺序范式（Muse、Show-o）。</li>
+<li><strong>Transfusion</strong>：在单 Transformer 中混合 LM 损失（离散）与扩散损失（连续）的统一训练配方。</li>
+<li><strong>MoT（Mixture-of-Transformer-Experts）</strong>：BAGEL 的架构，理解与生成各占专家参数、共享计算图。</li>
+<li><strong>Spacetime Patches</strong>：Sora 式视频 token 化，把时空潜块作为 DiT 的输入单元。</li>
+<li><strong>指令编辑 / 上下文编辑</strong>：以自然语言指令（InstructPix2Pix）或参考图+指令上下文（Kontext）驱动的图像编辑范式。</li>
+<li><strong>FID（Fréchet Inception Distance）</strong>：以 Inception 特征的高斯拟合距离衡量生成分布与真实分布差异的主流指标。</li>
+</ol>
+<h2 id="10">10. 参考文献</h2>
+<p><strong>综述</strong></p>
+<p>[1] Sora: A Review on Background, Technology, Limitations, and Opportunities of Large Vision Models. Liu et al., 2024. arXiv:2402.17177. https://arxiv.org/abs/2402.17177
+[2] Text to Image Generation and Editing: A Survey. 2025. arXiv:2505.02527. https://arxiv.org/abs/2505.02527
+[3] Unified Multimodal Understanding and Generation Models: Advances, Challenges, and Opportunities. 2025. arXiv:2505.02567. https://arxiv.org/abs/2505.02567
+[4] Autoregressive Models in Vision: A Survey. 2024. arXiv:2411.05902. https://arxiv.org/abs/2411.05902
+[5] Controllable Video Generation: A Survey. 2025. arXiv:2507.16869. https://arxiv.org/abs/2507.16869
+[6] Bridging Text and Video Generation: A Survey. 2025. arXiv:2510.04999. https://arxiv.org/abs/2510.04999</p>
+<p><strong>扩散与 score 基础</strong></p>
+<p>[7] Generative Modeling by Estimating Gradients of the Data Distribution. Song &amp; Ermon, 2019. arXiv:1907.05600. https://arxiv.org/abs/1907.05600
+[8] Denoising Diffusion Probabilistic Models. Ho, Jain &amp; Abbeel, 2020. arXiv:2006.11239. https://arxiv.org/abs/2006.11239
+[9] Denoising Diffusion Implicit Models. Song, Meng &amp; Ermon, 2020. arXiv:2010.02502. https://arxiv.org/abs/2010.02502
+[10] Improved Denoising Diffusion Probabilistic Models. Nichol &amp; Dhariwal, 2021. arXiv:2102.09672. https://arxiv.org/abs/2102.09672
+[11] Diffusion Models Beat GANs on Image Synthesis. Dhariwal &amp; Nichol, 2021. arXiv:2105.05233. https://arxiv.org/abs/2105.05233
+[12] Score-Based Generative Modeling through Stochastic Differential Equations. Song et al., 2021. arXiv:2011.13456. https://arxiv.org/abs/2011.13456
+[13] Elucidating the Design Space of Diffusion-Based Generative Models. Karras et al., 2022. arXiv:2206.00364. https://arxiv.org/abs/2206.00364</p>
+<p><strong>Latent diffusion、DiT 与 flow matching</strong></p>
+<p>[14] High-Resolution Image Synthesis with Latent Diffusion Models. Rombach et al., 2021. arXiv:2112.10752. https://arxiv.org/abs/2112.10752
+[15] Hierarchical Text-Conditional Image Generation with CLIP Latents. Ramesh et al., 2022. arXiv:2204.06125. https://arxiv.org/abs/2204.06125
+[16] Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding. Saharia et al., 2022. arXiv:2205.11487. https://arxiv.org/abs/2205.11487
+[17] eDiff-I: Text-to-Image Diffusion Models with an Ensemble of Expert Denoisers. Balaji et al., 2022. arXiv:2211.01324. https://arxiv.org/abs/2211.01324
+[18] Scalable Diffusion Models with Transformers. Peebles &amp; Xie, 2022. arXiv:2212.09748. https://arxiv.org/abs/2212.09748
+[19] Consistency Models. Song et al., 2023. arXiv:2303.01469. https://arxiv.org/abs/2303.01469
+[20] SDXL: Improving Latent Diffusion Models for High-Resolution Image Synthesis. Podell et al., 2023. arXiv:2307.01952. https://arxiv.org/abs/2307.01952
+[21] Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow. Liu, Gong &amp; Liu, 2022. arXiv:2209.03003. https://arxiv.org/abs/2209.03003
+[22] Flow Matching for Generative Modeling. Lipman et al., 2022. arXiv:2210.02747. https://arxiv.org/abs/2210.02747
+[23] Scaling Rectified Flow Transformers for High-Resolution Image Synthesis. Esser et al., 2024. arXiv:2403.03206. https://arxiv.org/abs/2403.03206
+[24] SnapFusion: Text-to-Image Diffusion Model on Mobile Devices within Two Seconds. Li et al., 2023. arXiv:2306.00980. https://arxiv.org/abs/2306.00980
+[25] Hunyuan-DiT: A Powerful Multi-Resolution Diffusion Transformer with Fine-Grained Chinese Understanding. Li et al., 2024. arXiv:2405.08748. https://arxiv.org/abs/2405.08748
+[26] SANA: Efficient High-Resolution Image Synthesis with Linear Diffusion Transformers. Xie et al., 2024. arXiv:2410.10629. https://arxiv.org/abs/2410.10629
+[27] Qwen-Image Technical Report. Wu et al., 2025. arXiv:2508.02324. https://arxiv.org/abs/2508.02324
+[28] FLUX.1 Kontext: Flow Matching for In-Context Image Generation and Editing in Latent Space. Labs et al., 2025. arXiv:2506.15742. https://arxiv.org/abs/2506.15742</p>
+<p><strong>视频扩散</strong></p>
+<p>[29] Video Diffusion Models. Ho et al., 2022. arXiv:2204.03458. https://arxiv.org/abs/2204.03458
+[30] Imagen Video: High Definition Video Generation with Diffusion Models. Ho et al., 2022. arXiv:2210.02303. https://arxiv.org/abs/2210.02303
+[31] Long Video Generation with Time-Agnostic VQGAN and Time-Sensitive Transformer. Villegas et al., 2022. arXiv:2204.03638. https://arxiv.org/abs/2204.03638
+[32] I2VGen-XL: High-Quality Image-to-Video Synthesis via Cascaded Diffusion Models. Zhang et al., 2023. arXiv:2311.04145. https://arxiv.org/abs/2311.04145
+[33] VideoPoet: A Large Language Model for Zero-Shot Video Generation. Kondratyuk et al., 2023. arXiv:2312.14125. https://arxiv.org/abs/2312.14125
+[34] Latte: Latent Diffusion Transformer for Video Generation. Ma et al., 2024. arXiv:2401.03048. https://arxiv.org/abs/2401.03048
+[35] Sora. OpenAI, 2024. [官方技术报告，无 arXiv]；分析见 [1]
+[36] CogVideoX: Text-to-Video Diffusion Models with an Expert Transformer. Yang et al., 2024. arXiv:2408.06072. https://arxiv.org/abs/2408.06072
+[37] Movie Gen: A Cast of Media Foundation Models. Meta, 2024. arXiv:2410.13720. https://arxiv.org/abs/2410.13720
+[38] HunyuanVideo: A Systematic Framework for Large Video Generative Models. Kong et al., 2024. arXiv:2412.03603. https://arxiv.org/abs/2412.03603
+[39] Wan: Open and Advanced Large-Scale Video Generative Models. Wan Team, 2025. arXiv:2503.20314. https://arxiv.org/abs/2503.20314
+[40] Seedance 1.0: Exploring the Boundaries of Video Generation Models. ByteDance Seed, 2025. arXiv:2506.09113. https://arxiv.org/abs/2506.09113
+[41] Veo / Veo 2 / Veo 3. Google DeepMind, 2024–2025. [官方发布/技术页，无 arXiv]
+[42] MOVA: Towards Scalable and Synchronized Video-Audio Generation. 2026. arXiv:2602.08794. https://arxiv.org/abs/2602.08794
+[43] MME-CoF: Are Video Generation Models Ready to Be Reasoners? 2025. arXiv:2510.26802. https://arxiv.org/abs/2510.26802</p>
+<p><strong>自回归图像生成</strong></p>
+<p>[44] MaskGIT: Masked Generative Image Transformer. Chang et al., 2022. arXiv:2202.04200. https://arxiv.org/abs/2202.04200
+[45] Muse: Text-To-Image Generation via Masked Generative Transformers. Chang et al., 2023. arXiv:2301.00704. https://arxiv.org/abs/2301.00704
+[46] Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction. Tian et al., 2024. arXiv:2404.02905. https://arxiv.org/abs/2404.02905
+[47] An Image is Worth 32 Tokens for Reconstruction and Generation. Yu et al., 2024. arXiv:2406.07550. https://arxiv.org/abs/2406.07550
+[48] Autoregressive Model Beats Diffusion: Llama for Scalable Image Generation. Sun et al., 2024. arXiv:2406.06525. https://arxiv.org/abs/2406.06525
+[49] Infinity: Scaling Bitwise AutoRegressive Modeling for High-Resolution Image Synthesis. Han et al., 2024. arXiv:2412.04431. https://arxiv.org/abs/2412.04431
+[50] Liquid: Language Models are Scalable and Unified Multi-modal Generators. Wu et al., 2024. arXiv:2412.04332. https://arxiv.org/abs/2412.04332
+[51] QLIP: Text-Aligned Visual Tokenization Unifies Auto-Regressive Multimodal Understanding and Generation. Xue et al., 2025. arXiv:2502.05178. https://arxiv.org/abs/2502.05178
+[52] UniTok: A Unified Tokenizer for Visual Generation and Understanding. Ma et al., 2025. arXiv:2502.20321. https://arxiv.org/abs/2502.20321</p>
+<p><strong>统一理解-生成</strong></p>
+<p>[53] Emu: Generative Pretraining in Multimodality. Sun et al., 2023. arXiv:2307.05222. https://arxiv.org/abs/2307.05222
+[54] DreamLLM: Synergistic Multimodal Comprehension and Creation. Dong et al., 2023. arXiv:2309.11499. https://arxiv.org/abs/2309.11499
+[55] Making LLaMA SEE and Draw with SEED Tokenizer. Ge et al., 2023. arXiv:2310.01218. https://arxiv.org/abs/2310.01218
+[56] Emu2: Generative Multimodal Models are In-Context Learners. Sun et al., 2023. arXiv:2312.13286. https://arxiv.org/abs/2312.13286
+[57] MM-Interleaved: Interleaved Image-Text Generative Modeling via Multi-modal Feature Synchronizer. Tian et al., 2024. arXiv:2401.10208. https://arxiv.org/abs/2401.10208
+[58] Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model. Zhou et al., 2024. arXiv:2408.11039. https://arxiv.org/abs/2408.11039
+[59] Show-o: One Single Transformer to Unify Multimodal Understanding and Generation. Xie et al., 2024. arXiv:2408.12528. https://arxiv.org/abs/2408.12528
+[60] Emu3: Next-Token Prediction is All You Need. Wang et al., 2024. arXiv:2409.18869. https://arxiv.org/abs/2409.18869
+[61] VILA-U: a Unified Foundation Model Integrating Visual Understanding and Generation. Wu et al., 2024. arXiv:2409.04429. https://arxiv.org/abs/2409.04429
+[62] Janus: Decoupling Visual Encoding for Unified Multimodal Understanding and Generation. Wu et al., 2024. arXiv:2410.13848. https://arxiv.org/abs/2410.13848
+[63] JanusFlow: Harmonizing Autoregression and Rectified Flow for Unified Multimodal Understanding and Generation. Ma et al., 2024. arXiv:2411.07975. https://arxiv.org/abs/2411.07975
+[64] Janus-Pro: Unified Multimodal Understanding and Generation with Data and Model Scaling. Chen et al., 2025. arXiv:2501.17811. https://arxiv.org/abs/2501.17811
+[65] GPT-4o System Card（含 4o image generation）. OpenAI, 2024–2025. arXiv:2410.21276. https://arxiv.org/abs/2410.21276 [官方 system card]
+[66] BAGEL: Emerging Properties in Unified Multimodal Pretraining. Deng et al., ByteDance Seed, 2025. arXiv:2505.14683. https://arxiv.org/abs/2505.14683
+[67] OmniGen2: Exploration to Advanced Multimodal Generation. Wu et al., BAAI, 2025. arXiv:2506.18871. https://arxiv.org/abs/2506.18871
+[68] Emu3.5: Native Multimodal Models are World Learners. BAAI, 2025. arXiv:2510.26583. https://arxiv.org/abs/2510.26583</p>
+<p><strong>图像编辑</strong></p>
+<p>[69] Blended Diffusion for Text-driven Editing of Natural Images. Avrahami et al., 2021. arXiv:2111.14818. https://arxiv.org/abs/2111.14818
+[70] Prompt-to-Prompt Image Editing with Cross Attention Control. Hertz et al., 2022. arXiv:2208.01618. https://arxiv.org/abs/2208.01618
+[71] InstructPix2Pix: Learning to Follow Image Editing Instructions. Brooks et al., 2022. arXiv:2211.09800. https://arxiv.org/abs/2211.09800
+[72] Step1X-Edit: A Practical Framework for General Image Editing. Liu et al., 2025. arXiv:2504.17761. https://arxiv.org/abs/2504.17761
+[73] Echo-4o: Harnessing the Power of GPT-4o Synthetic Images for Improved Image Generation. Ye et al., 2025. arXiv:2508.09987. https://arxiv.org/abs/2508.09987
+[74] EditScore: Unlocking Online RL for Image Editing via High-Fidelity Reward Modeling. 2025. arXiv:2509.23909. https://arxiv.org/abs/2509.23909
+[75] Nano Banana / Gemini 2.5 Flash Image. Google, 2025. [官方发布，无 arXiv]</p>
+</article>
+<footer class="footer"><span>多模态图谱 · 由 Codex + sub-agent swarm 于 2026-09 调研撰写</span><a href="#top">回到顶部 ↑</a></footer>
+</main>
+</div>
+<div class="reading-bar" id="reading-bar"></div>
+<script src="../../js/site.js"></script>
+</body>
+</html>

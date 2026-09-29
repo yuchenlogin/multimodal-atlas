@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>时间的维度：视频理解与大模型 · 多模态图谱</title>
+<link rel="stylesheet" href="../../css/site.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="report-body">
+<nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<div class="layout">
+<aside class="sidenav" id="sidenav">
+<div class="sidenav-title">系列报告</div>
+<a class="sidenav-link" href="../00-foundations/index.html"><span class="sidenav-icon">🏛️</span><span>foundations · 基础架构</span></a>
+<a class="sidenav-link" href="../01-vision-language/index.html"><span class="sidenav-icon">👁️</span><span>vision-language · 视觉-语言</span></a>
+<a class="sidenav-link" href="../02-audio-speech/index.html"><span class="sidenav-icon">🎧</span><span>audio-speech · 音频语音</span></a>
+<a class="sidenav-link active" href="../03-video/index.html"><span class="sidenav-icon">🎬</span><span>video · 视频理解</span></a>
+<a class="sidenav-link" href="../04-omni/index.html"><span class="sidenav-icon">🌐</span><span>omni · 全模态</span></a>
+<a class="sidenav-link" href="../05-generation/index.html"><span class="sidenav-icon">🎨</span><span>generation · 多模态生成</span></a>
+<a class="sidenav-link" href="../06-embodied/index.html"><span class="sidenav-icon">🤖</span><span>embodied · 具身智能</span></a>
+<a class="sidenav-link" href="../07-agent-tooluse/index.html"><span class="sidenav-icon">🧭</span><span>agent-tooluse · 多模态 Agent</span></a>
+<a class="sidenav-link" href="../08-efficiency/index.html"><span class="sidenav-icon">⚡</span><span>efficiency · 高效化</span></a>
+<a class="sidenav-link" href="../09-alignment-safety/index.html"><span class="sidenav-icon">🛡️</span><span>alignment-safety · 对齐与安全</span></a>
+<a class="sidenav-link" href="../10-benchmarks-eval/index.html"><span class="sidenav-icon">📏</span><span>benchmarks-eval · 评测方法</span></a>
+<a class="sidenav-link" href="../11-data-training/index.html"><span class="sidenav-icon">🧪</span><span>data-training · 数据与训练</span></a>
+<a class="sidenav-link" href="../12-frontier/index.html"><span class="sidenav-icon">🔭</span><span>frontier · 前沿专题</span></a>
+<div class="sidenav-title" style="margin-top:1.2rem">更多</div>
+<a class="sidenav-link" href="../../paper/index.html">📄 顶会风格论文</a>
+<a class="sidenav-link" href="../../index.html#about">ℹ️ 关于本站</a>
+</aside>
+<main class="content">
+<header class="report-header"><div class="report-kicker">🎬 专题 03 · 视频理解</div><h1>时间的维度：视频理解与大模型</h1><div class="report-sub">Video-LLaVA、长视频、流式视频、Video-MME</div>
+<div class="report-actions"><a class="btn" href="../../assets/03-video.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+</header>
+<article class="report-content" id="article">
+<blockquote>
+<p>副标题：当视觉语言模型走出静态图像，它如何学会理解"变化"本身
+版本日期：2026-09-29 | 面向读者：有深度学习基础的多模态初学者</p>
+</blockquote>
+<h2 id="_1">摘要</h2>
+<p>视频理解是多模态大模型（MLLM）从"看图"走向"看世界"的关键一跃。与静态图像相比，视频引入了一个全新维度——时间：模型不仅要回答"画面里有什么"，还要回答"发生了什么、按什么顺序发生、为什么发生"。然而时间维度的代价极其高昂：一小时视频按 1 fps 采样就是 3600 帧，若每帧编码为数百个视觉 token，总 token 量轻易突破百万，远超绝大多数大语言模型（LLM）的上下文与算力预算。围绕这一矛盾，2023–2026 年间视频理解领域形成了三条清晰的技术主线：其一是<strong>时序建模</strong>——从早期的平均池化、时序 Q-Former，到 Qwen2.5-VL 用绝对时间编码的 M-RoPE 把时间戳直接编织进注意力机制；其二是<strong>token 压缩与记忆机制</strong>——LLaMA-VID 将每帧压至约 2 个 token，MovieChat 借鉴认知科学的记忆模型构建分层记忆，Video-XL 用视觉摘要 token（VST）把压缩做进 KV cache；其三是<strong>统一图像-视频训练</strong>——Video-LLaVA 证明图像与视频可以在投影前共享统一表示而互相增益，Qwen2.5-VL 与 LLaVA-OneVision 则把统一性推向工业级。评测方面，Video-MME 建立了短/中/长视频全谱系评测的事实标准，StreamingBench 则首次把"流式理解"这个被忽视的能力维度量化。本报告沿着"挑战—谱系—深剖—前沿—权衡"的结构展开，深度剖析 Video-LLaVA、LLaMA-VID、Video-XL、Qwen2.5-VL、Video-MME 五篇代表作，并为入门研究者指出算力门槛适中的研究机会。</p>
+<p><strong>为什么是现在（2026）回望这个方向？</strong> 视频理解在 2023–2024 年完成了从"不可能"到"可行"的跨越，在 2025 年完成了从"可行"到"开源可及"的跨越（Qwen2.5-VL 级别的模型已可在单卡运行），而 2026 年正处在第三次跨越的中点：从"离线看懂录像"到"在线理解世界"。流式理解、事件驱动、跨模态冲突这些新问题，在两年前甚至没有名字。此时系统梳理该方向的技术谱系，既能看清已被解决的问题遵循什么逻辑，也能更准确地判断哪些开放问题值得投入。</p>
+<p><strong>阅读导引。</strong> 第 2 章用最少的前提知识建立视频理解的概念框架；第 3 章按时间线梳理方法谱系，可直接查阅一览表获得全局；第 4 章是全报告的核心，五篇深剖论文分别对应五个关键技术抉择；第 5–6 章讨论前沿与权衡；第 7–8 章面向有志进入该方向的读者。</p>
+<h2 id="1">1. 引言：本方向在多模态版图中的位置</h2>
+<h3 id="11">1.1 为什么是视频？</h3>
+<p>如果把多模态大模型的能力版图按"信息的时间结构"来划分，静态图像理解是零阶问题——所有信息在一个时刻同时呈现；文本理解是一阶问题——信息沿单一线性序列展开；而视频理解至少是二阶问题：在每一个时刻都有一幅高维画面，而画面之间又沿时间轴构成因果与演化的链条。人类智能的大部分日常活动——看懂一场球赛、学会一个菜谱、察觉对话者神情的变化——都建立在对视频的实时理解之上。因此，视频理解被广泛视为 MLLM 通往"具身智能"与"世界模型"的必经之路。</p>
+<p>具体而言，视频相对图像引入了三重独特挑战，它们将贯穿本报告全文：</p>
+<ol>
+<li><strong>时序建模（temporal modeling）</strong>：图像是空间的并列，视频是时间的相续。模型必须回答"先发生什么、后发生什么、两件事之间隔了多久、这个动作持续了多长时间"。这些问题的答案分布在帧与帧的关系中，而不在任何单独一帧里——这对以"单图思维"预训练出来的视觉编码器是根本性的错位。</li>
+<li><strong>帧冗余（frame redundancy）</strong>：相邻帧的像素相关性常常高达 99% 以上。直接逐帧处理等于用海量算力反复编码同一场景，而关键信息（一次传球、一个眼神变化）可能只存在于几帧之内。冗余既是负担，也是机会——几乎所有 token 压缩方法都在押注"冗余可以被安全地挤掉"。</li>
+<li><strong>长上下文爆炸（context explosion）</strong>：视频的 token 消耗是图像的 $N$ 倍（$N$ 为帧数），一小时视频按常规编码可产生几十万至上百万 token。注意力复杂度随序列长度平方增长，KV cache 显存随长度线性增长，两者叠加使"看完整部视频"成为 2023 年几乎所有开源模型无法企及的奢侈。</li>
+</ol>
+<h3 id="12">1.2 学习地图</h3>
+<p>阅读本报告建议的先修概念：</p>
+<ul>
+<li><strong>Vision Transformer（ViT）与 CLIP</strong>：视频编码器大多由图像 ViT 改造而来，理解 patch embedding 与对比学习是前提；</li>
+<li><strong>LLaVA 式视觉语言架构</strong>：visual encoder → projector → LLM 的三段式骨架，是几乎所有 Video-LLM 的母版；</li>
+<li><strong>RoPE 位置编码</strong>：Qwen2.5-VL 的 M-RoPE 是对它的多维推广；</li>
+<li><strong>KV cache 机制</strong>：Video-XL 的 VST 压缩直接作用于 KV cache 层面。</li>
+</ul>
+<p><strong>视频理解在版图中的上下游位置。</strong> 向上，它承接视觉语言对齐的所有成果：LLaVA 系模型的 connector 设计（线性层、MLP、Q-Former、C-Abstractor）几乎原封不动地迁移到了 Video-LLM，区别只在于输入从单图变成了帧序列。向下，它是三个方向的天然前导：<strong>具身智能</strong>（机器人面对的是永不停止的视频流，理解视频是行动的前提）、<strong>视频生成</strong>（理解时序规律与生成时序一致的画面被越来越多证据表明是同一能力的两面）、<strong>全模态交互</strong>（真实世界的输入天然是"视频 + 音频 + 语音"的复合流）。</p>
+<p>本方向的核心问题可以浓缩为一个不等式：</p>
+<p>$$\text{视频信息量} \gg \text{LLM 上下文预算} \times \text{算力预算}$$</p>
+<p>所有方法本质上都在回答：<strong>丢掉什么、留下什么、以什么形式留下</strong>。与其他方向的关系：视频理解向上承接视觉语言对齐（图像 VLM 的 connector 设计几乎原样迁移），向下连接长上下文技术（长视频就是超长多模态上下文）、流式交互（streaming 是 online 设定的视频理解）与视频生成（生成模型的时序先验正在被反过来用作理解能力的探针）。</p>
+<h2 id="2">2. 基础知识</h2>
+<h3 id="21">2.1 视频的数字化与帧采样</h3>
+<p>一段视频是帧序列 $V = {I_1, I_2, \dots, I_T}$，每秒 24–30 帧。但相邻帧的像素相关性极高——一段 10 秒的采访视频里，可能只有说话者的嘴唇在动。这带来视频理解的第一个独特挑战：<strong>帧冗余</strong>。直接把原始帧率喂给模型，既浪费算力又稀释信息密度。因此所有 Video-LLM 的第一步都是采样：</p>
+<ul>
+<li><strong>均匀采样（uniform sampling）</strong>：不论视频长短，固定采 $N$ 帧（常见 8/16/32）。简单、与训练分布一致，但一小时视频采 16 帧意味着每 3.75 分钟才看一眼，长视频上必然"失明"；</li>
+<li><strong>fps 采样（fps-aware sampling）</strong>：按固定帧率采样（如 1 fps），帧数随视频长度变化。Apollo 的系统性消融表明，训练时采用 fps 采样显著优于均匀采样——因为模型得以在预训练阶段就学到"帧间隔=固定时长"这一物理对应关系，推理时长视频不会被错误地"压缩"到短视频的时间感里。</li>
+</ul>
+<h3 id="22-vit">2.2 视频编码器：从图像 ViT 到视频基础模型</h3>
+<p>Video-LLM 的"眼睛"有两类来源。第一类是<strong>图像编码器的直接复用</strong>：CLIP ViT 或 SigLIP ViT 逐帧编码，时序关系完全交给后续模块。优点是零成本、与图像 VLM 生态完全兼容；缺点是帧间冗余被原样放大——相邻两帧各自产生数百个几乎相同的 token。第二类是<strong>视频基础模型（video foundation model）</strong>：以 InternVideo2 为代表，通过掩码视频建模（masked video modeling）、跨模态对比学习与下一 token 预测的多阶段统一训练，把视频编码器本身做到 60 亿参数规模，在视频识别、视频-文本检索与视频对话上同时达到 SOTA。这类编码器在特征层面就内化了时空联合建模，作为 Video-LLM 的上游能显著减轻 LLM 侧的时序负担，代价是编码器本身也需要海量视频数据训练。2025 年之后的一个共识是：通用 Video-LLM 选图像 ViT（灵活、可复用图像预训练红利），专用视频分析系统选视频基础模型（性能上限更高）。</p>
+<h3 id="23-token">2.3 视觉 token 的数学：上下文爆炸</h3>
+<p>设每帧经 ViT 编码、connector 投影后得到 $n$ 个视觉 token（典型值：CLIP ViT-L/14 对 $336\times336$ 输入输出 576 个 patch token；Qwen2-VL 动态分辨率下约 4 个 patch 合并为 1 token）。采样 $N$ 帧后视觉 token 总数为</p>
+<p>$$L_{\text{vis}} = N \cdot n$$</p>
+<p>以 $N=64, n=196$ 为例已超 1.2 万 token；若以 1 fps 处理一小时视频（$N=3600$）且 $n=196$，则 $L_{\text{vis}} \approx 70$ 万 token。注意力计算量为 $O(L^2)$，KV cache 显存为 $O(L)$，两者都迅速超出单卡能力。这就是<strong>长上下文爆炸</strong>问题，也是第 4 章中 LLaMA-VID、Video-XL、LongVU 等工作存在的根本原因。</p>
+<h3 id="24">2.4 时序建模的基本手段</h3>
+<p>图像 ViT 天然没有时间概念，给 Video-LLM 注入时序感知的主流手段有四类：</p>
+<ol>
+<li><strong>池化/展平</strong>：Video-ChatGPT 对每帧特征做空间平均池化与时间维拼接，让 LLM 自行从序列顺序中推断时间——成本最低，时序感知也最弱；</li>
+<li><strong>时序 Q-Former</strong>：Video-LLaMA 在冻结图像编码器之上插入一个带 temporal query 的 Q-Former，用少量可学习 query 聚合多帧信息；</li>
+<li><strong>时间戳嵌入</strong>：TimeChat 将每帧的绝对时间戳作为文本嵌入与帧特征绑定，让模型显式知道"这一帧发生在第几秒"；</li>
+<li><strong>时间位置编码</strong>：Qwen2-VL/Qwen2.5-VL 的 M-RoPE 把旋转位置编码分解为 (temporal, height, width) 三个分量，其中时间分量的位置 ID 直接由帧的绝对时刻决定——时序对齐被编织进注意力机制本身（详见第 4 章深剖）。</li>
+</ol>
+<h3 id="25-video-llm">2.5 Video-LLM 的标准骨架</h3>
+<p>综述 [1] 将该领域归纳为两条路线。占绝对主流的是<strong>模块化路线</strong>：</p>
+<p>$$\text{Video Encoder} \rightarrow \text{Connector/Projector} \rightarrow \text{LLM}$$</p>
+<p>video encoder 多为 CLIP/SigLIP ViT 或视频基础模型（InternVideo2）；connector 从线性层、MLP 到 Q-Former 不等；LLM 为 Vicuna/Qwen 等。另一条<strong>agent 路线</strong>以 LLM 为调度核心，调用视频基础模型作为工具：LLM 负责理解问题、规划调用（如"先用目标检测定位人物出现的时段，再对该时段做动作识别"）、整合结果作答。这条路线的优势是无需端到端训练、可随时替换更强的工具模型；劣势是推理链条长、错误会级联、且"看视频"的能力完全依赖被调用工具的能力上限。在 2023–2024 年开源 Video-LLM 较弱时，agent 路线是实用的折中；随着端到端模型能力暴涨，agent 路线逐渐退守到需要<strong>可解释中间步骤</strong>或<strong>超长视频按需检索</strong>的特定场景。训练范式几乎一律沿用 LLaVA 的两/三阶段：先冻结 encoder 与 LLM、只训 connector 做特征对齐，再做视频指令微调；部分工作（Video-LLaVA、VideoLLaMA 3）加入图像-视频混合训练。这解释了为什么该领域在 2023 年爆发——它不是从零造轮子，而是把 LLaVA 的配方平移到时间维度，再逐一解决时间维度独有的问题。</p>
+<p>具体而言，一次典型的 Video-LLM 训练包含三个可开可关的阶段：（1）<strong>视觉-语言对齐预训练</strong>：冻结视觉编码器与 LLM，只用大规模视频-文本对训练 connector，让视觉特征落进 LLM 的词嵌入空间——这一步回答"LLM 如何看懂视觉特征"；（2）<strong>指令微调</strong>：用"视频 + 指令 + 回答"三元组微调（通常解冻 LLM），让模型学会围绕视频进行对话——这一步回答"模型如何谈论视频"；（3）<strong>可选的长视频/专项微调</strong>：针对长视频、时间定位等专项能力做增量训练。Video-LLaVA 的革命性在于证明第（1）步可以被上游编码器（LanguageBind）的预对齐完全省掉；而 VideoLLaMA 3 与 Qwen2.5-VL 的工业化在于把三步整合成一条数据驱动的连续管线。</p>
+<h2 id="3">3. 经典方法谱系</h2>
+<h3 id="31-video-language-20192022">3.1 前史：video-language 预训练时代（2019–2022）</h3>
+<p>在 LLM 入场之前，视频-语言研究由"预训练+微调"范式主导：VideoBERT、Frozen-in-Time、CLIP4Clip 等工作在 HowTo100M、WebVid 等大规模视频-文本对上做对比学习或掩码建模，学得的表示迁移到检索、字幕、QA 等下游任务。这一时代的特征是<strong>任务专用头</strong>：一个模型一个任务，评测也分散在各任务基准上。其局限在 LLM 时代被放大——没有任何一个微调分类头能进行开放式的视频对话。但两个遗产保留至今：大规模视频-文本对数据（成为后续指令微调的原料），以及"视频表示要与语言表示对齐"这一核心思想。值得强调的是，这一时代还确立了一个延续至今的工程直觉：视频-语言模型的性能天花板，很大程度上由上游编码器在视频-文本对上的预训练质量决定。2024 年 InternVideo2 把这种直觉推向极致——60 亿参数的编码器本身就是一个小型"视频模型"，Video-LLM 的很多问题在它面前甚至不需要 LLM 就能解决大半。</p>
+<h3 id="32-2023-video-llm">3.2 奠基之年：2023 上半年的 Video-LLM 三驾马车</h3>
+<p>2023 年 5–6 月，三个工作几乎同时确立了 Video-LLM 的范式：</p>
+<ul>
+<li><strong>VideoChat</strong>（2023-05）[6] 提出"以对话为中心"的视频理解，构建 VideoChat-Text 指令数据集，强调时空推理、事件定位与因果关系推断，奠定了视频指令微调的数据范式；</li>
+<li><strong>Video-LLaMA</strong>（2023-06）[7] 在冻结的视觉/音频编码器与冻结 LLM 之间嫁接 Video Q-Former 与 Audio Q-Former，成为首个同时处理画面与声音的 Video-LLM；</li>
+<li><strong>Video-ChatGPT</strong>（2023-06）[8] 引入时间感知特征与 10 万条视频指令对，并给出了首个视频对话的量化评测协议，使"视频聊天能力"第一次可比较。</li>
+</ul>
+<p>三者的分工恰好覆盖了 Video-LLM 的三个必要组件：VideoChat 解决<strong>数据</strong>（没有指令数据，就没有对话能力）、Video-LLaMA 解决<strong>架构</strong>（冻结主干 + 轻量适配器成为此后两年的标准配方）、Video-ChatGPT 解决<strong>评测</strong>（没有量化协议，就无法比较与迭代）。这种"不约而同"的互补并非巧合，而是领域成熟度的标志——当三个必要条件同时被满足，一个子领域就算正式立住了。</p>
+<p>这一代的共同特征是<strong>短视频、少帧数、弱时序</strong>：通常只处理 8–100 帧，时序建模基本依赖 LLM 从 token 顺序里自行领悟。从今天回看，这些模型的"视频理解"有相当比例其实是"关键帧理解"——模型对单帧内的内容言之凿凿，对帧间的关系却常常语焉不详。但历史地评价，这一步不可或缺：先把"看图说话"的链路打通，长视频、强时序、流式这些硬问题才有被提出的载体。</p>
+<h3 id="33-2023-2024">3.3 走向长视频：2023 下半年–2024</h3>
+<p>长视频的爆发由三个痛点驱动：帧数上去之后 token 爆炸、长程依赖丢失、以及缺乏长视频指令数据。代表性工作：</p>
+<ul>
+<li><strong>MovieChat</strong>（2023-07）[9] 借鉴 Atkinson-Shiffrin 记忆模型，把短期记忆（滑窗内密集帧 token）逐步压缩进长期记忆，支持千帧级视频，并发布 MovieChat-1K 基准（1000 个长视频、1.4 万条人工标注）；</li>
+<li><strong>Video-LLaVA</strong>（2023-11）[10] 提出"alignment before projection"，让图像与视频在投影前共享统一视觉表示，证明两者可以互相增益而非互相拖累；</li>
+<li><strong>LLaMA-VID</strong>（2023-11）[11] 把每帧压缩到约 2 个 token，单卡即可处理小时级视频；</li>
+<li><strong>Chat-UniVi</strong>（2023-11）[12] 用动态空间 token 合并统一图像与视频；</li>
+<li><strong>TimeChat</strong>（2023-12）[13] 用时间戳感知帧编码器 + 滑动视频 Q-Former 做时间定位，配套 12.5 万条 TimeIT 指令数据；</li>
+<li><strong>MovieChat+</strong>（2024-04）[17] 在记忆稀疏化中引入问题感知，回答前先按问题检索相关记忆。</li>
+</ul>
+<p>这一阶段的方法论分野值得注意：MovieChat 与 LLaMA-VID 代表<strong>压缩派</strong>——承认装不下，研究怎么丢；TimeChat 代表<strong>增强派</strong>——不减少输入，而是给每帧贴上时间标签让模型看得更明白；Video-LLaVA 代表<strong>统一派</strong>——问题不在视频本身，而在图像与视频的割裂。三派并行不悖，后来的工作几乎都是三者的某种组合。</p>
+<h3 id="34-2024-2025">3.4 统一与工业化：2024 下半年–2025</h3>
+<ul>
+<li><strong>LLaVA-OneVision</strong>（2024-08）[18] 证明单图/多图/视频可以在一个模型里统一训练并互相迁移；</li>
+<li><strong>Qwen2-VL</strong>（2024-09）[19] 以 Naive Dynamic Resolution + M-RoPE 原生支持任意分辨率与 20 分钟以上视频；</li>
+<li><strong>Video-XL</strong>（2024-09）[20] 用 VST 把压缩做进 KV cache，单卡处理小时级视频（CVPR 2025 oral）；</li>
+<li><strong>LongVU</strong>（2024-10）[21] 用 DINOv2 特征去重 + 文本引导的跨模态查询做时空自适应压缩；</li>
+<li><strong>Apollo</strong>（2024-12）[23] 给出迄今最系统的 video MLLM 设计消融（详见第 5 章）；</li>
+<li><strong>VideoLLaMA 3</strong>（2025-01）[26] 以 vision-centric 原则重做训练管线，7B 规模多项 SOTA；</li>
+<li><strong>Qwen2.5-VL</strong>（2025-02）[27] 将绝对时间编码与动态分辨率推向工业级，支持小时级视频与秒级事件定位；</li>
+<li><strong>Video-XL-Pro</strong>（2025-03）[29] 用重构式 token 压缩让 3B 模型处理万帧视频。</li>
+</ul>
+<p>纵观这一阶段，一个清晰的分水岭出现了：2023 年的工作问的是"<strong>能不能</strong>让 LLM 看视频"，2024–2025 年的工作问的是"<strong>怎样看得又好又省</strong>"。回答方式也从单点创新转向系统工程——Apollo 用方法论，Qwen 用基础设施，Video-XL 用架构，VideoLLaMA 3 用训练管线。这标志着一个领域从"概念验证期"进入"工程优化期"的典型特征。</p>
+<h3 id="35">3.5 闭源旗舰的示范</h3>
+<p><strong>Gemini 1.5</strong>（2024-03）[15] 以 MoE 架构与百万级 token 上下文率先展示了"大海捞针"式的一小时视频检索能力；<strong>Gemini 2.5</strong>（2025-07）[30] 将原生多模态长上下文推到新的 SOTA。它们的意义不在于架构创新（细节未公开），而在于证明了<strong>长上下文路线的天花板非常高</strong>——只要上下文足够长，许多精巧的压缩设计可以变得不必要。这给开源社区留下了持续的张力：压缩 vs. 长上下文，孰优孰劣？</p>
+<p>公允地说，两条路线回答的是不同的问题。长上下文路线回答"<strong>上限</strong>在哪里"——在算力不设限的理想世界里，模型能看多长的视频、理解得多深；压缩路线回答"<strong>可达性</strong>如何实现"——在真实的算力约束下，怎样让尽可能多的人用上尽可能强的视频理解。Gemini 1.5 的"大海捞针"演示令人震撼，但一次查询烧掉的算力成本也让绝大多数应用望而却步；LLaMA-VID 的 2 token/帧 看似粗暴，却让学术研究者在单卡上就能探索长视频。历史的经验（如 CNN 时代的模型压缩与蒸馏）表明：上限由旗舰定义，而技术扩散由压缩完成——两者不是竞争，而是接力。</p>
+<h3 id="36">3.6 关键论文一览表</h3>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>年份</th>
+<th>核心思想</th>
+<th>架构要点</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VideoChat</td>
+<td>2023</td>
+<td>以对话为中心组织视频数据</td>
+<td>video encoder + 神经接口 + LLM</td>
+<td>指令微调范式奠基</td>
+</tr>
+<tr>
+<td>Video-LLaMA</td>
+<td>2023</td>
+<td>音视频双通道对齐</td>
+<td>Video/Audio Q-Former + 冻结 LLM</td>
+<td>EMNLP 2023</td>
+</tr>
+<tr>
+<td>Video-ChatGPT</td>
+<td>2023</td>
+<td>时间感知特征 + 视频指令数据</td>
+<td>时空池化 + Vicuna</td>
+<td>首个量化评测协议</td>
+</tr>
+<tr>
+<td>MovieChat</td>
+<td>2023</td>
+<td>分层记忆机制</td>
+<td>短期滑窗 + 长期记忆压缩</td>
+<td>CVPR 2024，千帧级</td>
+</tr>
+<tr>
+<td>Video-LLaVA</td>
+<td>2023</td>
+<td>alignment before projection</td>
+<td>共享 LanguageBind 编码器</td>
+<td>图像视频互相增益</td>
+</tr>
+<tr>
+<td>LLaMA-VID</td>
+<td>2023</td>
+<td>每帧约 2 token</td>
+<td>context + content 双 token</td>
+<td>ECCV 2024，小时级</td>
+</tr>
+<tr>
+<td>TimeChat</td>
+<td>2023</td>
+<td>时间戳显式绑定</td>
+<td>timestamp encoder + sliding Q-Former</td>
+<td>时间定位任务</td>
+</tr>
+<tr>
+<td>Gemini 1.5</td>
+<td>2024</td>
+<td>百万 token 原生上下文</td>
+<td>MoE + 超长上下文</td>
+<td>闭源，技术报告</td>
+</tr>
+<tr>
+<td>Video-MME</td>
+<td>2024</td>
+<td>全谱系视频评测</td>
+<td>6 域 30 子域，短/中/长</td>
+<td>事实标准基准</td>
+</tr>
+<tr>
+<td>LLaVA-OneVision</td>
+<td>2024</td>
+<td>单图/多图/视频统一训练</td>
+<td>SigLIP + Qwen2</td>
+<td>跨场景迁移</td>
+</tr>
+<tr>
+<td>Qwen2-VL</td>
+<td>2024</td>
+<td>动态分辨率 + M-RoPE</td>
+<td>原生分辨率 ViT</td>
+<td>20 分钟以上视频</td>
+</tr>
+<tr>
+<td>Video-XL</td>
+<td>2024</td>
+<td>KV 层压缩（VST）</td>
+<td>视觉摘要 token</td>
+<td>CVPR 2025 oral</td>
+</tr>
+<tr>
+<td>LongVU</td>
+<td>2024</td>
+<td>时空自适应压缩</td>
+<td>DINOv2 去重 + 文本引导查询</td>
+<td>轻量 LLM 可扩展</td>
+</tr>
+<tr>
+<td>Apollo</td>
+<td>2024</td>
+<td>系统设计消融</td>
+<td>Scaling Consistency 方法论</td>
+<td>设计决策宝典</td>
+</tr>
+<tr>
+<td>VideoLLaMA 3</td>
+<td>2025</td>
+<td>vision-centric 训练管线</td>
+<td>高质量数据 + 动态分辨率</td>
+<td>7B 多项 SOTA</td>
+</tr>
+<tr>
+<td>Qwen2.5-VL</td>
+<td>2025</td>
+<td>绝对时间编码 M-RoPE</td>
+<td>窗口注意力 + 动态 fps</td>
+<td>开源事实标准</td>
+</tr>
+<tr>
+<td>Video-XL-Pro</td>
+<td>2025</td>
+<td>重构式 token 压缩</td>
+<td>重构目标训练压缩器</td>
+<td>3B 处理万帧</td>
+</tr>
+<tr>
+<td>StreamingBench</td>
+<td>2024</td>
+<td>流式理解三维度评测</td>
+<td>实时感知/主动输出/记忆压缩</td>
+<td>streaming 首个基准</td>
+</tr>
+</tbody>
+</table>
+<p>纵览此表，可以看到三条清晰的进化线：<strong>帧数</strong>从 8 帧（2023 初）到万帧（2025）；<strong>时序信号</strong>从无（2023 初）到绝对时间编码（2024 末）；<strong>训练范式</strong>从多阶段冻结（2023）到统一混合训练（2024–2025）。任何一篇新工作的定位，都可以在这三条线上找到自己的坐标。</p>
+<h2 id="4">4. 代表作深度剖析</h2>
+<p>本章选取五篇代表作，覆盖统一表示（Video-LLaVA）、极端 token 压缩（LLaMA-VID）、KV 层压缩（Video-XL）、工业级时序对齐（Qwen2.5-VL）与评测标准（Video-MME）五个关键剖面。</p>
+<h3 id="41-video-llava">4.1 Video-LLaVA：先对齐，再投影</h3>
+<p><strong>研究问题与背景。</strong> 要理解 Video-LLaVA 的价值，需要先回到 2023 年下半年的尴尬处境：图像 VLM（LLaVA-1.5）已经相当成熟，Video-LLM（Video-ChatGPT 等）却普遍需要为视频单独设计编码器、单独做视频-文本预训练，成本高昂且效果不稳。更麻烦的是，一个模型往往"要么擅长图像、要么擅长视频"，两者难以兼得——用户却希望同一个助手既能看照片也能看视频。</p>
+<p><strong>研究问题。</strong> 2023 年的 Video-LLM 普遍把图像和视频编码到<strong>各自独立</strong>的特征空间：图像走 CLIP image encoder，视频走 video encoder，然后各自经一个 projector 进入 LLM。这带来一个隐蔽但严重的问题：LLM 面对的两路视觉输入在表示层面从未对齐过（作者称之为 misalignment before projection），投影层不得不独自承担把两种异质表示翻译成 LLM 可读语言的任务——而一两个浅层 MLP 根本力不从心。</p>
+<p><strong>关键洞察。</strong> 如果图像和视频在进入 LLM <strong>之前</strong>就已经在同一个特征空间里，那么投影层只需学一次映射，LLM 也只需学一种"视觉方言"。更妙的是，统一表示让图像数据与视频数据可以互相充当对方的增广：图像提供丰富的空间细节，视频提供时间动态，二者不再是竞争关系。</p>
+<p><strong>技术方法。</strong> Video-LLaVA 采用 LanguageBind 作为统一编码器——它预先已将图像、视频等模态对齐到语言特征空间。于是架构变得异常简洁：图像或视频帧经 LanguageBind 编码后，共享同一个 projector 送入 Vicuna-7B，无需任何视频专属的时序模块。训练同样简洁：在图像与视频的混合指令数据上做单阶段联合训练，视频侧使用 LLaVA-1.5 同款图像数据与 Video-ChatGPT 的视频指令数据混合。整个流程不需要任何视频预训练阶段——这正是"alignment before projection"省下的成本：由于 LanguageBind 已经把视频对齐到语言空间，传统 Video-LLM 必需的"视频-文本对比预训练"被整个跳过。</p>
+<p><strong>实验结果。</strong> 在 MSRVTT、MSVD、TGIF、ActivityNet 四个视频 QA 基准上分别超过 Video-ChatGPT 5.8%、9.9%、18.6%、10.1%；在 9 个图像基准（5 个图像 QA + 4 个工具箱）上亦全面领先同期的视频模型，且与不专门针对图像或视频的模型相比互有胜负但总体占优。尤其值得注意的是消融：混合训练相比纯视频训练在视频任务上也有提升，直接验证了"图像视频互相增益"的假设。</p>
+<p><strong>批判性分析。</strong> 优点：思想极简而有效，训练成本显著低于同类（无需视频专用编码器与多阶段流程），开源完整，是入门复现的绝佳起点。局限：（1）统一表示的代价是时序建模被完全外包给 LLM——帧与帧之间只有序列顺序这一微弱信号，细粒度时序推理（动作先后顺序、速度变化）天然吃亏；（2）LanguageBind 的对齐质量构成上限，视频分支的表示能力弱于专门的 video foundation model；（3）评测集中在短视频 QA，长视频与流式设定未触及。可复现性：高，代码、数据、权重均公开。</p>
+<p><strong>一句话评价：</strong> 用"对齐前置"四两拨千斤地解决了多模态输入的统一问题，是 Video-LLM 史上被低估的范式级工作。评级：★★★★☆</p>
+<h3 id="42-llama-vid-token">4.2 LLaMA-VID：一帧两个 token 的极限压缩</h3>
+<p><strong>研究问题与背景。</strong> LLaMA-VID 出现时（2023 年 11 月），主流 Video-LLM 能处理的帧数在 8–100 之间，对应十几秒到几分钟的短视频。MovieChat 虽展示了千帧潜力，但记忆机制的复杂性使其难以与主流 VLM 生态融合。领域急需一个在<strong>标准 LLaVA 式骨架</strong>内解决长视频的简洁方案。</p>
+<p><strong>研究问题。</strong> 把每帧编码为数百个 token 时，处理 1 fps 的一小时视频需要约 70 万 token——这在 2023 年的 LLM 上是不可想象的。LLaMA-VID 问了一个激进的问题：<strong>一帧最少能用几个 token 表示？它给出的答案是：两个。</strong></p>
+<p><strong>关键洞察。</strong> 一帧的信息可以解耦为两类：与<strong>当前用户问题相关</strong>的内容（按需提取），以及与问题无关但构成<strong>画面本身</strong>的内容（必须保留）。前者应该随 query 变化，后者应该忠实于像素。把这两类信息分别编码成一个 token，就能在极限压缩下同时保留"相关"与"完整"。</p>
+<p><strong>技术方法。</strong> 对每帧，LLaMA-VID 生成两个 token：</p>
+<ul>
+<li><strong>context token</strong>：以用户输入的文本 query 为条件，通过跨模态注意力从该帧的 patch 特征中聚合与问题相关的信息——同一个视频，问"球进了几个"和问"观众穿什么颜色"会得到不同的 context token；</li>
+<li><strong>content token</strong>：对该帧视觉特征的 query-free 聚合，保留画面本身的整体线索。</li>
+</ul>
+<p>训练分三阶段：模态对齐、长视频指令微调（作者构建了包含电影级长视频的指令数据集），以及可选的额外 context token 扩展（在极限场景下把每帧 token 数从 2 放宽到 3，进一步拉高上限）。效果上，一小时视频（3600 帧）被压到约 7200 个视觉 token，落在 Vicuna-7B 的上下文预算内，单卡即可处理。值得注意的是双 token 的不对称设计哲学：content token 只有 1 个，意味着模型承认"画面全貌"在极限预算下只能保留一个轮廓；而 context token 随 query 变化，意味着模型把有限的带宽优先分配给"用户此刻关心的事"——这是一种用交互信息换压缩率的思路，与后来的 MovieChat+（问题感知记忆稀疏化）一脉相承。</p>
+<p><strong>实验结果。</strong> 在多数视频与图像基准上超过此前方法；在长视频设定（小时级）上相较当时所有方法的提升是质变——因为对手根本装不下。论文还展示了模型在长篇剧情视频上的连贯问答能力。一个值得玩味的对照是：LLaMA-VID 在短视频基准上的优势远小于长视频——这恰好印证了其设计哲学，即压缩的收益与视频长度成正比，视频越短，2 token/帧 的信息损失越掩盖不住。这也为后来者立了一个规矩：评价压缩方法必须分时长报告，只在短视频上比分数是对压缩方法的系统性不公。</p>
+<p><strong>批判性分析。</strong> 优点：（1）压缩率惊人（相对 196 token/帧约两个数量级），使长视频从"不可能"变为"日常"；（2）query-aware 的 context token 设计优雅地把"注意力"做进了压缩环节，避免了无脑池化的信息丢失。局限：（1）每帧 2 token 对细粒度空间信息是毁灭性的——要数清画面里有几个人、读出屏幕上的小字，2 token 远远不够，模型在需要空间细节的任务上明显弱于高 token 模型；（2）多轮对话中 context token 随问题变化，意味着换一个问题就要重新编码整个视频，交互成本高；（3）压缩是硬性的、不可恢复的，信息一旦丢掉无法找回。可复现性：代码公开，方法清晰，复现门槛中等。</p>
+<p><strong>一句话评价：</strong> 把视频 token 压缩推到了逻辑极限，用极端姿态为整个领域标定了"压缩-保真"权衡曲线的一个端点。评级：★★★★☆</p>
+<h3 id="43-video-xl-kv-cache">4.3 Video-XL：把压缩做进 KV cache</h3>
+<p><strong>研究问题与背景。</strong> 2024 年，长视频理解已形成"稀疏采样"与"token 压缩"两条路线的对峙。前者的代表是 Gemini 1.5（用超长上下文硬吃，但闭源且昂贵）；后者的代表是 LLaMA-VID（每帧 2 token，但细节损失明显）。Video-XL 试图回答：是否存在第三条路，既不依赖无限上下文，也不以牺牲细节为代价？</p>
+<p><strong>研究问题。</strong> LLaMA-VID 式压缩作用于 token 层面——在视觉信息进入 LLM 之前就完成丢弃。Video-XL 指出这类方法存在严重瓶颈：过强的 token 压缩损害了模型感知细粒度视觉细节的能力。它的问题更精细：<strong>能否让视觉信息先完整进入 LLM，再在 KV cache 层面被选择性压缩？</strong></p>
+<p><strong>关键洞察。</strong> LLM 内部天然具备 KV 稀疏化能力——注意力机制本来就会学会"哪些位置重要"。与其在 LLM 之外手工设计压缩器，不如利用 LLM 自身的这一能力：为每段视频区间引入一个特殊的<strong>视觉摘要 token（Visual Summarization Token, VST）</strong>，训练它把该区间的视觉信息浓缩进自己的 KV 表示；推理时保留 VST 的 KV、丢弃区间内原始视觉 token 的 KV，从而实现"先看见全部，再记住精华"。</p>
+<p><strong>技术方法。</strong> 视频按固定区间切分，每个区间末尾插入一个 VST。训练采用指令微调并配两项策略：（1）<strong>课程学习</strong>——让 VST 先学小压缩比（容易）再学大压缩比（困难），稳定训练；（2）<strong>复合数据构造</strong>——融合单图、多图与合成数据，缓解长视频指令数据稀缺。推理时引入<strong>动态压缩</strong>：信息密度低的区间（静态画面）用大压缩比，密度高的区间（快速运动）用低压缩比，压缩粒度随内容自适应。</p>
+<p><strong>实验结果。</strong> 在多个长视频基准上取得领先：小时级视频理解任务上超越同规模方法，且消融显示 VST 压缩在同等 token 预算下优于 token 层压缩——验证了"在 KV 层压缩保留更多信息"的假设。模型可在单卡上处理小时级视频。该工作获 CVPR 2025 oral。</p>
+<p><strong>批判性分析。</strong> 优点：（1）压缩发生在 LLM 内部，理论上保留了完整的感知通路，压缩决策由训练而非手工规则决定；（2）课程学习与动态压缩都是扎实的工程贡献；（3）压缩比与保真度的权衡曲线显著优于此前方法。局限：（1）KV 压缩意味着推理时仍需先对完整视频做一遍完整前向——计算量没有省，省的是显存与后续轮次的成本，"单卡小时级"的实现依赖较大的首 token 延迟；（2）VST 的摘要能力随区间长度增长而退化，超长视频仍需配合稀疏采样；（3）方法对 LLM 架构有侵入性（需要训练时见过 VST），不能直接套用到任意现成模型。此外，VST 的思想可以看作把文本领域的"摘要 token / gist token"技术首次系统移植到视觉模态，其成功暗示了一个更一般的规律：LLM 内部任何位置的冗余，都可以通过在序列中插入可学习的"汇点（sink）"来压缩——这为音频、agent 轨迹等其他长序列模态提供了可直接借鉴的模板。可复现性：代码与模型已开源（Video-XL 家族持续维护），复现成本中等。</p>
+<p><strong>一句话评价：</strong> 把"压缩"从数据预处理提升为 LLM 内部可学习的算子，代表了长视频压缩路线的技术高点。评级：★★★★★</p>
+<h3 id="44-qwen25-vl">4.4 Qwen2.5-VL：把时间编码进注意力的骨架</h3>
+<p><strong>研究问题。</strong> 此前的时序建模都是"外挂式"的：Q-Former 是外挂、时间戳嵌入是外挂、池化更是敷衍。Qwen2.5-VL 的问题是：<strong>能否让 LLM 的位置编码机制本身就知道绝对时间？</strong> 只有这样，"第 30 秒发生了什么"这类问题才不需要模型从 token 顺序反推物理时刻。</p>
+<p><strong>关键洞察。</strong> 视频帧与文本 token 的本质区别是：文本 token 的位置就是它的序号，而视频帧的"位置"应该有两个维度——它在序列里的序号，和它在物理时间里的时刻。均匀采样时两者成正比，但动态 fps 采样下两者脱钩。把<strong>绝对时间</strong>直接编入位置编码，模型就能对任意采样策略保持一致的物理时间感。</p>
+<p><strong>技术方法。</strong> Qwen2.5-VL 的视觉侧采用<strong>原生动态分辨率 ViT</strong>（从头训练，配合窗口注意力降低计算量）：图像/帧按原始宽高比切 patch，不做强制 resize，空间信息零失真。时序侧沿用并强化 Qwen2-VL 的 <strong>M-RoPE</strong>：将旋转位置编码分解为 (t, h, w) 三个分量，其中时间分量的位置 ID 不再按帧序号均匀递增，而是与帧的<strong>绝对时间戳对齐</strong>——采样间隔 1 秒的两帧与间隔 0.5 秒的两帧，其时间位置差不同，精确反映物理时长。配合<strong>动态 fps 采样</strong>（训练时按帧率采样并告知模型每帧时刻），模型获得了秒级的时间定位能力。</p>
+<p>形式化地，对视频 token 的位置编码可写为</p>
+<p>$$\text{pos}(v) = (t_v, h_v, w_v), \quad t_v = \lfloor \text{timestamp}(v) / \Delta \rfloor$$</p>
+<p>其中 $\Delta$ 为时间分辨率单位。注意力计算时三个分量分别参与对应维度的旋转。</p>
+<p>与 LLaMA-VID 类方法对比可以更清楚地看到 Qwen2.5-VL 的定位：它不做激进的 token 压缩，而是<strong>让每帧该占多少 token 由分辨率与内容决定</strong>（动态分辨率），再用绝对时间编码保证帧间的时间关系不因采样率变化而失真。这是一种"不做有损压缩，而是精确计费"的思路——把省 token 的责任交给更聪明的资源分配，而非更狠的丢弃。</p>
+<p><strong>实验结果。</strong> Qwen2.5-VL 支持长达数小时的视频理解与秒级事件定位，在 Video-MME 等基准上位居开源模型榜首；同时在文档解析、目标定位、agent 操作等任务上全面开花，证明了统一图像-视频模型不必牺牲单项能力。其 7B/72B 等规格覆盖不同算力预算。</p>
+<p>从谱系视角看，Qwen2.5-VL 是 Video-LLaVA"统一表示"思想的工业级实现：Video-LLaVA 证明了图像视频共享表示的可行性，Qwen2.5-VL 则进一步证明共享表示可以做到比任何专用模型都强——统一不再是一种"省成本的妥协"，而是"多任务互相增益的正和游戏"。</p>
+<p><strong>批判性分析。</strong> 优点：（1）绝对时间编码是对时序建模的"第一性原理"级解法，且工程实现干净；（2）动态分辨率 ViT 消除了 resize 带来的信息损失，对文档与视频双重受益；（3）全尺寸开源 + 完善的推理框架支持（vLLM 等），已成为开源视频理解的事实标准与无数下游工作的基座。局限：（1）作为技术报告，训练数据配方、压缩策略等关键细节披露有限，严格意义上不可完全复现；（2）小时级视频的实际处理仍依赖稀疏采样 + token 预算控制，并非"原生吞下一小时全部帧"；（3）绝对时间编码要求训练数据带有可靠时间戳，数据工程成本高。另有一个常被忽视的工程贡献：Qwen2.5-VL 在 ViT 中引入窗口注意力（window attention），使高分辨率输入的编码计算量从全局注意力的平方增长降为近线性——这对视频场景（一次前向要处理几十上百帧）是决定性的，没有它，动态分辨率的成本将无法承受。可复现性：权重与代码开源，推理完全可复现，训练流程部分可复现。</p>
+<p><strong>一句话评价：</strong> 把视频理解从"研究原型"打磨成"工业基础设施"的作品，未来三年里你很难绕开它。评级：★★★★★</p>
+<h3 id="45-video-mme">4.5 Video-MME：给视频理解立一把尺</h3>
+<p><strong>研究问题与背景。</strong> 基准的价值怎么强调都不为过：ImageNet 之于 CNN、GLUE 之于预训练语言模型，都是"一把尺子统一了一个领域的度量衡"。2024 年中的视频理解正处在没有统一度量衡的战国时代——Video-ChatGPT 用自己的协议、MovieChat 用自己的 MovieChat-1K，各家的数字无法横比，"谁的模型更强"沦为公关战。</p>
+<p><strong>研究问题。</strong> 2024 年之前，视频理解的评测碎片化严重：各任务基准只覆盖短视频、只测特定技能、且大量答案可以不看视频靠语言先验蒙对。Video-MME 要回答：<strong>MLLM 的视频理解能力到底处于什么水平？</strong> 它需要一把覆盖广度、时长跨度、模态完整度与标注质量四个维度的尺子。</p>
+<p><strong>关键洞察与设计。</strong> Video-MME 自称"首个全谱系（full-spectrum）视频分析评测基准"，四个设计支柱直接针对旧基准的痛点：（1）<strong>类型多样性</strong>——6 个一级视觉域、30 个子领域，从知识问答到影视、体育、生活记录，保证场景泛化性；（2）<strong>时长跨度</strong>——短（&lt;2 分钟）、中（4–15 分钟）、长（30–60 分钟）三档，从 11 秒到 1 小时，直接探测模型的长上下文能力；（3）<strong>模态广度</strong>——除视频帧外还提供字幕与音频轨，可分别评测"纯视觉"与"多模态融合"设定；（4）<strong>标注质量</strong>——900 个视频、2700 道选择题全部由专家人工标注，且设计时确保答案必须依赖视频内容。</p>
+<p><strong>实验结果（以发布时为准的定性结论）。</strong> 评测揭示了几个影响深远的发现：闭源旗舰（GPT-4o、Gemini 1.5 Pro）显著领先开源模型，但即便最强模型在长视频、无字幕设定下准确率也大幅滑落；时长是影响所有模型性能的最强变量——短视频与长视频上的表现落差普遍在 20 个百分点以上；字幕的加入对多数模型提升明显，暴露了"纯视觉理解"仍是短板。Video-MME 迅速被 GPT-4o、Gemini 等官方技术报告采用，成为事实标准，引用量已超千次。</p>
+<p><strong>批判性分析。</strong> 优点：设计全面、标注扎实、采用度极高，第一次让"视频理解能力"成为可横向比较的单一数字。局限：（1）选择题形式对模型的真实理解深度探测有限——后续工作（2026 年的 Forced CoT 研究 [34]）发现，强迫模型先输出推理链再作答时，Video-MME 上的 CoT 增益存在系统性假象，即"看起来在推理，答案却与推理无关"；（2）短视频子集仍可能被语言先验部分攻破；（3）1 小时的上限在 2026 年已不算"长"，催生了 LVBench（平均 4000+ 秒）、LongVideoBench 与 Video-MME-v2 等后续基准。可复现性：数据与评测代码完全公开，是门槛最低的入门实验场。</p>
+<p><strong>后续演化。</strong> Video-MME 的成功催生了一个"评测生态"：LVBench [16] 把平均时长推到 4000 秒以上，专攻极端长视频的信息提取；LongVideoBench 聚焦长上下文中的" referring reasoning"（需要跨越多处时间点的推理）；2026 年的 Video-MME-v2 [33] 则直接由原作者团队迭代——更长时长、更强推理题、并首次把视频生成模型纳入被评测对象，回应了"理解-生成统一评测"的社区呼声。与此同时，《Chains That See, Answers That Don't》[34] 从方法论层面审计了 Video-MME 上的 CoT 评测，提醒社区：基准的分数在涨，但分数所测量的"能力"需要持续被重新审视。一个健康的领域，正是这样被"基准—批判—新基准"的循环推动的。</p>
+<p><strong>一句话评价：</strong> 一次教科书级的基准设计，它定义的"短/中/长"三档至今仍是所有视频模型论文的标配对照组。评级：★★★★★</p>
+<h2 id="5-20252026">5. 研究前沿（2025–2026）</h2>
+<h3 id="51-apollo-scaling-consistency">5.1 设计科学：Apollo 的 Scaling Consistency</h3>
+<p>2024 年底的 Apollo [23] 代表了一种方法论自觉：video-LMM 领域大量设计决策（采样率、token 预算、数据配比、编码器选择）此前靠拍脑袋。Apollo 提出 <strong>Scaling Consistency</strong>——在小模型小数据（直至某个临界规模）上得到的设计结论可以有效迁移到大模型，从而把昂贵的消融实验降到可负担的规模。基于此，它系统回答了一批经典问题：训练时 fps 采样显著优于均匀采样；不同视觉编码器对视频表征的优劣排序；视频 token 数与帧数的最优配比；图像/视频数据的混合比例。Apollo 模型族在多个尺寸上达到同规模 SOTA，并能感知小时级视频。对入门研究者而言，Apollo 的消融章节本身就是一份"如何科学地设计 Video-LLM"的操作手册。</p>
+<p>Apollo 的几个结论值得单独记住，因为它们经常被后来的论文当作"已知事实"引用：（1）<strong>fps 采样优于均匀采样</strong>，且差距随视频变长而扩大——这直接推动了 Qwen2.5-VL 的动态 fps 设计；（2）<strong>视觉编码器的选择对视频性能的影响大于对图像性能的影响</strong>，视频对编码器的时序特征质量更敏感；（3）<strong>在固定 token 预算下，"更多帧 × 每帧更少 token"通常优于"更少帧 × 每帧更多 token"</strong>——时间覆盖度比空间分辨率更稀缺；（4）<strong>图像数据与视频数据的混合比例存在甜区</strong>，纯视频训练反而损害视频性能（与 Video-LLaVA 的发现互相印证）。Scaling Consistency 的价值不止于省钱：它第一次让 video-LMM 研究有了类似语言模型 scaling law 时代的"可外推实验学"，把领域从艺术往科学推了一步。</p>
+<h3 id="52">5.2 长视频：压缩、迁移与万帧时代</h3>
+<p>长视频方向在 2025–2026 年沿三条路径推进：</p>
+<ul>
+<li><strong>压缩持续加码</strong>：Video-XL-Pro [29] 用重构式 token 压缩（以重建原始视觉特征为目标训练压缩器，保证信息可逆性）让 3B 小模型处理万帧视频，把"长视频"的门槛拉低到消费级显卡；</li>
+<li><strong>长上下文迁移</strong>：《Long Context Transfer from Language to Vision》[22] 论证了 LLM 在文本上习得的长上下文能力可以迁移到视觉 token 序列——这意味着视频模型可以借用文本长上下文技术（位置插值、注意力稀疏化）的红利，而不必从头训练长视频能力；</li>
+<li><strong>评测跟进</strong>：LVBench [16]（平均时长 4000 秒以上）、LongVideoBench 与 Video-MME-v2 [33]（2026-04，覆盖更长时长、更强推理、并将视频生成模型纳入评测对象）构成了新的评测矩阵。趋势很明确：一小时不再是终点，"数小时 + 跨视频"正在路上。</li>
+<li><strong>时序推理的来源之争</strong>：《Temporal Reasoning Transfer from Text to Video》[24] 的诊断性研究给出了一个反直觉的发现：视频表示中其实包含了足够的时序信息——一个小型探针分类器就能从冻结的视频特征中以接近完美的精度读出事件的先后顺序；真正的瓶颈在于底层 LLM 本身的时序推理能力，而这一能力主要是从<strong>文本</strong>语料中获得的。换言之，Video-LLM 的时序推理很大程度上是"文本推理能力向视觉输入的迁移"，而非从视频数据中新学到的。这一发现对整个领域的数据策略有深远影响：提升视频时序推理，可能首先需要在文本侧加强时序推理训练，而非一味堆砌更多视频。</li>
+</ul>
+<h3 id="53">5.3 流式视频理解：从离线到在线</h3>
+<p>离线设定（看完全片再答题）与人类感知方式根本不同，StreamingBench [4]（2024-11）首次把流式理解拆为三个维度并量化：<strong>实时感知</strong>（当下发生了什么）、<strong>主动输出</strong>（该不该在此刻说话）、<strong>记忆压缩</strong>（过去的流如何低成本记住）。其结论发人深省：现有 Video-LLM 在流式设定下与离线设定差距显著——它们本质上是"录像分析师"而非"现场目击者"。</p>
+<p>围绕这三个维度，2025–2026 年出现了一批代表性工作：<strong>Dispider</strong>（2025-01）[25] 将感知、决策、反应解耦为异步模块，感知持续运行、决策模块判断何时主动介入、反应模块与用户持续交互，是主动式流式交互的范式之作；<strong>InternLM-XComposer2.5-OmniLive</strong> 与 <strong>StreamChat</strong>（2024-12）探索长期流式音视频对话系统；<strong>Event-VStream</strong>（2026-01）[35] 引入事件驱动机制——只有当检测到语义事件边界时才触发高层理解，把恒定算力消耗变为事件密度的函数。流式方向仍处早期，评测（StreamingBench、VSAS-Bench）与方法都在快速迭代，是当前最活跃的前沿之一。从系统视角看，流式理解的本质约束是<strong>算力的常数化</strong>：离线设定下算力可以随视频长度线性（甚至二次）增长，而流式设定下每新增一秒视频可用算力是恒定的。这意味着流式 Video-LLM 必须把"平均信息密度"而不是"总信息量"作为设计目标——什么时候该仔细处理（事件密集段）、什么时候该粗略带过（静态段）、什么时候该主动发言（用户可能关心的时刻），都是离线模型从未面对过的决策问题。这也是 Dispider 把 decision 独立成模块、Event-VStream 以事件为触发单位的深层原因。</p>
+<h3 id="54">5.4 理解与生成的合流</h3>
+<p>一个耐人寻味的趋势是评测对象的泛化：MME-CoF [5]（2025-10）把 Veo-3 等视频<strong>生成</strong>模型当作 zero-shot reasoner 来评测——如果生成模型真的内化了世界的时序规律，它应当能"看懂"视频并推理。Video-MME-v2 也将生成模型纳入评测范围。理解与生成统一的评测，暗示着"视频理解"作为独立任务的边界正在消融：未来的视频模型可能不再区分"看懂"与"拍出"，而是同一个世界模型的两面。这一趋势对方法设计的启发是双向的：一方面，生成模型的时序先验（如扩散模型学到的运动连续性）可能反哺理解模型的时序推理；另一方面，理解基准（Video-MME 家族）正在成为衡量生成模型"是否真正理解物理规律"的探针——一个只会生成美观画面但不理解因果的模型，会在推理型题目上露出马脚。</p>
+<h3 id="55-cot">5.5 评测的反思：CoT 假象</h3>
+<p>2026 年的《Chains That See, Answers That Don't》[34] 给火热的视频推理浇了一盆冷水：在 Video-MME 上强制模型输出思维链（CoT）时，表面推理链与最终答案之间存在系统性脱节——模型可能"看着"正确的视频证据写出漂亮的推理，答案却由语言先验决定。这提醒我们：视频推理的评测不能只看答案准确率，推理过程与视觉证据的一致性（grounding faithfulness）必须成为新的评测维度。</p>
+<h2 id="6">6. 技术路线对比与权衡</h2>
+<h3 id="61">6.1 长视频三大路线总览</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>稀疏采样</th>
+<th>Token 压缩</th>
+<th>记忆机制</th>
+<th>原生超长上下文</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代表工作</td>
+<td>Video-ChatGPT、TimeChat</td>
+<td>LLaMA-VID、Video-XL、LongVU、Video-XL-Pro</td>
+<td>MovieChat、MovieChat+</td>
+<td>Gemini 1.5/2.5</td>
+</tr>
+<tr>
+<td>核心思想</td>
+<td>少看几帧</td>
+<td>每帧少占 token</td>
+<td>看过的压缩存起来</td>
+<td>全都要，靠堆上下文</td>
+</tr>
+<tr>
+<td>信息保留</td>
+<td>时间维度有损</td>
+<td>空间维度有损</td>
+<td>旧信息有损</td>
+<td>近似无损</td>
+</tr>
+<tr>
+<td>算力需求</td>
+<td>极低</td>
+<td>低-中</td>
+<td>低（在线摊销）</td>
+<td>极高</td>
+</tr>
+<tr>
+<td>长视频上限</td>
+<td>受采样率限制</td>
+<td>万帧级</td>
+<td>理论无限（有损）</td>
+<td>百万 token 级</td>
+</tr>
+<tr>
+<td>交互友好度</td>
+<td>高</td>
+<td>中（query-aware 需重编码）</td>
+<td>高（流式天然契合）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>开放度</td>
+<td>完全开放</td>
+<td>完全开放</td>
+<td>完全开放</td>
+<td>闭源专属</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析。</strong> 四条路线并非互斥，实践中高度互补：Qwen2.5-VL 就是"fps 采样 + 动态分辨率 token 控制 + 长上下文"的复合体。真正对立的是<strong>哲学层面</strong>：压缩路线赌"视频信息冗余度足够高，智能压缩可以逼近无损"；长上下文路线赌"算力会持续廉价化，任何有损压缩最终都是历史包袱"。Gemini 2.5 的成绩暂时支持后者，但 Video-XL-Pro 用 3B 模型达到的效果又在提醒：绝大多数应用场景付不起前者的账单。对学术界，压缩是唯一现实的选择；对工业界旗舰，两手都要硬。</p>
+<h3 id="62">6.2 时序建模手段对比</h3>
+<table>
+<thead>
+<tr>
+<th>手段</th>
+<th>代表</th>
+<th>时序感知强度</th>
+<th>额外参数</th>
+<th>时间定位能力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>池化/序列顺序</td>
+<td>Video-ChatGPT</td>
+<td>弱</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>时序 Q-Former</td>
+<td>Video-LLaMA</td>
+<td>中</td>
+<td>中</td>
+<td>弱</td>
+</tr>
+<tr>
+<td>时间戳嵌入</td>
+<td>TimeChat</td>
+<td>强</td>
+<td>少</td>
+<td>显式</td>
+</tr>
+<tr>
+<td>绝对时间 M-RoPE</td>
+<td>Qwen2.5-VL</td>
+<td>强</td>
+<td>无</td>
+<td>秒级</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析。</strong> 演进方向清晰：从"让 LLM 自己悟"到"把时间告诉模型"。M-RoPE 的胜出符合深度学习的一贯规律——把正确的归纳偏置（帧序号≠物理时刻）直接编码进架构，胜过寄希望于数据驱动涌现。值得注意：强时序建模的收益与时间定位类任务强相关，对纯语义 QA 增益有限，这也解释了为何简单方案在部分基准上仍有竞争力。更深一层，时序建模手段的演进与第 5.2 节提到的"时序推理来源之争"互为表里：如果时序推理能力主要来自 LLM 的文本预训练 [24]，那么视觉侧时序编码的改进空间可能被高估了——瓶颈不在"模型看不到时间信息"，而在"模型不会用时间信息推理"。这提示未来的突破可能来自训练数据（时序推理密集的文本/视频混合数据）而非架构。</p>
+<h3 id="63-token-vs-kv">6.3 压缩位置的选择：token 层 vs. KV 层</h3>
+<p>LLaMA-VID（token 层）与 Video-XL（KV 层）代表了压缩发生的两个极端位置。token 层压缩发生在 LLM 之外，优点是压缩器可独立优化、推理全程省算力；代价是压缩决策在"看见"之前做出，本质上是盲压缩。KV 层压缩让信息先完整通过 LLM 的前向计算再被摘要，压缩决策由 LLM 自身的注意力驱动，保真度更高；代价是首次前向的峰值计算与显存不减。经验结论：<strong>预算极端紧张选 token 层，追求保真选 KV 层，二者可叠加（先 token 层粗压再 KV 层精压）</strong>——Video-XL 家族正是沿这个方向演化。从系统角度看，还有第三个选项正在浮现：<strong>跨轮次摊销</strong>——多轮对话场景下，首轮用高保真编码，后续轮次只保留压缩表示（MovieChat 的记忆机制本质上是这一思路的极端形式）。在交互式应用（视频助手、会议纪要 agent）中，用户的问题往往逐步聚焦，全局保真的价值随轮次递减，跨轮次摊销因此可能是工程上最经济的方案，尽管学术界对它的系统研究还很少。</p>
+<h3 id="64-vs">6.4 统一 vs. 专用</h3>
+<p>Video-LLaVA 证明了图像-视频统一表示的可行性，LLaVA-OneVision 与 Qwen2.5-VL 证明统一性可以做到工业级而不牺牲单项性能。但"统一"有边界：音频（Video-LLaMA 的双 Q-Former 之后少有跟进者）、流式（需要完全不同的推理循环）、生成（扩散时序先验与自回归理解架构尚未真正融合）仍是割裂的孤岛。2026 年的全景是：<strong>图像-视频的统一已基本完成，视频与音频、生成、在线交互的统一是下一个五年的主战场。</strong></p>
+<h3 id="65">6.5 训练管线与数据策略</h3>
+<p>各代表作在训练策略上的选择同样构成重要对比维度：</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>对齐阶段</th>
+<th>指令数据</th>
+<th>图像-视频混合</th>
+<th>长视频数据来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Video-LLaMA</td>
+<td>视频/音频 Q-Former 分别对齐</td>
+<td>图像指令 + 视频描述</td>
+<td>否（两路独立）</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>Video-ChatGPT</td>
+<td>时空特征池化后直接微调</td>
+<td>自建 10 万条视频指令</td>
+<td>否</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>Video-LLaVA</td>
+<td>无需（LanguageBind 预对齐）</td>
+<td>图像 + 视频混合</td>
+<td>是（核心主张）</td>
+<td>不涉及</td>
+</tr>
+<tr>
+<td>LLaMA-VID</td>
+<td>模态对齐 + 长视频微调</td>
+<td>自建长视频指令集</td>
+<td>是</td>
+<td>电影级长视频</td>
+</tr>
+<tr>
+<td>MovieChat</td>
+<td>短期/长期记忆联合训练</td>
+<td>MovieChat-1K（1.4 万标注）</td>
+<td>否</td>
+<td>自建千级长视频</td>
+</tr>
+<tr>
+<td>Video-XL</td>
+<td>VST 指令微调（课程学习）</td>
+<td>复合数据（单图/多图/合成）</td>
+<td>是</td>
+<td>合成数据为主</td>
+</tr>
+<tr>
+<td>Qwen2.5-VL</td>
+<td>从头训练动态分辨率 ViT</td>
+<td>未公开（工业级）</td>
+<td>是（统一训练）</td>
+<td>未公开</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析。</strong> 三个规律性观察：其一，长视频指令数据是最大的公共瓶颈——除 MovieChat-1K 外几乎没有公开的高质量长视频指令集，Video-XL 被迫用合成数据、Qwen 闭源自研，这一瓶颈至今未被开源社区真正解决；其二，图像-视频混合训练从 Video-LLaVA 的"核心主张"变成了 2025 年后的"默认配置"，混合不再是可选项；其三，训练阶段数呈简化趋势——从 Video-LLaMA 的多阶段冻结训练，到 Video-LLaVA 的单阶段，再到 Qwen2.5-VL 的"从头统一训练"，反映出社区对"分阶段冻结是工程妥协而非必要"的共识。</p>
+<h2 id="7">7. 开放问题与未来方向</h2>
+<p>回顾全文可以发现一个贯穿性的张力：视频理解几乎每一个技术选择，都是在<strong>"忠实于时间"与"服从于算力"</strong>之间做的妥协。以下开放问题大多可以看作这一张力在不同层面的具体化。</p>
+<ol>
+<li><strong>压缩的理论极限在哪里？</strong> 目前所有压缩方案都是启发式的，缺乏"给定下游任务，视频最少需要多少 token"的信息论刻画。每帧 2 token（LLaMA-VID）显然低于多数任务的极限，每帧 196 token 又显然冗余——极限值及其任务依赖性是悬而未决的基础问题。难点在于"任务依赖性"本身难以刻画：回答"视频里有没有出现红色汽车"和"复述整个剧情"所需的最小信息量天差地别。可能的切入点是从率失真理论（rate-distortion theory）视角形式化"理解保真度"，或在受控合成视频上测量压缩比-性能的相变曲线。</li>
+<li><strong>流式理解的系统架构。</strong> 离线 Video-LLM 假设全部输入同时可用；真实流式场景要求恒定显存、有界延迟、主动发言。Dispider 的解耦架构与 Event-VStream 的事件驱动只是开端，"什么时候该说话"（主动输出的决策问题）几乎没有成熟方案。这个问题微妙的在于它部分是一个<strong>强化学习</strong>问题（发言的时机影响长期交互质量），部分是一个<strong>人机交互</strong>问题（说多了烦人、说晚了无用），超出了纯监督微调的舒适区。借鉴全双工语音对话（full-duplex dialogue）中 turn-taking 的研究可能是一条捷径。</li>
+<li><strong>推理过程与视觉证据的一致性。</strong> CoT 假象问题 [34] 揭示：模型可以写出看似基于视频的推理链，实则由语言先验驱动。如何让推理过程可验证地锚定在具体帧上（grounded reasoning），是视频推理可信化的前提。一个自然的技术方向是强制模型在推理链中显式引用时间戳（"在 00:32 处可以看到……"），并辅以自动验证器检查引用内容与帧内容的一致性——这把评测从"答案对不对"升级为"过程真不真"，与 temporal grounding 的技术栈可以直接复用。</li>
+<li><strong>小时级以上视频的数据瓶颈。</strong> 长视频指令数据极度稀缺，Video-XL 靠合成数据、MovieChat 靠自动标注，质量都有限。一小时级视频的细粒度人工标注成本高昂（标注者需要先看完一小时素材），数据合成与自举（模型为模型造数据）的质量控制是隐形的关键战场。一个被低估的资源是<strong>已有的人类长视频理解产物</strong>：影评、赛事解说、会议纪要、教学讲义，本质上都是"长视频的高质量摘要/问答"，如何系统地把它们转化为指令数据，可能是性价比最高的破局点。</li>
+<li><strong>音-视-文的深度统一。</strong> 2026 年的研究 [36] 揭示音视 LLM 在跨模态冲突下存在后层先验主导问题——模型嘴上说整合了音频，实际靠视觉或语言先验作答。真正的多模态融合远未实现。诊断工具的进步（冲突样本构造、逐层探针）正在让"伪融合"无处遁形，下一步需要的是训练目标层面的创新：能否设计一种损失，显式惩罚模型在某一模态被遮蔽/替换时答案不变的情况？</li>
+<li><strong>视频理解与世界模型。</strong> 视频生成模型作为 zero-shot reasoner 的评测（MME-CoF）提出了一个根本问题：理解是否是生成的副产品？如果是，专门的"理解"架构可能只是过渡形态。</li>
+</ol>
+<h2 id="8">8. 研究机会点评（给入门研究者的建议）</h2>
+<p><strong>算力门槛适中、问题清晰、有顶会潜力的方向：</strong></p>
+<ul>
+<li><strong>流式视频理解</strong>：StreamingBench 刚立好尺子，方法远未饱和。事件触发、记忆压缩、主动输出决策每个子问题都可以单卡起步，且评测协议现成。推荐指数：★★★★★</li>
+<li><strong>token 压缩的改进与分析</strong>：Video-XL 系列已开源，在其上做压缩策略改进（信息论视角、自适应粒度、query-aware 与 content-aware 的融合）成本低、故事清晰。配合 Video-MME/LVBench 评测即可成稿。推荐指数：★★★★☆</li>
+<li><strong>评测与诊断</strong>：CoT 假象、音视冲突这类"揭示模型能力边界"的工作门槛极低（只需推理 API + 精心设计的数据），且社区需求旺盛——每个新模型都需要被审计。推荐指数：★★★★☆</li>
+<li><strong>时间定位（temporal grounding）与时间戳推理</strong>：数据构造有明确套路（综述 [3] 有完整 taxonomy），Qwen2.5-VL 提供了强基座，做 instruction 数据 + 微调的增量工作即可起步。推荐指数：★★★☆☆</li>
+</ul>
+<p><strong>属于巨头游戏、谨慎入场的方向：</strong></p>
+<ul>
+<li><strong>原生超长上下文视频模型</strong>：Gemini 2.5 的路线依赖百万 token 级训练基础设施，学术界无法正面竞争，只能在压缩/稀疏化等外围做文章。</li>
+<li><strong>全模态统一预训练</strong>：音-视-文从头预训练的数据与算力门槛是千卡级起步，Qwen、字节、Google 的主场。</li>
+<li><strong>视频基础模型（video encoder 侧）</strong>：InternVideo2 式的 6B 视频编码器需要海量视频数据与多阶段训练，适合作为上游工具使用，不适合作为学术创业方向。</li>
+</ul>
+<p><strong>方向速查表：</strong></p>
+<table>
+<thead>
+<tr>
+<th>子方向</th>
+<th>算力门槛</th>
+<th>数据门槛</th>
+<th>竞争激烈度</th>
+<th>顶会潜力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>流式视频理解</td>
+<td>低-中</td>
+<td>低</td>
+<td>中（快速升温）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>token 压缩改进</td>
+<td>低-中</td>
+<td>低</td>
+<td>高</td>
+<td>中-高</td>
+</tr>
+<tr>
+<td>评测与诊断</td>
+<td>极低</td>
+<td>需精心构造</td>
+<td>中</td>
+<td>高</td>
+</tr>
+<tr>
+<td>时间定位</td>
+<td>中</td>
+<td>中</td>
+<td>中</td>
+<td>中</td>
+</tr>
+<tr>
+<td>超长上下文视频模型</td>
+<td>极高</td>
+<td>极高</td>
+<td>巨头主导</td>
+<td>高（但难入场）</td>
+</tr>
+<tr>
+<td>全模态统一预训练</td>
+<td>极高</td>
+<td>极高</td>
+<td>巨头主导</td>
+<td>高（但难入场）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一条务实的起步路径</strong>：以 Qwen2.5-VL-7B 为基座 → 在 Video-MME 上跑通评测 → 选一个细分痛点（如长视频中的时间定位、流式记忆压缩）→ 构造小规模指令数据微调 → 用 StreamingBench/LVBench 验证。整条链路单张 A100 以内可完成，且每一步都有公开基线可比。</p>
+<h3 id="81">8.1 结语：时间的维度刚刚展开</h3>
+<p>视频理解的故事，本质上是一个关于"带宽"的故事：视觉编码器的带宽、LLM 上下文的带宽、训练数据的带宽、以及研究注意力的带宽。2023 年的 Video-LLM 把 8 帧视频塞进 LLM，就像拨号时代的互联网把一张压缩图片传上论坛——简陋，但证明了链路可行。2026 年的今天，开源模型可以在消费级显卡上处理万帧视频，闭源旗舰可以"通读"数小时素材并精确定位秒级事件，流式理解的评测框架已经立起。然而回到本报告开篇的不等式——视频信息量与算力预算之间的张力从未消失，只是被推到了更高的量级上重演。流式、多模态冲突、grounded reasoning、小时级以上的理解，每一个都是这个不等式在新维度上的投影。对入门研究者而言，这是最好的时代：基础设施（Qwen2.5-VL、Video-XL、Video-MME、StreamingBench）全部开源可用，而核心问题远未饱和。时间的维度，才刚刚展开。</p>
+<h2 id="9">9. 术语表</h2>
+<ul>
+<li><strong>Video-LLM</strong>：以大语言模型为推理核心、处理视频输入的多模态模型。</li>
+<li><strong>帧采样（frame sampling）</strong>：从视频中选取代表性帧的策略，分均匀采样与 fps 采样。</li>
+<li><strong>视觉 token</strong>：帧经视觉编码器与投影后进入 LLM 的向量单元，是算力消耗的基本单位。</li>
+<li><strong>上下文爆炸</strong>：帧数 × 每帧 token 数超出 LLM 上下文窗口的现象，长视频的根本矛盾。</li>
+<li><strong>Q-Former</strong>：BLIP-2 提出的查询式特征压缩模块，用少量可学习 query 从视觉特征中提取固定数量 token。</li>
+<li><strong>token 压缩</strong>：减少每帧/每段视频占用 token 数的技术总称，分 token 层与 KV 层。</li>
+<li><strong>VST（Visual Summarization Token）</strong>：Video-XL 提出的特殊 token，将一段视频区间的信息浓缩进自身 KV 表示。</li>
+<li><strong>KV cache</strong>：自回归推理中缓存的键值对，其大小决定长输入的显存成本。</li>
+<li><strong>M-RoPE</strong>：多维旋转位置编码，将位置分解为时间/高/宽分量，Qwen2-VL 系的核心时序机制。</li>
+<li><strong>绝对时间编码</strong>：用帧的物理时刻（而非序号）作为时间位置 ID，使模型感知真实时长。</li>
+<li><strong>记忆机制</strong>：借鉴认知记忆模型的长视频方案，将历史帧压缩存储为可检索的长期记忆（MovieChat）。</li>
+<li><strong>alignment before projection</strong>：Video-LLaVA 的核心原则——图像与视频在投影进 LLM 前共享统一特征空间。</li>
+<li><strong>指令微调（instruction tuning）</strong>：用"视频 + 问题 + 答案"三元组微调模型以获得对话能力的训练阶段。</li>
+<li><strong>temporal grounding / moment retrieval</strong>：给定文本查询定位视频中对应时间区间的任务。</li>
+<li><strong>流式视频理解（streaming video understanding）</strong>：视频以流的形式持续到达、模型需实时感知并响应的在线设定。</li>
+<li><strong>Scaling Consistency</strong>：Apollo 提出的方法论——小规模实验的设计结论可迁移到大规模。</li>
+<li><strong>Video-MME</strong>：视频理解全谱系评测基准，含短/中/长三档时长与字幕/音频多模态设定。</li>
+<li><strong>CoT 假象</strong>：模型的推理链表面合理、实际与最终答案及视觉证据脱节的系统性现象。</li>
+<li><strong>needle-in-a-haystack</strong>：在超长输入中检索特定细节的测试范式，Gemini 1.5 用于展示小时级视频能力。</li>
+</ul>
+<h2 id="10">10. 参考文献</h2>
+<p>[1] Video Understanding with Large Language Models: A Survey. Tang et al., 2023. arXiv:2312.17432. https://arxiv.org/abs/2312.17432</p>
+<p>[2] From Seconds to Hours: Reviewing MultiModal Large Language Models on Comprehensive Long Video Understanding. 2024. arXiv:2409.18938. https://arxiv.org/abs/2409.18938</p>
+<p>[3] A Survey on Video Temporal Grounding with Multimodal Large Language Model. 2025. arXiv:2508.10922. https://arxiv.org/abs/2508.10922</p>
+<p>[4] StreamingBench: Assessing the Gap for MLLMs to Achieve Streaming Video Understanding. 2024. arXiv:2411.03628. https://arxiv.org/abs/2411.03628</p>
+<p>[5] MME-CoF: Are Video Models Ready as Zero-Shot Reasoners? 2025. arXiv:2510.26802. https://arxiv.org/abs/2510.26802</p>
+<p>[6] VideoChat: Chat-Centric Video Understanding. 2023. arXiv:2305.06355. https://arxiv.org/abs/2305.06355</p>
+<p>[7] Video-LLaMA: An Instruction-tuned Audio-Visual Language Model. 2023. arXiv:2306.02858. https://arxiv.org/abs/2306.02858</p>
+<p>[8] Video-ChatGPT: Towards Detailed Video Understanding with Large Language Models. 2023. arXiv:2306.05424. https://arxiv.org/abs/2306.05424</p>
+<p>[9] MovieChat: From Dense Token to Sparse Memory for Long Video Understanding. 2023. arXiv:2307.16449. https://arxiv.org/abs/2307.16449</p>
+<p>[10] Video-LLaVA: Learning United Visual Representation by Alignment Before Projection. 2023. arXiv:2311.10122. https://arxiv.org/abs/2311.10122</p>
+<p>[11] LLaMA-VID: An Image is Worth 2 Tokens in Large Language Models. 2023. arXiv:2311.17043. https://arxiv.org/abs/2311.17043</p>
+<p>[12] Chat-UniVi: Unified Visual Representation Empowers Large Language Models with Image and Video Understanding. 2023. arXiv:2311.08046. https://arxiv.org/abs/2311.08046</p>
+<p>[13] TimeChat: A Time-sensitive Multimodal Large Language Model for Long Video Understanding. 2023. arXiv:2312.02051. https://arxiv.org/abs/2312.02051</p>
+<p>[14] InternVideo2: Scaling Foundation Models for Multimodal Video Understanding. 2024. arXiv:2403.15377. https://arxiv.org/abs/2403.15377</p>
+<p>[15] Gemini 1.5: Unlocking Multimodal Understanding Across Millions of Tokens of Context. Google, 2024. arXiv:2403.05530. https://arxiv.org/abs/2403.05530</p>
+<p>[16] LVBench: An Extreme Long Video Understanding Benchmark. 2024. arXiv:2406.08035. https://arxiv.org/abs/2406.08035</p>
+<p>[17] MovieChat+: Question-aware Sparse Memory for Long Video Question Answering. 2024. arXiv:2404.17176. https://arxiv.org/abs/2404.17176</p>
+<p>[18] LLaVA-OneVision: Easy Visual Task Transfer. 2024. arXiv:2408.03326. https://arxiv.org/abs/2408.03326</p>
+<p>[19] Qwen2-VL: Enhancing Vision-Language Model's Perception of the World at Any Resolution. 2024. arXiv:2409.12191. https://arxiv.org/abs/2409.12191</p>
+<p>[20] Video-XL: Extra-Long Vision Language Model for Hour-Scale Video Understanding. 2024. arXiv:2409.14485. https://arxiv.org/abs/2409.14485</p>
+<p>[21] LongVU: Spatiotemporal Adaptive Compression for Long Video-Language Understanding. 2024. arXiv:2410.17434. https://arxiv.org/abs/2410.17434</p>
+<p>[22] Long Context Transfer from Language to Vision. 2024. arXiv:2406.16852. https://arxiv.org/abs/2406.16852</p>
+<p>[23] Apollo: An Exploration of Video Understanding in Large Multimodal Models. 2024. arXiv:2412.10360. https://arxiv.org/abs/2412.10360</p>
+<p>[24] Temporal Reasoning Transfer from Text to Video. 2024. arXiv:2410.06166. https://arxiv.org/abs/2410.06166</p>
+<p>[25] Dispider: Enabling Video LLMs with Active Real-Time Interaction via Disentangled Perception, Decision, and Reaction. 2025. arXiv:2501.03218. https://arxiv.org/abs/2501.03218</p>
+<p>[26] VideoLLaMA 3: Frontier Multimodal Foundation Models for Image and Video Understanding. 2025. arXiv:2501.13106. https://arxiv.org/abs/2501.13106</p>
+<p>[27] Qwen2.5-VL Technical Report. 2025. arXiv:2502.13923. https://arxiv.org/abs/2502.13923</p>
+<p>[28] Elysium: Exploring Object-level Perception in Videos via MLLM. 2024. arXiv:2403.16558. https://arxiv.org/abs/2403.16558</p>
+<p>[29] Video-XL-Pro: Reconstructive Token Compression for Extremely Long Video Understanding. 2025. arXiv:2503.18478. https://arxiv.org/abs/2503.18478</p>
+<p>[30] Gemini 2.5: Pushing the Frontier with Advanced Reasoning, Multimodality, Long Context, and Next Generation Agentic Capabilities. Google, 2025. arXiv:2507.06261. https://arxiv.org/abs/2507.06261</p>
+<p>[31] InternLM-XComposer2.5-OmniLive: A Comprehensive Multimodal System for Long-term Streaming Video and Audio Interactions. 2024. arXiv:2412.09596. https://arxiv.org/abs/2412.09596</p>
+<p>[32] StreamChat: Chatting with Streaming Video. 2024. arXiv:2412.08646. https://arxiv.org/abs/2412.08646</p>
+<p>[33] Video-MME-v2: Towards the Next Stage in Benchmarks for Comprehensive Video Understanding. 2026. arXiv:2604.05015. https://arxiv.org/abs/2604.05015</p>
+<p>[34] Chains That See, Answers That Don't: Forced CoT on Video-MME. 2026. arXiv:2606.22862. https://arxiv.org/abs/2606.22862</p>
+<p>[35] Event-VStream: Event-Driven Real-Time Understanding for Long Video Streams. 2026. arXiv:2601.15655. https://arxiv.org/abs/2601.15655</p>
+<p>[36] Compositional Failure in Audio-Visual LLMs. 2026. arXiv:2608.27785. https://arxiv.org/abs/2608.27785</p>
+<p>[37] Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis. 2024. arXiv:2405.21075. https://arxiv.org/abs/2405.21075</p>
+</article>
+<footer class="footer"><span>多模态图谱 · 由 Codex + sub-agent swarm 于 2026-09 调研撰写</span><a href="#top">回到顶部 ↑</a></footer>
+</main>
+</div>
+<div class="reading-bar" id="reading-bar"></div>
+<script src="../../js/site.js"></script>
+</body>
+</html>

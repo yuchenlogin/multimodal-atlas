@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>听见与开口：音频语音多模态大模型 · 多模态图谱</title>
+<link rel="stylesheet" href="../../css/site.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="report-body">
+<nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<div class="layout">
+<aside class="sidenav" id="sidenav">
+<div class="sidenav-title">系列报告</div>
+<a class="sidenav-link" href="../00-foundations/index.html"><span class="sidenav-icon">🏛️</span><span>foundations · 基础架构</span></a>
+<a class="sidenav-link" href="../01-vision-language/index.html"><span class="sidenav-icon">👁️</span><span>vision-language · 视觉-语言</span></a>
+<a class="sidenav-link active" href="../02-audio-speech/index.html"><span class="sidenav-icon">🎧</span><span>audio-speech · 音频语音</span></a>
+<a class="sidenav-link" href="../03-video/index.html"><span class="sidenav-icon">🎬</span><span>video · 视频理解</span></a>
+<a class="sidenav-link" href="../04-omni/index.html"><span class="sidenav-icon">🌐</span><span>omni · 全模态</span></a>
+<a class="sidenav-link" href="../05-generation/index.html"><span class="sidenav-icon">🎨</span><span>generation · 多模态生成</span></a>
+<a class="sidenav-link" href="../06-embodied/index.html"><span class="sidenav-icon">🤖</span><span>embodied · 具身智能</span></a>
+<a class="sidenav-link" href="../07-agent-tooluse/index.html"><span class="sidenav-icon">🧭</span><span>agent-tooluse · 多模态 Agent</span></a>
+<a class="sidenav-link" href="../08-efficiency/index.html"><span class="sidenav-icon">⚡</span><span>efficiency · 高效化</span></a>
+<a class="sidenav-link" href="../09-alignment-safety/index.html"><span class="sidenav-icon">🛡️</span><span>alignment-safety · 对齐与安全</span></a>
+<a class="sidenav-link" href="../10-benchmarks-eval/index.html"><span class="sidenav-icon">📏</span><span>benchmarks-eval · 评测方法</span></a>
+<a class="sidenav-link" href="../11-data-training/index.html"><span class="sidenav-icon">🧪</span><span>data-training · 数据与训练</span></a>
+<a class="sidenav-link" href="../12-frontier/index.html"><span class="sidenav-icon">🔭</span><span>frontier · 前沿专题</span></a>
+<div class="sidenav-title" style="margin-top:1.2rem">更多</div>
+<a class="sidenav-link" href="../../paper/index.html">📄 顶会风格论文</a>
+<a class="sidenav-link" href="../../index.html#about">ℹ️ 关于本站</a>
+</aside>
+<main class="content">
+<header class="report-header"><div class="report-kicker">🎧 专题 02 · 音频语音</div><h1>听见与开口：音频语音多模态大模型</h1><div class="report-sub">Whisper、RVQ codec、VALL-E、全双工语音</div>
+<div class="report-actions"><a class="btn" href="../../assets/02-audio-speech.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+</header>
+<article class="report-content" id="article">
+<blockquote>
+<p>副标题：从自监督表征到全双工对话——语音如何被"听见"、被"说出"、被"理解"
+版本日期：2026-09-29 | 面向读者：有深度学习基础的多模态初学者</p>
+</blockquote>
+<h2 id="_1">摘要</h2>
+<p>音频与语音是多模态大模型版图中最特殊的一块拼图：它既是输入模态（让模型"听见"），又是输出模态（让模型"开口"），还天然承载语言内容，与文本 LLM 的关系比任何其他模态都更纠缠。本报告以一条清晰的技术演化主线组织这一领域：<strong>语音表征学习</strong>（wav2vec 2.0 的对比式自监督、HuBERT 的掩码预测式自监督）解决了"没有标注怎么学语音表示"的问题；<strong>Whisper</strong> 用 68 万小时弱标注数据证明了"规模化的弱监督"可以压过精巧的自监督，成为事实上的 ASR 基座与众多 audio-LLM 的听觉前端；<strong>神经音频 codec</strong>（SoundStream、EnCodec、SpeechTokenizer）用残差矢量量化（RVQ）把连续波形压缩成离散 token 序列，使"对声音做语言建模"成为可能——本报告将完整推导 RVQ 的数学原理与码率-质量权衡；在此之上，<strong>AudioLM/MusicLM</strong> 开创了 semantic token + acoustic token 分层生成的音频语言模型范式，<strong>VALL-E</strong> 把 TTS 改写成 codec token 上的条件语言建模（AR 首层 + NAR 其余层的 flattening 模式是本报告重点之一）；<strong>Qwen-Audio/Qwen2-Audio、SALMONN</strong> 把音频编码器接入 LLM，实现语音指令理解；最终，<strong>GPT-4o voice 与 Moshi</strong> 把语音对话从"ASR→LLM→TTS 三段式管线"推进到端到端、全双工、200 毫秒级延迟的实时交互。报告对 Whisper、SoundStream/EnCodec、VALL-E、Qwen2-Audio、Moshi 五篇（组）代表作做深度剖析，系统对比 cascade 与 end-to-end、semantic token 与 acoustic token、连续表征与离散 token 三组根本分野，并讨论全双工、流式 TTS、codec-LM 统一建模等 2025–2026 前沿与入门研究机会。</p>
+<h2 id="1">1. 引言：本方向在多模态版图中的位置</h2>
+<h3 id="11">1.1 为什么语音是"最像文本"的非文本模态</h3>
+<p>在视觉-语言方向（见本系列第 1 篇），核心难题是"两种异构模态如何对齐"：图像是二维连续信号，文本是一维离散符号，二者之间隔着巨大的表示鸿沟，需要 CLIP 式的对比学习或 connector 模块去搭桥。语音与文本的关系则完全不同——<strong>语音在本质上就是"被声学化的文本"</strong>。一句话的语音信号里同时编码了三个层次的信息：</p>
+<ol>
+<li><strong>语言内容（linguistic content）</strong>：说了什么字、什么词、什么句——这一层与文本几乎一一对应；</li>
+<li><strong>副语言信息（paralinguistics）</strong>：谁在说（音色）、怎么说（韵律、语速、情绪）；</li>
+<li><strong>非语言声音（non-speech audio）</strong>：环境声、音乐、笑声、叹息——它们不对应任何文字，却强烈影响语义。</li>
+</ol>
+<p>这带来语音方向的独特张力：一方面，语音→文本的映射（ASR）和文本→语音的映射（TTS）都是定义良好的经典任务，各自有半个世纪的积累；另一方面，"把语音当作 LLM 的一种输入输出模态"要求模型同时保留这三层信息，而传统的 ASR/TTS 管线恰恰会系统性地丢弃第 2、3 层。GPT-4o 的原生语音对话之所以震撼，正是因为它在交互中保留了情感与副语言线索——这是级联管线在原理上做不到的。</p>
+<h3 id="12">1.2 学习地图</h3>
+<p>阅读本方向需要的前置概念与推进路径如下：</p>
+<pre><code>已有基础（读者已会）          本方向核心概念                     通向
+─────────────────────────  ──────────────────────────────    ──────────────
+CNN / RNN / Transformer  →  音频信号处理（STFT、mel 谱）   →  Whisper、codec 编码器
+自监督学习（对比学习、
+  masked prediction）     →  wav2vec 2.0 / HuBERT           →  semantic token
+VQ-VAE                   →  RVQ、神经音频 codec             →  acoustic token
+自回归语言建模            →  codec token 上的 LM             →  AudioLM / VALL-E / Moshi
+多模态 connector          →  音频编码器 + adapter 接 LLM     →  Qwen2-Audio / SALMONN
+</code></pre>
+<p>本方向与其他方向的关系：语音理解 LLM 在架构上是 vision-language 的"音频版"（编码器 + projector + LLM）；TTS 的 LM 化与图像生成的 token 化（见 generation 篇）互为镜像；端到端语音对话与 omni 全模态模型（见 omni 篇）在 2025 年后几乎合流——Qwen2.5-Omni、Qwen3-Omni 已把语音从独立方向并入统一多模态主干。</p>
+<h3 id="13">1.3 本报告的核心问题</h3>
+<p>全篇围绕三个问题展开：</p>
+<ul>
+<li><strong>Q1（表示）</strong>：连续、冗余、变长的音频信号，应该被表示成什么形式，才能被 Transformer/LLM 消化？——连续表征（wav2vec2/HuBERT/Whisper 编码器输出）与离散 token（codec code）两条路线的根本分野。</li>
+<li><strong>Q2（生成）</strong>：给定文本或上文音频，如何生成自然、可控、可流式输出的语音？——codec-LM 范式、flattening 模式、NAR 加速与流匹配解码。</li>
+<li><strong>Q3（交互）</strong>：如何让模型在"听懂"之上实现接近人类的实时对话？——端到端 vs 级联、全双工多流建模、延迟工程。</li>
+</ul>
+<h2 id="2">2. 基础知识</h2>
+<h3 id="21">2.1 音频信号的数字化：从波形到谱图</h3>
+<p>声音是空气压力随时间的变化，麦克风把它变成连续电压信号 $x(t)$。数字化需要两步：<strong>采样</strong>（sampling）以固定频率 $f_s$ 离散化时间轴（电话语音 8 kHz、宽带语音 16 kHz、音乐与高质量合成 24/44.1/48 kHz），<strong>量化</strong>把振幅离散为有限精度（16-bit PCM 可表示 65536 级）。根据 Nyquist 定理，采样率必须高于信号最高频率的两倍。</p>
+<p>原始波形对神经网络并不友好：16 kHz 采样意味着每秒 16000 个采样点，一分钟音频就是近百万维的序列。工程上的标准做法是短时傅里叶变换（STFT）：把波形切成 20–30 ms 的交叠帧，对每帧做傅里叶变换得到频谱，再按人耳感知的非线性频率刻度（mel 刻度）压缩为 80–128 个频带，得到 <strong>log-mel 谱图</strong>（log-mel spectrogram）。Whisper 的输入就是 80 维 log-mel 谱，帧移 10 ms，即每秒 100 帧。这个"谱图作为图像"的视角，使得为视觉设计的 CNN/Transformer 可以直接搬到音频上——这也是 2015 年后深度学习语音革命的入口。</p>
+<h3 id="22">2.2 传统语音管线：被深度化前后</h3>
+<p>经典 ASR 是一个复杂的多组件系统：声学模型（HMM-GMM，后为 DNN）给出音素后验、发音词典做音素到词的映射、语言模型约束词序列。深度学习把每个组件逐步替换为神经网络，最终端到端化：CTC、RNN-T、attention encoder-decoder。到 Whisper 出现前，端到端 ASR 在学术基准（如 LibriSpeech）上已很强，但<strong>换领域就崩</strong>——LibriSpeech 上 WER 2% 的模型面对真实会议、口音、噪声时性能暴跌。理解这一点，才能理解 Whisper 的 motivation：问题不在架构，在数据分布。</p>
+<p>TTS 的演化与之平行：拼接合成 → 统计参数合成 → 两阶段神经 TTS（Tacotron 类模型生成 mel 谱 + WaveNet/HiFi-GAN 类声码器合成波形）。两阶段范式在 2022 年前是主流，其痛点在于：mel 谱是手工设计的中间表示，声码器与声学模型误差累积，且模型容量被"逐帧回归连续谱图"的目标函数限制。codec-LM 范式正是对这一痛点的回应（见 §4.3）。</p>
+<h3 id="23">2.3 自监督语音表征：对比与掩码预测</h3>
+<p>语音标注昂贵（转写一分钟音频需熟练标注员数分钟），而无标注音频近乎无限——这是自监督学习的理想土壤。</p>
+<p><strong>wav2vec 2.0</strong>（Meta，2020）的思路是把 BERT 式预训练和对比学习结合起来。模型由三部分组成：卷积特征编码器把波形下采样为每 20 ms 一帧的隐表示 $z_t$；Transformer 上下文网络产出上下文化表示 $c_t$；一个量化模块把 $z_t$ 映射为离散编码 $q_t$（用 Gumbel-softmax 在多个码本组上选择条目并拼接）。训练时随机 mask 掉一部分时间步，让模型在 $c_t$ 上从 $K$ 个干扰项中挑出正确的量化目标 $q_t$，对比损失为：</p>
+<p>$$
+\mathcal{L}<em _tilde_q="\tilde{q">m = -\log \frac{\exp(\mathrm{sim}(c_t, q_t)/\kappa)}{\sum</em>_d
+$$} \sim Q_t} \exp(\mathrm{sim}(c_t, \tilde{q})/\kappa)} + \alpha \mathcal{L</p>
+<p>其中 $\mathcal{L}_d$ 是码本多样性正则，防止码本坍缩。效果惊人：在 53k 小时无标注 Libri-Light 上预训练后，<strong>仅用 10 分钟</strong>标注微调即可在 LibriSpeech 上取得 4.8/8.2 的 WER（clean/other），用全部 960h 标注微调达到 1.8/3.3——论文摘要直接宣称"10 分钟标注的语音识别是可行的"。</p>
+<p><strong>HuBERT</strong>（Meta，2021）走了另一条路：不对比，而是<strong>预测离线聚类标签</strong>。先用 MFCC 特征做 k-means（100 类）得到伪标签，模型对 mask 区域做 BERT 式交叉熵预测；训练一轮后再用模型自身的中间层特征重新聚类、重新训练，迭代两到三轮。其关键设计是<strong>只对 mask 区域计算损失</strong>——这迫使模型同时学习声学模型与"语言模型"（对未 mask 上下文的利用）。HuBERT 证明了语音自监督不依赖对比目标也能达到甚至超过 wav2vec 2.0：1B 参数版本在 dev-other/test-other 上相对 WER 降低达 19%/13%。</p>
+<p>对初学者而言，两者的差异比相似更重要：wav2vec 2.0 的量化目标是<strong>与模型联合学习的</strong>（端到端，但有坍缩风险，需要多样性正则），HuBERT 的目标是<strong>外部、迭代改进的</strong>（训练更稳定，且目标天然是"语义化"的音素级单元）。后者为什么重要？因为 HuBERT 的 k-means 标签后来被发现近似对应音素/子词单元——<strong>这就是 semantic token（语义 token）的源头</strong>。AudioLM、SpeechTokenizer、VALL-E 之后的整个 codec-LM 世界，都建立在"语音可以被离散化成近似语言的符号序列"这一 HuBERT 式发现之上。</p>
+<h3 id="24-rvq-token">2.4 矢量量化与 RVQ：把声音变成 token（重点）</h3>
+<p><strong>VQ-VAE 回顾。</strong> 矢量量化（VQ）的思想：编码器输出连续向量 $z$，用码本 $C = {e_1, \dots, e_K}$ 中最近邻的码字替换它：</p>
+<p>$$
+q(z) = e_k, \quad k = \arg\min_j | z - e_j |_2
+$$</p>
+<p>量化不可导，训练时用 straight-through estimator（前向用 $q(z)$，反向把梯度原样拷贝给 $z$），并加 commitment loss $|z - \mathrm{sg}[q(z)]|^2$ 让编码器输出向码字靠拢。单一码本的问题：要无损刻画音频这种高信息密度信号，码本大小 $K$ 需指数增长——$K$ 个码字只能区分 $\log_2 K$ bit 信息。1024 大小的码本每帧只提供 10 bit，对高质量音频远远不够。</p>
+<p><strong>RVQ：用"残差"换指数级容量。</strong> SoundStream（2021）把 RVQ 引入神经音频 codec，这是本方向最重要的工具之一，值得完整推导。思想类似矢量量化版的"梯度提升"：第一层量化器捕捉粗结构，后续每层只量化前一层的<strong>残差</strong>：</p>
+<p>$$
+\begin{aligned}
+r_0 &amp;= z \
+\hat{z}<em i="1">1 &amp;= Q_1(r_0), \quad r_1 = r_0 - \hat{z}_1 \
+\hat{z}_2 &amp;= Q_2(r_1), \quad r_2 = r_1 - \hat{z}_2 \
+&amp; \vdots \
+\hat{z} &amp;= \sum</em>}^{N_q} \hat{z<em i="1">i = \sum</em>)
+\end{aligned}
+$$}^{N_q} Q_i(r_{i-1</p>
+<p>每个时间步 $t$ 因此由 $N_q$ 个离散 code $(c_t^1, c_t^2, \dots, c_t^{N_q})$ 表示，$c_t^i \in {1, \dots, K}$。<strong>信息容量是乘法的</strong>：总码率</p>
+<p>$$
+R = f_r \cdot N_q \cdot \log_2 K \quad \text{(bit/s)}
+$$</p>
+<p>其中 $f_r$ 是帧率。以 EnCodec 24 kHz 模型为例：编码器下采样 320 倍，$f_r = 75$ Hz；每个量化器码本 $K = 1024$（10 bit）；用 8 个量化器时 $R = 75 \times 8 \times 10 = 6$ kbps，而 32 个量化器对应 24 kbps。对比：原始 24 kHz/16-bit 音频是 384 kbps，压缩率 16–256 倍。SoundStream 用 3–18 kbps 可变码率训练（对量化器层做 structured dropout，随机只用前 $k$ 层），单模型覆盖全码率段；在 3 kbps 时主观质量超过 12 kbps 的 Opus、接近 9.6 kbps 的 EVS——而 Opus/EVS 是数十年手工信号处理的结晶。</p>
+<p><strong>为什么 RVQ 对 LM 如此关键？</strong> 三点：其一，RVQ 把音频变成<strong>离散符号序列</strong>，天然适配 softmax 交叉熵训练的语言模型；其二，分层残差结构制造了<strong>重要性排序</strong>——第 1 层 code 承载大致内容（响度、基频、粗谱形），越往后越是细节（谐波纹理、相位近似），这为"先生成粗、后生成细"的层级生成（AudioLM）和"只建模第 1 层、其余 NAR 补全"（VALL-E）提供了结构基础；其三，码率可调意味着可以在"LM 可建模的序列长度"与"重建保真度"之间做显式权衡。</p>
+<p><strong>EnCodec</strong>（Meta，2022）是 SoundStream 的工业级改进版：流式卷积 encoder-decoder、单一多尺度谱图判别器（替代 SoundStream 的多判别器，简化训练且减少伪影）、以及一个 loss balancer（让各损失项按其权重占据总梯度的固定份额，解耦超参与损失尺度）。EnCodec 证明 24 kHz 单声道、乃至 48 kHz 立体声都能高保真压缩，且可用一个小型 Transformer 对已量化 token 再无损压缩约 40%。它随后成为 LLM 时代<strong>事实标准的 acoustic tokenizer</strong>：VALL-E、AudioGen、MusicGen 及大量后续工作直接冻结 EnCodec 作为音频的"分词器"。</p>
+<p><strong>Semantic vs acoustic token 的裂痕与弥合。</strong> RVQ codec 的 code 为保真而生，捕捉的是声学细节而非语言内容——实验表明其第 1 层与文本的对齐很弱。反过来，HuBERT/WavLM 特征 k-means 得到的 semantic token 与音素/文本强对齐，却丢失了音色与声学细节，无法直接重建高质量语音。<strong>SpeechTokenizer</strong>（2023）提出统一方案：在 RVQ codec 框架内，用语义教师（HuBERT）对第 1 个量化层的输出做蒸馏（如 cosine 相似度损失），使第 1 层承载语义、其余层补声学残差——"第一层即语义"的分层解耦。CosyVoice（2024）则给出更工程化的答案：直接在 ASR 编码器中插入矢量量化，用 ASR 监督信号训出"监督式 semantic token"，与文本对齐更好、内容一致性更强。Moshi 的 Mimi codec 同样在第 1 层蒸馏 WavLM 语义。到 2024 年，"RVQ 第 1 层语义化"已成为 codec 设计的共识。</p>
+<h3 id="25-token-flattening">2.5 离散 token 上的语言建模与 flattening 问题</h3>
+<p>有了 codec token，音频生成就变成了"对离散序列做语言建模"。但 RVQ 给每帧 $N_q$ 个 code，序列是二维的：时间维 $T$ × 层维 $N_q$。如何用自回归 LM 建模 $p(c_{1:T}^{1:N_q})$？这就是 <strong>flattening（展平）模式</strong>问题，本方向的核心设计空间之一。主要方案：</p>
+<ol>
+<li><strong>层级/两阶段（AudioLM）</strong>：先生成 semantic token（序列短、结构稳定），再以 semantic token 为条件生成 acoustic token。每个阶段是一维序列，简单但管线长、误差逐阶段传播。</li>
+<li><strong>逐帧内层间展平（VALL-E 的 NAR+AR，重点，见 §4.3）</strong>：时间上自回归，每帧内部第 1 层用 AR、其余层用并行的 NAR——牺牲一点层间依赖换 7 倍序列长度缩减。</li>
+<li><strong>分组并行（VALL-E 2 的 Grouped Code Modeling）</strong>：把 $N_q$ 层分为若干组，组内并行、组间自回归，进一步压缩序列。</li>
+<li><strong>多流/延迟交错（MusicGen、Moshi）</strong>：各层并行预测，但第 $i$ 层相对第 1 层延迟 $i-1$ 步（delay pattern），用浅层依赖换取完全并行的低延迟流式生成。</li>
+<li><strong>放弃离散层，回归连续（CosyVoice 的 flow matching）</strong>：LM 只生成第 1 层 semantic token，声学细节交给条件流匹配（conditional flow matching）在连续空间生成 mel 谱，再由声码器出波形——把"难建模的高码率残差"外包给连续生成模型。</li>
+</ol>
+<p>这五种模式构成 §4–§6 反复出现的骨架。</p>
+<h2 id="3">3. 经典方法谱系</h2>
+<p>音频语音多模态的演化可以概括为四次范式转移：</p>
+<p><strong>第一次（2020–2021）：自监督表征取代标注数据。</strong> wav2vec 2.0、HuBERT 把语音从"标注饥渴"中解放出来，确立了"大规模无标注预训练 + 少量标注微调"的范式，与 NLP 的 BERT 时刻对应。</p>
+<p><strong>第二次（2021–2022）：codec 与弱监督双轨确立。</strong> SoundStream/EnCodec 证明神经网络可以把通用音频压到个位数 kbps 且高保真，给出了"声音 token 化"的工具；Whisper 则反其道而行，用 68 万小时弱标注数据做监督学习，证明规模可以弥补标注噪声。二者分别奠定了"生成侧"与"理解侧"的基础设施。</p>
+<p><strong>第三次（2022–2024）：音频的 LM 化。</strong> AudioLM 首次把音频续写做成纯 LM 任务；VALL-E 把 TTS 改写为条件 codec LM 并涌现 in-context 声音克隆；MusicLM 扩展到音乐；Qwen-Audio、SALMONN 把音频接入 LLM 实现通用听觉理解；CosyVoice 把 TTS 推向流式生产。</p>
+<p><strong>第四次（2024–2026）：端到端对话与 omni 合流。</strong> GPT-4o 确立原生语音对话的产品标杆；Moshi 以开源方式完整给出全双工技术方案；Qwen2.5-Omni/Qwen3-Omni 把语音并入统一全模态主干，"speech 只是 omni 的一种模态"。</p>
+<h3 id="_2">关键论文一览表</h3>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>年份</th>
+<th>核心思想</th>
+<th>架构要点</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>wav2vec 2.0 [1]</td>
+<td>2020</td>
+<td>对比式自监督 + 量化目标</td>
+<td>CNN 编码器 + Transformer + Gumbel 量化</td>
+<td>10 分钟标注微调即可用</td>
+</tr>
+<tr>
+<td>HuBERT [2]</td>
+<td>2021</td>
+<td>掩码预测离线聚类标签</td>
+<td>BERT 式 MLM，迭代聚类</td>
+<td>semantic token 的源头</td>
+</tr>
+<tr>
+<td>SoundStream [3]</td>
+<td>2021</td>
+<td>RVQ 神经 codec</td>
+<td>全卷积 + RVQ，3–18 kbps 可变码率</td>
+<td>codec token 技术起点</td>
+</tr>
+<tr>
+<td>Whisper [4]</td>
+<td>2022</td>
+<td>68 万小时弱监督规模化</td>
+<td>标准 encoder-decoder Transformer</td>
+<td>鲁棒 ASR 基座，零微调迁移</td>
+</tr>
+<tr>
+<td>EnCodec [5]</td>
+<td>2022</td>
+<td>高保真流式 codec</td>
+<td>单判别器 + loss balancer</td>
+<td>LLM 时代标准 acoustic tokenizer</td>
+</tr>
+<tr>
+<td>AudioLM [6]</td>
+<td>2022</td>
+<td>semantic+acoustic 分层 LM</td>
+<td>w2v-BERT token → SoundStream token</td>
+<td>语音 LM 范式开山</td>
+</tr>
+<tr>
+<td>VALL-E [7]</td>
+<td>2023</td>
+<td>TTS = 条件 codec LM</td>
+<td>AR 第 1 层 + NAR 其余层</td>
+<td>3 秒 prompt 零样本克隆</td>
+</tr>
+<tr>
+<td>MusicLM [8]</td>
+<td>2023</td>
+<td>文本条件音乐生成</td>
+<td>层级 seq2seq，24 kHz</td>
+<td>发布 MusicCaps 数据集</td>
+</tr>
+<tr>
+<td>AudioPaLM [9]</td>
+<td>2023</td>
+<td>语音文本统一词表</td>
+<td>PaLM 系，听说一体</td>
+<td>统一建模的早期尝试</td>
+</tr>
+<tr>
+<td>SpeechTokenizer [10]</td>
+<td>2023</td>
+<td>语义蒸馏统一 token</td>
+<td>RVQ 第 1 层蒸馏 HuBERT</td>
+<td>SLMTokBench 基准</td>
+</tr>
+<tr>
+<td>SALMONN [11]</td>
+<td>2023</td>
+<td>双编码器通用听觉</td>
+<td>Whisper + BEATs → Vicuna</td>
+<td>ICLR 2024 Spotlight</td>
+</tr>
+<tr>
+<td>Qwen-Audio [12]</td>
+<td>2023</td>
+<td>30+ 任务多任务预训练</td>
+<td>单音频编码器 + Qwen-7B</td>
+<td>中文开源代表</td>
+</tr>
+<tr>
+<td>VALL-E 2 [13]</td>
+<td>2024</td>
+<td>分组 codec 建模 + 重复感知采样</td>
+<td>Grouped Code Modeling</td>
+<td>宣称零样本 TTS 人类水平</td>
+</tr>
+<tr>
+<td>CosyVoice [14]</td>
+<td>2024</td>
+<td>监督 semantic token + flow matching</td>
+<td>LLM 生 token，流匹配出谱</td>
+<td>工程化开源 TTS</td>
+</tr>
+<tr>
+<td>Qwen2-Audio [15]</td>
+<td>2024</td>
+<td>语音聊天+音频分析双模式</td>
+<td>Whisper 系编码器 + Qwen-7B，DPO</td>
+<td>AIR-Bench 超 Gemini-1.5-pro</td>
+</tr>
+<tr>
+<td>Mini-Omni [16]</td>
+<td>2024</td>
+<td>文本-音频并行流式生成</td>
+<td>"边想边说"</td>
+<td>开源流式先驱</td>
+</tr>
+<tr>
+<td>LLaMA-Omni [17]</td>
+<td>2024</td>
+<td>低延迟 speech-to-speech</td>
+<td>编码器+adapter 直连 LLaMA + NAR 解码</td>
+<td></td>
+</tr>
+<tr>
+<td>Moshi [18]</td>
+<td>2024</td>
+<td>全双工多流建模</td>
+<td>Mimi codec + 双通道 + Inner Monologue</td>
+<td>理论延迟 160 ms，全开源</td>
+</tr>
+<tr>
+<td>GPT-4o System Card [19]</td>
+<td>2024</td>
+<td>原生端到端语音</td>
+<td>未公开细节</td>
+<td>范式标志，非技术论文</td>
+</tr>
+<tr>
+<td>Freeze-Omni [20]</td>
+<td>2024</td>
+<td>冻结 LLM 主干训语音层</td>
+<td>模态适配器方案</td>
+<td>低算力可行路径</td>
+</tr>
+<tr>
+<td>CosyVoice 2 [21]</td>
+<td>2024</td>
+<td>流式 TTS</td>
+<td>FSQ + 分块因果流匹配</td>
+<td>首包延迟 200 ms 级</td>
+</tr>
+<tr>
+<td>Step-Audio [22]</td>
+<td>2025</td>
+<td>130B 级统一理解-生成</td>
+<td>多模态大模型框架</td>
+<td>中文团队旗舰</td>
+</tr>
+<tr>
+<td>Qwen2.5-Omni [23]</td>
+<td>2025</td>
+<td>Thinker-Talker 解耦 + TMRoPE</td>
+<td>双轨 AR Talker，流式 DiT 声码</td>
+<td>omni 合流标志</td>
+</tr>
+<tr>
+<td>Kimi-Audio [24]</td>
+<td>2025</td>
+<td>1300 万小时音频预训练</td>
+<td>通用 audio foundation model</td>
+<td>覆盖 ASR/AQA/TTS/对话</td>
+</tr>
+<tr>
+<td>Qwen3-Omni [25]</td>
+<td>2025</td>
+<td>MoE omni，多语言流式对话</td>
+<td></td>
+<td>2025 末开源全模态旗舰</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. 代表作深度剖析</h2>
+<p>本节深读五篇（组）：Whisper（理解侧基座）、SoundStream/EnCodec（codec 与 RVQ）、VALL-E（codec-LM 的 flattening 典范）、Qwen2-Audio（语音理解 LLM）、Moshi（全双工端到端对话）。选择理由：它们分别回答了 §1.3 的 Q1/Q2/Q3，且组合起来恰好覆盖了"连续表征 vs 离散 token"的根本分野。</p>
+<h3 id="41-whisperopenai-2022">4.1 Whisper：用规模碾过领域偏移（OpenAI, 2022）</h3>
+<p><strong>研究问题。</strong> 2022 年的 ASR 存在一个尴尬的鸿沟：学术基准上接近人类的模型，面对真实世界的口音、噪声、混响、专业术语时脆弱不堪。根本原因是训练数据——主流系统只用几千小时的"干净朗读"语料（LibriSpeech 960h、Common Voice 数千小时），分布太窄。OpenAI 的问题是：<strong>能否不设计任何新架构，纯粹靠数据规模与多样性解决鲁棒性？</strong></p>
+<p><strong>关键洞察。</strong> 互联网上存在海量自带字幕的音频（播客、视频、有声书），转写质量参差但信号真实。与其继续精巧地自监督，不如把这些弱标注数据"全部吃下"——当一个编码器-解码器见过 68 万小时、96 种语言、各种噪声环境的音频后，鲁棒性会成为数据规模的副产品。这是对"标注噪声是否致命"这一经典问题的实证回答：在 68 万小时量级上，噪声标注的害处被多样性带来的分布覆盖所淹没。</p>
+<p><strong>技术方法。</strong> 架构刻意平庸：标准 Transformer encoder-decoder（log-mel 谱输入 80 维、30 秒定长窗口），模型从 39M（tiny）到 1550M（large）参数五个规格。创新全在数据与任务格式：</p>
+<ul>
+<li><strong>数据</strong>：680,000 小时多语言、多任务音频-文本对，其中约 1/3 为非英语。配套自动清洗流水线（如用语言检测、启发式规则剔除机器生成的字幕）。</li>
+<li><strong>多任务格式</strong>：用特殊 token 在解码器开头指定任务——<code>&lt;|transcribe|&gt;</code> 转写、<code>&lt;|translate|&gt;</code> 翻译成英语、语言标记、<code>&lt;|notimestamps|&gt;</code> 等。单一模型因此同时是 ASR、语音翻译、语言识别、时间戳对齐器。</li>
+<li><strong>零样本评测哲学</strong>：论文刻意<strong>不在任何基准上微调</strong>，全部 zero-shot，以检验"真正的分布外泛化"。</li>
+</ul>
+<p><strong>实验结果。</strong> Whisper-large 在无任何微调的情况下，在多数英文基准上与此前全监督 SOTA 相当，鲁棒性测试（跨数据集评估）大幅领先——论文标题"Robust Speech Recognition via Large-Scale Weak Supervision"即结论。多语言方面，低资源语言的 WER 仍偏高，但与监督数据量呈可预测的 scaling 关系。对人类的对比上，论文声称模型"接近人类的准确性与鲁棒性"。</p>
+<p><strong>批判性分析。</strong> 优点：重新定义了 ASR 的问题设定（从"拟合基准"转向"真实世界泛化"）；开源权重+推理代码使其成为整个社区的免费基础设施——今天几乎所有 audio-LLM（Qwen-Audio、SALMONN、Moshi 的 ASR 头）都以 Whisper 或其变体为听觉前端，这是论文最大的实际影响。局限：其一，训练数据未公开，"68 万小时"无法复现，学术界只能通过蒸馏（Distil-Whisper）或自行收集弱标注追赶；其二，逐字转写目标丢弃了全部副语言信息，Whisper 表示更偏"内容"，对情感/说话人任务并非最优；其三，30 秒定长窗口与自回归解码导致长音频需要滑窗拼接，长上下文一致性一般，且 autoregressive 解码有重复/幻觉转写问题（在无声段"编"出字幕的现象有据可查）。可复现性：推理完全可复现，训练不可复现。</p>
+<p><strong>一句话评价：</strong> 语音界的"GPT-2 时刻"——架构零创新、数据定胜负，其真正遗产是成为万物皆可插的听觉前端。评级：★★★★★（里程碑）。</p>
+<h3 id="42-soundstream-encodec-tokengoogle-2021-meta-2022">4.2 SoundStream 与 EnCodec：把声音压成 token（Google 2021 / Meta 2022）</h3>
+<p><strong>研究问题。</strong> 数字音频压缩是通信的老问题：Opus、EVS 等标准编解码器基于数十年手工信号处理，在低码率（&lt;10 kbps）下对通用音频（尤其音乐）质量骤降。更根本的动机在 2020 年后才显影：<strong>如果要把音频放进语言模型，必须先把它离散化成 token</strong>——传统 codec 的码流不是为"被 Transformer 建模"设计的。SoundStream 要回答：端到端学习的神经 codec 能否在 3–18 kbps 这种"语音专用码率"上压缩通用音频并打败手工标准？</p>
+<p><strong>关键洞察。</strong> 两个：(1) <strong>RVQ 是让 VQ 扩容的正确方式</strong>——单码本容量瓶颈用残差分层破解（推导见 §2.4），且残差结构自带"粗到细"的重要性排序；(2) <strong>感知质量应该由判别器保证而不是手工 loss</strong>——把 TTS/语音增强里成熟的"重建 loss + 对抗 loss"组合搬到 codec，让 GAN 判别器充当可学习的感知度量。</p>
+<p><strong>技术方法（SoundStream）。</strong> 全卷积 encoder-decoder：编码器把波形逐层下采样到帧率约 75 Hz 的隐表示，经 $N_q$ 层 RVQ 量化，解码器对称上采样回波形。训练目标三项：时频域重建损失（多分辨率 mel 距离）、对抗损失（波形域+谱域判别器）、码本 commitment loss。两个杀手级设计：<strong>quantizer dropout</strong>——训练时随机只保留前 $k$ 层量化器，使单模型支持 3–18 kbps 任意码率（低层先学粗结构，天然兼容残差语义）；<strong>可流式</strong>——全部因果卷积，可在手机 CPU 实时运行且支持低延迟流式推理。</p>
+<p><strong>技术方法（EnCodec 的改进）。</strong> Meta 团队把 SoundStream 工程化：用<strong>单一多尺度 STFT 判别器</strong>（在多个 STFT 分辨率上各一个判别头）替代多判别器，简化训练并有效抑制伪影；提出 <strong>loss balancer</strong>——不再给每个 loss 一个固定权重，而是规定每个 loss 占总梯度的目标份额，用在线归一化实现，解耦了"loss 权重"与"loss 尺度"这对纠缠的超参；系统性研究了 24 kHz 单声道与 48 kHz 立体声、1.5–24 kbps 的全码率段，并演示了用小型 Transformer 对量化 token 做熵编码可再压缩约 40%（这已经预告了"codec token 天然适合 LM 建模"）。MUSHRA 主观评测显示其在所有评测设置下超过基线。</p>
+<p><strong>实验结果。</strong> SoundStream：24 kHz 音频上 3 kbps 主观质量超过 12 kbps Opus、接近 9.6 kbps EVS——4 倍码率优势；且同一权重覆盖全码率段。EnCodec：24 kHz/6 kbps 取得接近透明的语音重建，音乐与通用音频同样成立；后续成为 VALL-E、MusicGen、AudioGen 的官方 tokenizer。度量上需要注意：codec 质量的黄金标准是主观听测（MUSHRA/MOS），客观指标（PESQ、STOI、ViSQOL）只作参考——这是评估音频生成时初学者最易踩的坑。</p>
+<p><strong>批判性分析。</strong> 优点：方法论干净、工程完成度极高，EnCodec 开源后成为社区标准件，其"冻结 codec 当音频分词器"的用法定义了整个 codec-LM 子领域。局限：其一，RVQ code 为保真而非语义设计，token 序列长度长（6 kbps 下 75 帧/秒 × 8 层 = 每秒 600 个 code），直接全层 LM 建模代价高——这逼出了 VALL-E 的 NAR 折中；其二，GAN 训练不稳定、对伪影敏感，训练 codec 至今仍是"手艺活"；其三，codec 是压缩器而非理解器，其 token 空间对语义任务（如直接做语音翻译）并不友好。可复现性：EnCodec 完全开源可复现；SoundStream 未开源但原理被多方复现（如社区版 AudioCraft 中的实现）。</p>
+<p><strong>一句话评价：</strong> 没有 RVQ codec 就没有音频的"GPT 时刻"——它是把声波翻译成符号的那本词典。评级：★★★★★（基础设施级）。</p>
+<h3 id="43-vall-etts-narar-flatteningmicrosoft-2023">4.3 VALL-E：TTS 的语言模型化与 NAR+AR flattening（Microsoft, 2023）</h3>
+<p><strong>研究问题。</strong> 2022 年前的零样本 TTS（给几秒钟参考音频克隆陌生说话人）被两阶段范式卡住：说话人编码器提取的嵌入向量对未见说话人泛化差，mel 回归目标限制了表现力上限。VALL-E 的问题：<strong>TTS 能否完全抛弃"声学模型+声码器"管线，改写成纯粹的条件语言建模？</strong></p>
+<p><strong>关键洞察。</strong> 一旦 EnCodec 把语音变成离散 token，TTS 就和机器翻译在形式上没有任何区别：源序列是文本（音素）token，目标序列是 codec token。于是 LLM 的两件武器——大规模语料预训练与 in-context learning——可以直接搬过来。VALL-E 把训练数据从此前系统的几百小时<strong>一举扩到 60,000 小时</strong>（LibriLight）英文语音，比当时最大 TTS 系统大两个数量级；"3 秒注册音频"不再是提取说话人嵌入，而是作为<strong>声学 prompt 前缀</strong>拼进解码上下文——声音克隆变成了 GPT 式的 in-context 续写。</p>
+<p><strong>技术方法（flattening 模式，本报告重点）。</strong> 设 EnCodec 8 层 RVQ 的 token 矩阵为 $C \in {1..K}^{T \times 8}$。VALL-E 的条件概率分解为：</p>
+<p>$$
+p(C \mid x) = \underbrace{\prod_{t=1}^{T} p(c_t^1 \mid c_{&lt;t}^1,\, x)}<em t="1">{\text{AR：第 1 层，逐帧自回归}} \;\times\; \underbrace{\prod</em>
+$$}^{T}\prod_{i=2}^{8} p(c_t^i \mid c_t^{&lt;i},\, C_{&lt;t}^{\cdot},\, x)}_{\text{NAR：第 2–8 层，帧内逐层、帧间并行}</p>
+<p>即两个模型的分工：</p>
+<ul>
+<li><strong>AR 模型</strong>：只建模第 1 层（每帧 1 个 code、75 token/秒），输入为音素序列 $x$ 与 prompt 音频的第 1 层 token，自回归生成目标语音的第 1 层序列。第 1 层承载内容与粗声学结构，是"最难也最关键"的序列——值得用完整自回归。</li>
+<li><strong>NAR 模型</strong>：条件于完整第 1 层 + 文本 + prompt，逐层（第 2 层条件于第 1 层，第 3 层条件于 1–2 层……）但<strong>层内所有时间步并行</strong>预测。因为第 2–8 层只是残差细节，层内的强条件（同帧第 1 层已知）使并行解码损失很小。</li>
+</ul>
+<p>这个设计的精妙在于<strong>精确匹配 RVQ 的信息结构</strong>：残差量化保证第 1 层信息量最大、后续层是条件易预测的细节，因此"AR 只负责一层"几乎不损失质量，却把自回归序列长度从 $8T$ 压到 $T$，推理延迟下降近一个数量级。这是"利用数据结构先验来设计生成模式"的教科书案例，与图像领域 MaskGIT 的 NAR 思路遥相呼应。</p>
+<p><strong>实验结果。</strong> 在 LibriSpeech 与 VCTK 零样本设置下，VALL-E 的自然度（CMOS）与说话人相似度（SMOS）显著超过当时 SOTA 的零样本 TTS 系统（YourTTS）；论文还展示了 prompt 的情感与声学环境（如回声）被保留到合成语音中——这是说话人嵌入管线无法做到的。后续 VALL-E 2（2024）用 Grouped Code Modeling（把 8 层分组并行，进一步缩短序列）与 Repetition Aware Sampling（在 nucleus sampling 中惩罚解码历史里的重复，解决 AR 模型在长句/重复文本上的死循环）宣称在 LibriSpeech/VCTK 上首次达到人类水平零样本 TTS。</p>
+<p><strong>批判性分析。</strong> 优点：范式意义巨大——此后三年几乎所有 TTS（包括工业界）都转向 codec-LM 或其变体；in-context 克隆免去了说话人编码器训练，优雅且强大。局限：其一，<strong>模型与权重均未开源</strong>（仅 demo 页），60k 小时数据与完整训练配方不可复现，社区只能靠开源复现（如 lifeiteng/vall-e、各类 open VALL-E）逼近；其二，AR 解码存在 codec-LM 的通病：对长难句、重复短语会出现漏词、重复、陷入循环（VALL-E 2 的 Repetition Aware Sampling 正是打这个补丁，等于承认问题真实存在）；其三，NAR 层与 AR 层分离意味着非流式、两段推理，且对 codec 质量完全依赖——EnCodec 换成本文其他 codec，结论未必迁移；其四，零样本声音克隆的 deepfake 风险直接触发了后续 TTS 安全研究。可复现性：弱（闭源），但思想已被广泛复现验证。</p>
+<p><strong>一句话评价：</strong> 把 TTS 从信号处理问题改写成 NLP 问题的分水岭；NAR+AR flattening 是近五年音频生成最被低估的设计。评级：★★★★★（范式级，但闭源扣分）。</p>
+<h3 id="44-qwen2-audio-llm-alibaba-2024">4.4 Qwen2-Audio：语音理解 LLM 的开源标杆（Alibaba, 2024）</h3>
+<p><strong>研究问题。</strong> 2023 年起，"给 LLM 装上耳朵"成为显学：GPT-4 系列展示了语音交互的产品价值，但开源社区缺少能听懂语音指令、分析环境声与音乐的通用模型。Qwen-Audio 系列的问题是：<strong>如何让一个文本 LLM 以最小代价获得通用听觉（语音+音频事件+音乐），并且能直接用语音下指令？</strong></p>
+<p><strong>关键洞察。</strong> 与 vision-language 的演化同构：冻结一个强音频编码器（Whisper 系），用 adapter/projector 把其输出映射进 LLM 的词嵌入空间，再用<strong>大规模多任务音频-文本数据</strong>对齐两种模态。Qwen2-Audio 相对一代的两个关键简化：(1) 抛弃 Qwen-Audio 的层级化任务标签，改为<strong>自然语言 prompt 区分任务</strong>——更接近真实指令分布，也更易扩展数据；(2) 不加 system prompt 区分"语音聊天"与"音频分析"两种模式，让模型自己从音频内容判断该回答指令还是分析声音——把模式切换变成了隐式的理解能力测试。</p>
+<p><strong>技术方法。</strong> 架构为经典三段式：Whisper-large-v 系音频编码器（30 秒窗口内处理）→ 投影层降维对齐 → Qwen-7B 语言模型。训练分两阶段：多任务预训练（ASR、翻译、音频 caption、情感、声音事件、音乐分析等数十类任务的自然语言化混合）+ 指令微调（SFT），再加 <strong>DPO</strong>（直接偏好优化）提升事实性与指令遵循。交互上分 voice chat（纯语音对话）与 audio analysis（音频+文字指令分析）双模式。</p>
+<p><strong>实验结果。</strong> 官方报告显示 Qwen2-Audio 在 AIR-Bench（音频指令跟随基准）上超过 Gemini-1.5-pro 等此前 SOTA，ASR 上在常见基准接近或达到 Whisper 基线水平，在音频事件与音乐理解任务上显著强于前代 Qwen-Audio。作为对照脉络：SALMONN（2023，ICLR 2024 Spotlight）采用 Whisper 编码器 + BEATs 音频事件编码器<strong>双编码器</strong>接 Vicuna-13B，并用 window-level Q-Former 融合，展示了语音翻译到未训练语言、音频讲故事等"涌现"能力，并研究了 LoRA 激活调优；Qwen2-Audio 用单编码器 + 更大数据 + DPO 达到更强且更稳的效果，说明在这个方向上<strong>数据与对齐的规模压过架构精巧</strong>。</p>
+<p><strong>批判性分析。</strong> 优点：完全开源（权重+推理代码）、中英双语强、双模式设计贴近真实产品形态，是 2024 年最适合入手的 audio-LLM 研究基座；其"自然语言 prompt 代替任务标签"的数据组织方式被后续广泛效仿。局限：其一，架构上无新意——cascade 式"编码器+adapter+LLM"在视觉侧早已成熟，论文贡献主要在数据工程与训练配方，细节（数据配比、清洗）披露有限；其二，音频编码器窗口有限（长音频需切块），长时音频理解（如一小时播客总结）能力受结构制约；其三，只"听见"不"开口"——输出仍是文本，语音对话体验依赖外挂 TTS，这正是 2025 年 Qwen2.5-Omni（Thinker-Talker）要补的课；其四，音频指令微调后文本能力有可见退化（灾难性遗忘），论文坦承但缓解手段有限。可复现性：强（开源权重），训练配方中等。</p>
+<p><strong>一句话评价：</strong> 不是最优雅的架构，却是把"LLM 听觉"做到开箱即用的工程标杆；它示范了数据工程如何战胜架构创新。评级：★★★★☆（开源基础设施级）。</p>
+<h3 id="45-moshikyutai-2024">4.5 Moshi：全双工语音对话的完整开源答卷（Kyutai, 2024）</h3>
+<p><strong>研究问题。</strong> GPT-4o（2024.5）演示了低延迟、有情感的语音对话，但细节完全封闭。传统语音对话是四段级联：VAD（语音活动检测）→ ASR → LLM → TTS，三大原罪：延迟以秒计；文本中间表示丢弃情绪、语气、环境声；严格的回合制（turn-taking）无法处理打断、插话、重叠说话。Moshi 要一次性解决：<strong>能否用一个模型直接做 speech-to-speech 生成，同时建模自己和用户的语音流，实现理论 160 ms 延迟的全双工对话？</strong></p>
+<p><strong>关键洞察。</strong> 三个层层递进：(1) 把对话从"回合"重新定义为<strong>两条并行时间流</strong>——用户流与机器流都按 codec 帧率（12.5 Hz）逐帧推进，模型每一时刻同时读用户的下一帧、写自己的下一帧，于是"打断"不再是需要检测的异常事件，而只是用户流中出现了非静音 token；(2) <strong>文本不应被消除，而应被对齐复用</strong>——Inner Monologue 方法在生成音频 token 前先预测时间对齐的文本 token 作为前缀，让强文本 LLM 的语言能力"垫"在音频生成下面，同时白送流式 ASR/TTS 字幕；(3) 所有组件（codec、语言模型）必须为<strong>流式 causal</strong> 设计，延迟不是事后优化而是架构约束。</p>
+<p><strong>技术方法。</strong> 系统由三层组成：</p>
+<ul>
+<li><strong>Mimi codec</strong>：为 Moshi 定制的流式 RVQ codec，12.5 Hz 帧率（比 EnCodec 的 75 Hz 低 6 倍，直接决定序列长度与延迟），1.1 kbps；蒸馏 WavLM 语义到第 1 层（semantic+acoustic 混合），纯因果卷积+Transformer，流式编解码。</li>
+<li><strong>双通道多流 LM（Depth Transformer）</strong>：每帧 12.5 Hz 上同时建模多路 token 流——机器的文本 token、机器的 8 层音频 token、用户的音频 token。层间用 delay pattern（第 $i$ 层延迟 $i-1$ 帧）实现完全并行预测；结构上一个小型时间维 Transformer（处理 12.5 Hz 的长程依赖）+ 一个帧内 depth Transformer（处理 8 层 + 文本的层间依赖），把二维序列分解为"时间 AR × 深度 AR"。</li>
+<li><strong>Inner Monologue</strong>：文本 token 与音频 token 时间对齐（padding 补齐），生成时文本先行、音频随后，实验证明显著提升生成语音的语言质量（困惑度、可懂度），同时天然产出流式转写。</li>
+</ul>
+<p>训练用 700 万小时级无标注语音（Helium 文本 LM 初始化的 7B backbone），多阶段：音频-文本预训练 → 多流微调（含合成的双通道对话数据，用 TTS 把文本对话"说出声"再分离通道）→ 指令与偏好微调。全书式技术报告公开了全部配方、权重与推理代码。</p>
+<p><strong>实验结果。</strong> 系统级成就：理论延迟 160 ms、实测约 200 ms（含 codec 帧对齐），是<strong>首个</strong>实时全双工开源语音 LLM；语音质量 MUSHRA 式评测显著优于非流式基线，Inner Monologue 带来明确的语言质量增益；作为副产品，Moshi 的流式 ASR 与 TTS 各自达到可用水平。作为对照：GPT-4o 同期产品化展示了更高自然度与情感表现力但零细节；GLM-4-Voice（智谱，仅 GitHub 技术报告）采用流式 codec + 中文优化的类似路线；Freeze-Omni、LLaMA-Omni 等则探索"冻结 LLM 主干"的低算力替代方案。</p>
+<p><strong>批判性分析。</strong> 优点：这是 2024 年音频方向最重要的开源工作，没有之一——它第一次把端到端全双工从"GPT-4o 黑箱演示"变成任何人可复现、可拆解、可改进的完整系统；多流建模对"打断"问题的化解（从检测问题变成分布内生成问题）是真正漂亮的概念转换；Inner Monologue 是文本-语音统一建模最优雅的工程方案。局限：其一，12.5 Hz/1.1 kbps 的 Mimi 是延迟与音质的硬权衡——音质明显弱于 24 kHz 高码率 codec，声音表现力受限；其二，对话能力受 7B backbone 与合成对话数据限制，深度对话远逊文本前沿模型；其三，全双工评测尚不成熟（如何量化"打断处理得好"仍是开放问题）；其四，训练需要的大规模流式 codec + 多流数据工程，复现门槛远高于"下载权重推理"。可复现性：权重、代码、配方全开，社区已复现训练。</p>
+<p><strong>一句话评价：</strong> 语音对话的"Linux 时刻"——不一定最强，但把整栋楼的设计图纸公开了。评级：★★★★★（开源里程碑）。</p>
+<h2 id="5-20252026">5. 研究前沿（2025–2026）</h2>
+<h3 id="51">5.1 全双工与实时对话成为主战场</h3>
+<p>Moshi 之后，全双工从单点突破变成子领域，2025 年已有专题综述 [30]。活跃问题包括：<strong>多流架构的变体</strong>（双通道 vs 单通道时分复用）；<strong>打断与回话（barge-in）的显式建模</strong>——何时倾听、何时抢话、何时用"嗯""对"等 backchannel 回应，人类对话中这些信号承载语义，现有模型只会机械延续；<strong>副语言生成</strong>——笑、叹、犹豫、语气词的自然插入，Moshi 已具备初步能力但控制性差；<strong>延迟-质量的帕累托前沿</strong>——Mimi 的 12.5 Hz 是不是最佳帧率？有工作探索更高帧率+更激进并行。Freeze-Omni [20] 代表的低算力路线（冻结文本 LLM、只训语音头尾）使该方向对学术界开放。</p>
+<h3 id="52-omni">5.2 Omni 化：语音并入全模态主干</h3>
+<p>2025 年最确定的结构性变化：独立 audio-LLM 正在被全模态模型吸收。Qwen2.5-Omni [23] 的 <strong>Thinker-Talker</strong> 架构是代表：Thinker 是负责文本与理解的大模型，Talker 是双轨自回归语音头，直接消费 Thinker 的隐表示流式产出音频 token，二者端到端联合训练——设计上刻意解耦以避免文本与语音生成的相互干扰，并配 TMRoPE（时间对齐多模态 RoPE）处理音视频交错输入。Qwen3-Omni [25] 进一步 MoE 化并扩展多语言流式对话。Step-Audio [22]（130B 级）与 Kimi-Audio [24]（1300 万小时音频预训练）则展示了中国团队在"音频原生基础模型"上的规模化投入。<strong>"speech 只是 omni 的一种模态"已成为主流认知</strong>——这对语音研究者是双刃剑：基础设施问题（codec、流式、对齐）仍有独立价值，但纯架构创新越来越需要放在全模态语境下讲。</p>
+<h3 id="53-tts">5.3 TTS 的流式化与生产化</h3>
+<p>CosyVoice 2 [21] 代表 LLM-based TTS 从学术 demo 走向生产的关键一跃：用 finite-scalar quantization（FSQ）替代 RVQ 提升码本利用率；text-speech LM 直接以预训练 LLM 为主干；<strong>chunk-aware 因果流匹配</strong>让单一模型同时支持流式与非流式合成——按块生成 mel 谱、首包延迟压到 200 ms 级，同时流式模式质量"几乎无损"。VALL-E 2 [13] 的 Grouped Code Modeling 则从纯 AR 侧缩短序列。两条路线（LM 全 token vs LM+flow matching 混合）的竞争在 2026 年仍未分出胜负：前者优雅统一，后者工程实用、音质上限高。</p>
+<h3 id="54-codec">5.4 Codec 的语义化、低帧率化与统一化</h3>
+<p>codec 设计的三个明确趋势：(1) <strong>语义蒸馏进第 1 层</strong>已成标配（SpeechTokenizer、Mimi、CosyVoice 的监督式 token）；(2) <strong>低帧率</strong>——从 75 Hz（EnCodec）到 25/12.5 Hz（Mimi 及后续），每帧信息密度更高、序列更短，直接利好 LM 建模与延迟；(3) <strong>统一词表</strong>——AudioPaLM [9] 开创的"文本 token 与音频 token 共享词表联合训练"被更多 omni 模型采纳，目标是消除模态词表鸿沟。一个开放张力是：codec 越语义化越利理解与生成一致性，但重建保真与音色保留越受损——semantic 与 acoustic 的"单流统一"是否可能，是 2026 年的核心问题之一。</p>
+<h3 id="55">5.5 评测体系成型与可信性议题</h3>
+<p>2025 年后领域从"能做"进入"可信地评估"阶段：LALM 评测综述 [29] 系统整理了理解/生成/推理/安全四类能力分类学与基准全景（AIR-Bench、VoiceBench 等）；2026 年最新综述 [31] 把重心转向<strong>泛化性与可信性</strong>——幻觉（语音中不存在的声源被"听"出来）、鲁棒性（噪声、口音）、安全（声音克隆滥用、deepfake 检测、音频注入攻击）。全双工对话的评测仍是方法论荒原：延迟好测，"对话自然度""打断得体性"缺乏共识指标，多依赖人工评测，成本高且难复现。</p>
+<h2 id="6">6. 技术路线对比与权衡</h2>
+<h3 id="61">6.1 三组根本分野</h3>
+<p><strong>分野一：连续表征 vs 离散 token（"音频如何进 LLM"）。</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>连续表征（Whisper/wav2vec2 编码器 + projector）</th>
+<th>离散 token（RVQ codec）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>信息保真</td>
+<td>高（无量化损失，但经 ASR 训练的编码器偏语义）</td>
+<td>有量化损失，码率可调</td>
+</tr>
+<tr>
+<td>序列长度</td>
+<td>25–50 Hz 下仍偏长，需下采样</td>
+<td>帧率×层数，更膨胀，需 flattening</td>
+</tr>
+<tr>
+<td>与 LLM 兼容</td>
+<td>需 adapter 映射到词嵌入空间</td>
+<td>原生兼容（扩词表即可），可统一词表</td>
+</tr>
+<tr>
+<td>支持生成</td>
+<td>不能直接出声音（需外接解码器/声码器）</td>
+<td>对称：既能进也能出，speech-in speech-out 闭环</td>
+</tr>
+<tr>
+<td>语义对齐</td>
+<td>Whisper 系强（ASR 监督）</td>
+<td>原始 code 弱，语义蒸馏后可改善</td>
+</tr>
+<tr>
+<td>代表</td>
+<td>Qwen2-Audio、SALMONN</td>
+<td>Moshi、VALL-E、AudioLM</td>
+</tr>
+</tbody>
+</table>
+<p>经验结论：<strong>理解侧连续表征占优</strong>（信息无损、训练简单），<strong>生成与全双工侧离散 token 占优</strong>（输出对称、可流式）。Omni 模型（Qwen2.5-Omni、Moshi）的实际选择是理解用连续编码、生成用 codec token——混合架构是当前共识解。</p>
+<p><strong>分野二：cascade vs end-to-end（语音对话系统组织方式）。</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>级联（ASR→LLM→TTS）</th>
+<th>端到端 speech-to-speech</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>延迟</td>
+<td>秒级（各段串联）</td>
+<td>200 ms 级（Moshi 实测）</td>
+</tr>
+<tr>
+<td>副语言信息</td>
+<td>在 ASR 处丢失（情绪、语气不可恢复）</td>
+<td>端到端保留并可生成</td>
+</tr>
+<tr>
+<td>语言能力</td>
+<td>继承最强文本 LLM</td>
+<td>受限于 backbone 规模与语音训练数据</td>
+</tr>
+<tr>
+<td>工程复杂度</td>
+<td>模块成熟、易拼装调试</td>
+<td>训练数据（对齐多流对话）极难构建</td>
+</tr>
+<tr>
+<td>可控性</td>
+<td>每段可独立替换、审计</td>
+<td>黑箱，安全对齐更难</td>
+</tr>
+<tr>
+<td>代表</td>
+<td>传统语音助手、多数语音 Agent 产品</td>
+<td>GPT-4o voice、Moshi、GLM-4-Voice</td>
+</tr>
+</tbody>
+</table>
+<p>短期看级联仍是多数产品（尤其 Agent 场景）的务实选择——语言能力即正义；端到端是体验天花板，GPT-4o 与 Moshi 证明可行后差距会收窄。</p>
+<p><strong>分野三：semantic token vs acoustic token（语音离散化的信息取向）。</strong> semantic token（HuBERT k-means、监督 ASR token）与文本强对齐、序列短、利于 LM 建模"说什么"，但丢音色丢细节、不可直接高保真重建；acoustic token（EnCodec RVQ）保真完备、可重建任意声音，但语义对齐弱、序列长。SpeechTokenizer/Mimi 的"第 1 层语义化"与 AudioLM 的"semantic 先生成、acoustic 后补全"是调和二者的两大范式；CosyVoice 的监督式 token + flow matching 则干脆让 LM 只管语义、声学交给连续生成。这一分野至今没有终极答案，是编解码器研究的活水。</p>
+<h3 id="62-flattening">6.2 flattening 模式横向对比</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>代表</th>
+<th>序列长度（每帧）</th>
+<th>并行度</th>
+<th>流式能力</th>
+<th>音质-延迟权衡</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>层级两阶段</td>
+<td>AudioLM</td>
+<td>1（semantic）+ $N_q$（acoustic）</td>
+<td>阶段内 AR</td>
+<td>弱</td>
+<td>质量高、管线长</td>
+</tr>
+<tr>
+<td>AR+NAR</td>
+<td>VALL-E</td>
+<td>AR 1 + NAR 并行</td>
+<td>NAR 层帧内并行</td>
+<td>弱（两段）</td>
+<td>AR 短序列降延迟近 $N_q$ 倍</td>
+</tr>
+<tr>
+<td>分组 codec</td>
+<td>VALL-E 2</td>
+<td>组数（&lt; $N_q$）</td>
+<td>组内并行</td>
+<td>中</td>
+<td>进一步压缩</td>
+</tr>
+<tr>
+<td>延迟交错多流</td>
+<td>MusicGen、Moshi</td>
+<td>$N_q$ 并行（delay pattern）</td>
+<td>全并行</td>
+<td><strong>强（天然流式）</strong></td>
+<td>浅层依赖换实时性</td>
+</tr>
+<tr>
+<td>LM + flow matching</td>
+<td>CosyVoice 2</td>
+<td>1（semantic token）</td>
+<td>流匹配分块并行</td>
+<td>强（chunk 流式）</td>
+<td>工程最优，音质上限高</td>
+</tr>
+</tbody>
+</table>
+<p>一句话总结：<strong>生成模式的选择 = 在"层间依赖的忠实度"与"序列长度/延迟"之间选点</strong>，而 RVQ 残差结构给出的先验（低层重要、高层细节）是所有方案的共同支点。</p>
+<h2 id="7">7. 开放问题与未来方向</h2>
+<ol>
+<li><strong>全双工的"对话智能"</strong>：现有模型解决的是延迟与重叠的物理层问题，对话的社交智能——何时抢话、backchannel 的语义、多人会话的话轮管理——几乎没有被建模。这需要数据（真实对话而非合成）与评测（社会性指标）的双重突破。</li>
+<li><strong>semantic-acoustic 统一 token</strong>：能否设计单一离散空间同时满足文本级语义对齐与透明级重建？FSQ、多码本联合蒸馏、对比正则都是候选工具；成功将同时简化理解、生成与统一词表三条线。</li>
+<li><strong>音频 token 的效率</strong>：codec token 序列比文本长 1–2 个数量级（一分钟音频在 12.5 Hz×8 层下是 6000 token），长音频理解（播客、会议）与长音乐生成受困于此。token 去重、层级 pooling、稀疏化是活跃方向。</li>
+<li><strong>端到端与文本能力的差距</strong>：speech-to-speech 模型的语言智能普遍落后同代文本 LLM 一至两年。Inner Monologue 证明文本可作"认知支架"，但如何在全语音训练中不牺牲文本推理能力（灾难性遗忘），是 omni 模型的核心训练难题。</li>
+<li><strong>评测科学</strong>：全双工自然度、副语言保真度、音频指令遵循的自动指标缺位；人类评测（MUSHRA）昂贵不可复现。LALM 评测体系 [29] 刚起步，谁建立标准谁定义领域。</li>
+<li><strong>安全与可信</strong>：零样本声音克隆的滥用已是现实威胁；audio LLM 的幻觉（虚构声源）、对抗性音频注入、生成语音水印与溯源，在 2026 年综述 [31] 中被列为首要议题。生成能力与安全机制（水印、检测、授权克隆）需要协同设计而非事后补丁。</li>
+<li><strong>低资源与多语言</strong>：Whisper 式弱监督对低资源语言增益有限；多语言 codec 的音素覆盖、跨语言声音克隆的身份一致性，仍有大片空白。</li>
+</ol>
+<h2 id="8">8. 研究机会点评（给入门研究者的建议）</h2>
+<p><strong>算力门槛适中、问题清晰、有顶会潜力的方向：</strong></p>
+<ul>
+<li><strong>Codec 改进（★推荐）</strong>：单张消费级 GPU 即可训练 16/24 kHz 语音 codec。具体切入口：FSQ vs RVQ 的系统比较、语义蒸馏策略、低帧率（12.5 Hz 以下）高保真、音乐专用 codec。评测客观（重建指标+小规模听测），失败成本低，是整个生态的"卖水"生意。</li>
+<li><strong>全双工微创新（★推荐）</strong>：基于开源 Moshi 做 backchannel 建模、打断策略、情感控制的增量工作；Freeze-Omni 路线使冻结主干的小数据实验可行。关键是找到可量化的对话级指标（这本身可以是论文）。</li>
+<li><strong>音频 LLM 评测与幻觉分析（★推荐，低算力）</strong>：用开源模型（Qwen2-Audio、SALMONN、Kimi-Audio）系统性研究音频幻觉、噪声鲁棒、跨语言指令遵循，构造诊断性基准。2025–2026 评测窗口期，bench 类工作引用率高。</li>
+<li><strong>Flattening/生成模式消融（中等算力）</strong>：在统一codec与数据上系统对比 §6.2 的五种模式（质量/延迟/RTF），这类"把设计空间扫干净"的实证工作稀缺且有用。</li>
+</ul>
+<p><strong>坦诚说明是巨头游戏的方向：</strong> 大规模 speech-to-speech 预训练（Moshi 级需数百 GPU×月）、omni 旗舰（Qwen3-Omni、GPT-4o 级）、1300 万小时级数据工程（Kimi-Audio）。学术界应避免正面拼规模，转而做巨头无暇顾及的：评测方法、安全机制、低资源语言、以及"用小模型验证大假设"的科学问题。Whisper 与 Moshi 的历史共同表明：这个领域的里程碑一半来自规模，另一半来自把对的抽象（RVQ、多流、Inner Monologue）做干净——后者不挑出身。</p>
+<h2 id="9">9. 术语表</h2>
+<ul>
+<li><strong>ASR</strong>（自动语音识别）：把语音转写为文本的系统，核心指标 WER（词错误率）。</li>
+<li><strong>log-mel 谱图</strong>：对 STFT 频谱按 mel 频率刻度压缩、取对数得到的时频表示，神经音频模型的标准输入。</li>
+<li><strong>WER</strong>（Word Error Rate）：编辑距离/词数，ASR 标准指标，越低越好。</li>
+<li><strong>自监督预训练</strong>：用无标注数据设计代理任务（对比、掩码预测）学习通用表征。</li>
+<li><strong>wav2vec 2.0</strong>：对比式语音自监督模型，量化目标与模型联合学习。</li>
+<li><strong>HuBERT</strong>：掩码预测式语音自监督模型，预测离线 k-means 聚类标签；semantic token 的源头。</li>
+<li><strong>semantic token（语义 token）</strong>：与语言内容（音素/文本）对齐的离散语音单元，来自自监督模型的特征聚类或 ASR 监督。</li>
+<li><strong>acoustic token（声学 token）</strong>：神经 codec 量化得到的保真导向离散码，可高保真重建波形。</li>
+<li><strong>VQ（矢量量化）</strong>：用码本最近邻码字替换连续向量的离散化操作。</li>
+<li><strong>RVQ（残差矢量量化）</strong>：多层量化器逐层量化残差，容量随层数乘法增长；codec token 的核心机制。</li>
+<li><strong>FSQ</strong>（finite-scalar quantization）：无码本的标量量化替代方案，码本利用率高。</li>
+<li><strong>neural audio codec（神经音频编解码器）</strong>：端到端学习的音频压缩器（编码器+量化+解码器），如 SoundStream/EnCodec/Mimi。</li>
+<li><strong>码率（bitrate）</strong>：每秒比特数；codec 的核心权衡轴（3–24 kbps 神经 codec vs 384 kbps 原始 PCM）。</li>
+<li><strong>codec LM</strong>：在 codec token 上做语言建模的生成范式（VALL-E、AudioLM）。</li>
+<li><strong>flattening（展平）模式</strong>：把二维（时间×量化层）token 序列组织为一维生成顺序的策略空间。</li>
+<li><strong>NAR（非自回归）</strong>：并行预测多个位置的解码方式，牺牲依赖换速度。</li>
+<li><strong>cascade（级联）</strong>：ASR→LLM→TTS 的多组件语音对话管线。</li>
+<li><strong>end-to-end speech-to-speech</strong>：不经文本中间表示、直接语音进语音出的对话建模。</li>
+<li><strong>全双工（full-duplex）</strong>：双方可同时听说（如电话），相对半双工回合制；要求模型处理重叠与打断。</li>
+<li><strong>barge-in（打断）</strong>：用户在机器说话时插话，全双工系统的标志性场景。</li>
+<li><strong>backchannel</strong>：倾听者的简短反馈（"嗯""对"），对话自然度的关键细节。</li>
+<li><strong>Inner Monologue</strong>：Moshi 的方法，生成音频 token 前先出时间对齐文本 token，兼顾语言质量与流式字幕。</li>
+<li><strong>Thinker-Talker</strong>：Qwen2.5-Omni 的架构，理解/文本（Thinker）与语音生成（Talker）双模型解耦。</li>
+<li><strong>flow matching（流匹配）</strong>：连续空间的生成建模方法，学习从噪声到数据的向量场；CosyVoice 用它做 token→mel 谱。</li>
+<li><strong>MUSHRA</strong>：带隐藏参考的多刺激主观听测标准，codec/TTS 质量的黄金评测。</li>
+<li><strong>零样本声音克隆</strong>：仅凭几秒参考音频合成陌生说话人的语音，无需微调。</li>
+<li><strong>audio-LLM / LALM</strong>：以 LLM 为核心、具备音频输入（或输出）能力的多模态模型。</li>
+</ul>
+<h2 id="10">10. 参考文献</h2>
+<p>[1] wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations, Baevski et al. (Meta), 2020, arXiv:2006.11477, https://arxiv.org/abs/2006.11477
+[2] HuBERT: Self-Supervised Speech Representation Learning by Masked Prediction of Hidden Units, Hsu et al. (Meta), 2021, arXiv:2106.07447, https://arxiv.org/abs/2106.07447
+[3] SoundStream: An End-to-End Neural Audio Codec, Zeghidour et al. (Google), 2021, arXiv:2107.03312, https://arxiv.org/abs/2107.03312
+[4] Robust Speech Recognition via Large-Scale Weak Supervision (Whisper), Radford et al. (OpenAI), 2022, arXiv:2212.04356, https://arxiv.org/abs/2212.04356
+[5] High Fidelity Neural Audio Compression (EnCodec), Défossez et al. (Meta), 2022, arXiv:2210.13438, https://arxiv.org/abs/2210.13438
+[6] AudioLM: a Language Modeling Approach to Audio Generation, Borsos et al. (Google), 2022, arXiv:2209.03143, https://arxiv.org/abs/2209.03143
+[7] Neural Codec Language Models are Zero-Shot Text to Speech Synthesizers (VALL-E), Wang et al. (Microsoft), 2023, arXiv:2301.02111, https://arxiv.org/abs/2301.02111
+[8] MusicLM: Generating Music From Text, Agostinelli et al. (Google), 2023, arXiv:2301.11325, https://arxiv.org/abs/2301.11325
+[9] AudioPaLM: A Large Language Model That Can Speak and Listen, Rubenstein et al. (Google), 2023, arXiv:2306.12925, https://arxiv.org/abs/2306.12925
+[10] SpeechTokenizer: Unified Speech Tokenizer for Speech Large Language Models, Zhang et al., 2023, arXiv:2308.16692, https://arxiv.org/abs/2308.16692
+[11] SALMONN: Towards Generic Hearing Abilities for Large Language Models, Tang et al. (ByteDance &amp; THU), 2023, arXiv:2310.13289, https://arxiv.org/abs/2310.13289
+[12] Qwen-Audio: Advancing Universal Audio Understanding via Unified Large-Scale Audio-Language Models, Chu et al. (Alibaba), 2023, arXiv:2311.07919, https://arxiv.org/abs/2311.07919
+[13] VALL-E 2: Neural Codec Language Models are Human Parity Zero-Shot Text to Speech Synthesizers, Chen et al. (Microsoft), 2024, arXiv:2406.05370, https://arxiv.org/abs/2406.05370
+[14] CosyVoice: A Scalable Multilingual Zero-shot Text-to-speech Synthesizer based on Supervised Semantic Tokens, Du et al. (Alibaba), 2024, arXiv:2407.05407, https://arxiv.org/abs/2407.05407
+[15] Qwen2-Audio Technical Report, Chu et al. (Alibaba), 2024, arXiv:2407.10759, https://arxiv.org/abs/2407.10759
+[16] Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming, Xie &amp; Wu (Tsinghua), 2024, arXiv:2408.16725, https://arxiv.org/abs/2408.16725
+[17] LLaMA-Omni: Seamless Speech Interaction with Large Language Models, Fang et al. (CAS), 2024, arXiv:2409.06666, https://arxiv.org/abs/2409.06666
+[18] Moshi: a speech-text foundation model for real-time dialogue, Défossez et al. (Kyutai), 2024, arXiv:2410.00037, https://arxiv.org/abs/2410.00037
+[19] GPT-4o System Card, OpenAI, 2024, arXiv:2410.21276, https://arxiv.org/abs/2410.21276 [官方发布/技术报告]
+[20] Freeze-Omni: A Smart and Low Latency Speech-to-speech Dialogue Model with Frozen LLM, Wang et al. (Vivo &amp; NJU), 2024, arXiv:2411.00774, https://arxiv.org/abs/2411.00774
+[21] CosyVoice 2: Scalable Streaming Speech Synthesis with Large Language Models, Du et al. (Alibaba), 2024, arXiv:2412.10117, https://arxiv.org/abs/2412.10117
+[22] Step-Audio: Unified Understanding and Generation in Intelligent Speech Interaction, Huang et al. (StepFun), 2025, arXiv:2502.11946, https://arxiv.org/abs/2502.11946
+[23] Qwen2.5-Omni Technical Report, Xu et al. (Alibaba), 2025, arXiv:2503.20215, https://arxiv.org/abs/2503.20215
+[24] Kimi-Audio Technical Report, Kimi Team (Moonshot AI), 2025, arXiv:2504.18425, https://arxiv.org/abs/2504.18425
+[25] Qwen3-Omni Technical Report, Xu et al. (Alibaba), 2025, arXiv:2509.17765, https://arxiv.org/abs/2509.17765
+[26] Recent Advances in Speech Language Models: A Survey, Cui et al., 2024, arXiv:2410.03751, https://arxiv.org/abs/2410.03751
+[27] A Survey on Speech Large Language Models for Understanding, Wu et al., 2024, arXiv:2410.18908, https://arxiv.org/abs/2410.18908
+[28] On The Landscape of Spoken Language Models: A Comprehensive Survey, 2025, arXiv:2504.08528, https://arxiv.org/abs/2504.08528
+[29] Towards Holistic Evaluation of Large Audio-Language Models: A Comprehensive Survey, 2025, arXiv:2505.15957, https://arxiv.org/abs/2505.15957
+[30] From Turn-Taking to Synchronous Dialogue: A Survey of Full-Duplex Spoken Language Models, 2025, arXiv:2509.14515, https://arxiv.org/abs/2509.14515
+[31] A Survey of Large Audio Language Models: Generalization, Trustworthiness, and Outlook, 2026, arXiv:2605.20266, https://arxiv.org/abs/2605.20266</p>
+</article>
+<footer class="footer"><span>多模态图谱 · 由 Codex + sub-agent swarm 于 2026-09 调研撰写</span><a href="#top">回到顶部 ↑</a></footer>
+</main>
+</div>
+<div class="reading-bar" id="reading-bar"></div>
+<script src="../../js/site.js"></script>
+</body>
+</html>

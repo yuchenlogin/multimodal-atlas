@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>任意到任意：全模态（Omni）大模型 · 多模态图谱</title>
+<link rel="stylesheet" href="../../css/site.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="report-body">
+<nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<div class="layout">
+<aside class="sidenav" id="sidenav">
+<div class="sidenav-title">系列报告</div>
+<a class="sidenav-link" href="../00-foundations/index.html"><span class="sidenav-icon">🏛️</span><span>foundations · 基础架构</span></a>
+<a class="sidenav-link" href="../01-vision-language/index.html"><span class="sidenav-icon">👁️</span><span>vision-language · 视觉-语言</span></a>
+<a class="sidenav-link" href="../02-audio-speech/index.html"><span class="sidenav-icon">🎧</span><span>audio-speech · 音频语音</span></a>
+<a class="sidenav-link" href="../03-video/index.html"><span class="sidenav-icon">🎬</span><span>video · 视频理解</span></a>
+<a class="sidenav-link active" href="../04-omni/index.html"><span class="sidenav-icon">🌐</span><span>omni · 全模态</span></a>
+<a class="sidenav-link" href="../05-generation/index.html"><span class="sidenav-icon">🎨</span><span>generation · 多模态生成</span></a>
+<a class="sidenav-link" href="../06-embodied/index.html"><span class="sidenav-icon">🤖</span><span>embodied · 具身智能</span></a>
+<a class="sidenav-link" href="../07-agent-tooluse/index.html"><span class="sidenav-icon">🧭</span><span>agent-tooluse · 多模态 Agent</span></a>
+<a class="sidenav-link" href="../08-efficiency/index.html"><span class="sidenav-icon">⚡</span><span>efficiency · 高效化</span></a>
+<a class="sidenav-link" href="../09-alignment-safety/index.html"><span class="sidenav-icon">🛡️</span><span>alignment-safety · 对齐与安全</span></a>
+<a class="sidenav-link" href="../10-benchmarks-eval/index.html"><span class="sidenav-icon">📏</span><span>benchmarks-eval · 评测方法</span></a>
+<a class="sidenav-link" href="../11-data-training/index.html"><span class="sidenav-icon">🧪</span><span>data-training · 数据与训练</span></a>
+<a class="sidenav-link" href="../12-frontier/index.html"><span class="sidenav-icon">🔭</span><span>frontier · 前沿专题</span></a>
+<div class="sidenav-title" style="margin-top:1.2rem">更多</div>
+<a class="sidenav-link" href="../../paper/index.html">📄 顶会风格论文</a>
+<a class="sidenav-link" href="../../index.html#about">ℹ️ 关于本站</a>
+</aside>
+<main class="content">
+<header class="report-header"><div class="report-kicker">🌐 专题 04 · 全模态</div><h1>任意到任意：全模态（Omni）大模型</h1><div class="report-sub">Chameleon、Thinker-Talker、端到端全双工</div>
+<div class="report-actions"><a class="btn" href="../../assets/04-omni.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+</header>
+<article class="report-content" id="article">
+<blockquote>
+<p>副标题：从"看得懂图、听得懂话"到"看听说写一体"——任意模态输入到任意模态输出的统一建模范式
+版本日期：2026-09-29 | 面向读者：有深度学习基础的多模态初学者</p>
+</blockquote>
+<h2 id="_1">摘要</h2>
+<p>全模态（Omni-modal）大模型，又称任意到任意（any-to-any）模型，旨在用单一神经网络同时接受文本、图像、音频、视频等任意组合的输入，并生成任意组合的输出。这一方向在 2024 年 GPT-4o 发布后被推向舞台中央：语音端到端对话延迟被压缩到数百毫秒量级，接近人类对话的反应速度，多模态模型第一次以"可交谈"而非"可查询"的形态进入大众视野。本报告面向具有深度学习基础的读者，系统梳理 omni 模型的概念脉络与技术谱系：从 Unified-IO 2 用统一 token 空间打通图文音与机器人动作的早期尝试，到 Chameleon 的早期融合（early-fusion）混合模态基座、AnyGPT 的纯离散序列建模范式，再到 Qwen2.5-Omni/Qwen3-Omni 提出的 Thinker-Talker 解耦架构与 MiniCPM-o 4.5 的端侧实时全双工交互。我们重点讨论三组贯穿始终的技术争论——离散 token 化与连续表征之争、早期融合与晚期融合之争、流水线与端到端之争——并深入剖析五篇代表作。报告同时覆盖实时交互与全双工（full-duplex）对话的系统挑战、omni 评测的结构性困境，并为入门研究者指出算力门槛适中的研究机会。2026 年的图景是：开源模型已在多数可测能力上逼近闭源标杆，竞争的焦点正从"能力覆盖"转向"交互范式本身"。</p>
+<h2 id="1">1. 引言：本方向在多模态版图中的位置</h2>
+<p>多模态大模型的发展可以粗略地看作一个不断"开疆拓土"的过程。第一代模型（CLIP、BLIP 系）解决了"看图理解"的对齐问题；第二代视觉-语言模型（LLaVA、Qwen-VL 系）把视觉编码器嫁接到大语言模型（Large Language Model, LLM）上，实现了"看图对话"；随后音频、视频模态相继接入。然而，这条扩张路线存在一个隐含的不对称：<strong>模型一直在学习"理解世界"，却很少学习"用世界的语言表达"</strong>——绝大多数多模态模型的输出只有文字。</p>
+<p>全模态（Omni）模型要打破的正是这种不对称。所谓 any-to-any，是指模型接受任意模态组合作为输入（文本、图像、音频、视频），并产生任意模态组合作为输出（文本、语音、图像）。其终极形态可以用一张"中心-辐条"（hub-and-spoke）图来概括：语言作为认知的枢纽（hub），各模态作为感知与表达的辐条（spoke），信息流可以在任意辐条之间穿越枢纽。</p>
+<p><img alt="全模态模型的 hub-spoke 结构：语言作为枢纽，各模态作为辐条" src="../assets/fig_omni_modalities.png" /></p>
+<p><strong>先修概念</strong>。阅读本报告之前，读者应当熟悉：Transformer 与自回归（autoregressive, AR）语言建模的基本原理；视觉-语言模型的连接器（connector）范式（如 Q-Former、MLP 投影）；向量量化（vector quantization, VQ）与 VQ-VAE 的基本思想。如果对这些概念感到陌生，建议先阅读本系列报告的视觉-语言篇。全文的阅读顺序可以按目标裁剪：想快速建立领域全貌的读者可按"摘要 → 第 3 章谱系 → 第 6 章对比表"的捷径走；准备动手做研究的读者则应精读第 4 章的六篇剖析与第 7、8 章的问题清单；第 2 章是为后续所有讨论准备的概念工具箱，遇到不熟悉的术语可随时回查第 9 章术语表。</p>
+<p><strong>本方向的核心问题</strong>。omni 模型面对的核心问题可以归纳为四个（它们将分别贯穿第 2、4、5、7 章的讨论）：</p>
+<ol>
+<li><strong>表征统一</strong>：如何把统计性质迥异的模态（离散的文字、连续的像素与波形）放进同一个模型的同一套计算里？</li>
+<li><strong>架构组织</strong>：各模态应该在多早的层次融合？理解模块与生成模块应该共享还是一个解耦？</li>
+<li><strong>能力保持</strong>：新增模态会不会稀释原有的语言智能（所谓"跷跷板效应"，seesaw effect）？如何避免灾难性遗忘（catastrophic forgetting）？</li>
+<li><strong>交互实时性</strong>：当输入输出都是流式的音视频时，如何做到接近人类的响应速度与双向同时交互（全双工）？</li>
+</ol>
+<p><strong>为什么是现在</strong>。omni 在 2024 年后爆发，是三股力量同时到位的结果。其一是<strong>基础件的成熟</strong>：高质量图像 tokenizer、神经音频 codec、以及足够强的开源 LLM 主干，在 2023 年底首次全部以可复用组件的形态存在，omni 从"什么都要自己造"变为"可以做系统集成"。其二是<strong>需求的显形</strong>：移动与可穿戴设备上的语音交互是千亿次量级的真实场景，而级联管线的延迟与僵硬已被用户投票否决，市场为"自然对话体验"开出了明确的溢价。其三是<strong>叙事的牵引</strong>：GPT-4o 的发布把"her 式交互"从科幻设定变成可演示的产品，为整个方向定下了体验锚点——此后每篇开源论文的摘要几乎都要回答"距离 GPT-4o 还有多远"。理解这三股力量，才能理解为什么这个方向的论文读起来一半是机器学习、一半是系统工程。</p>
+<p><strong>与其他方向的关系</strong>。omni 是多模态版图中集成度最高的方向：它向下依赖视觉-语言模型（视觉理解）、语音模型（音频编解码）、统一生成模型（图像合成）三个方向的积累；向上则为具身智能（机器人需要同时看、听、说、动）与智能体（agent）系统提供感知-表达底座。可以说，omni 模型是"多模态理解的终点"与"自然交互的起点"的交汇。这种枢纽位置也意味着阅读本报告的一个副产品：omni 方向的架构争论（融合时机、离散与连续、解耦与一体）在多模态的所有其他子方向中都会以更简单的形式重现一次，把这里的分析框架带走，等于带走了半个领域的分析框架。</p>
+<h2 id="2">2. 基础知识</h2>
+<p>omni 模型建立在四块知识地基之上：把一切模态变成序列的<strong>统一 token 化</strong>思想、沿用自视觉-语言模型的<strong>连续编码器 + 连接器</strong>范式、决定计算共享程度的<strong>融合时机</strong>选择，以及决定输出形态的<strong>生成范式</strong>（自回归 vs 扩散）取舍。这四块地基之上，还要加上 omni 特有的第五块——<strong>流式处理与全双工</strong>的系统概念，它决定了模型能否从"离线处理器"变成"实时对话者"。本节逐一展开，每块地基都从"它要解决什么痛"讲起。</p>
+<h3 id="21-token">2.1 统一序列建模：把一切变成 token</h3>
+<p>自回归语言建模的核心思想异常简单：给定前文 $x_{&lt;t}$，预测下一个 token 的概率 $p(x_t \mid x_{&lt;t})$，整个序列的联合概率分解为</p>
+<p>$$p(x_1, \dots, x_T) = \prod_{t=1}^{T} p(x_t \mid x_{&lt;t}).$$</p>
+<p>文本天然是离散的 token 序列，因此这一范式与文本无缝契合。omni 模型的第一条技术路线——<strong>统一 token 化（unified tokenization）</strong>——就是把图像、音频也变成离散 token 序列，然后"一视同仁"地用同一个 Transformer 做自回归预测。</p>
+<p>图像的离散化依赖<strong>图像 tokenizer</strong>：先训练一个编码器-解码器对 $(E, D)$，编码器把图像 $I$ 压缩为离散码本索引序列 $z = E(I) \in {1,\dots,K}^{n}$，解码器从中重建 $\hat{I} = D(z)$。训练目标通常包含重建损失与码本承诺损失（commitment loss）。一旦 tokenizer 训练完成，"生成图像"就等价于"自回归地生成 $z$，再交给 $D$ 解码"。音频侧则使用<strong>神经音频编解码器</strong>（neural audio codec，如 EnCodec、SoundStream 一脉）：用残差向量量化（residual VQ, RVQ）把波形压缩成多层离散 codebook token，码率约每秒数十帧，每层 $K$ 个码。</p>
+<p>这条路线的优雅之处在于：<strong>多模态建模被归约为数据预处理问题</strong>。AnyGPT 的概括最为直白——接入一种新模态如同教模型一门"新语言"，LLM 架构与训练范式完全不用改。代价同样直白：tokenizer 是有损压缩，重建质量构成生成质量的天花板；且离散化会丢失对理解任务重要的细粒度信息（如文字、纹理）。</p>
+<h3 id="22">2.2 连续表征路线：编码器 + 连接器</h3>
+<p>第二条路线沿用视觉-语言模型的成熟做法：每种模态配备一个预训练连续编码器（如 ViT、Whisper 式音频编码器），其输出经连接器（线性投影、cross-attention 或重采样器）映射到 LLM 的词嵌入空间，作为"软 token"参与注意力计算。形式化地，对模态 $m$ 的输入 $X_m$，LLM 看到的序列是</p>
+<p>$$[\,\dots, \phi_m(E_m(X_m)), \dots\,],$$</p>
+<p>其中 $E_m$ 为模态编码器，$\phi_m$ 为连接器。这条路线下，"输入侧"是连续的，"输出侧"则外挂专用生成器（扩散模型、flow-matching 解码器或 codec 自回归头）。GPT-4o 之外的多数工业与开源 omni 系统（Qwen2.5-Omni、MiniCPM-o、VITA）均属此类。</p>
+<p><img alt="三种多模态架构范式对比：连接器式、cross-attention 式与早期融合式" src="../assets/fig_vlm_arch_taxonomy.png" /></p>
+<h3 id="23-early-fusion-vs-late-fusion">2.3 融合时机：early fusion vs. late fusion</h3>
+<p><strong>融合策略</strong>回答"各模态在多早的层次开始共享计算"：</p>
+<ul>
+<li><strong>早期融合（early fusion）</strong>：所有模态 token 化后拼接为一条序列，从第一层起就由同一个 Transformer 处理。代表：Chameleon、AnyGPT、Unified-IO 2。优点是跨模态交互最充分、原则上可以生成任意交错的混合模态内容；缺点是需要从头预训练、不同模态的优化动态互相干扰，训练稳定性是头号难题。</li>
+<li><strong>晚期融合（late fusion）</strong>：各模态有独立编码器，仅在 LLM 内部（较深层）交汇。代表：Qwen2.5-Omni、MiniCPM-o 系列。优点是可以复用成熟的单模态预训练权重，工程可控；缺点是跨模态对齐依赖连接器质量，且生成通常只能"一种模态接一种模态"地输出。</li>
+<li><strong>混合融合（hybrid）</strong>：输入侧晚期融合、输出侧统一，或语义级与像素级 token 并用（如 SEED-X 的多粒度 tokenizer）。</li>
+</ul>
+<h3 id="24">2.4 自回归与扩散：两种生成范式</h3>
+<p>输出侧的另一个选择是生成范式。<strong>自回归（AR）</strong>逐 token 预测，天然契合 LLM，但图像生成质量历史上弱于扩散模型，且逐 token 解码慢；<strong>扩散（diffusion）/ flow-matching</strong> 通过迭代去噪生成连续信号（图像 latent、语音 mel 谱），质量高、可并行，但与 LLM 的 AR 骨架异质，需要"嫁接"。2024–2026 年的实践收敛出一个折中：理解侧用 AR-LLM，语音/图像的<strong>解码头</strong>（detokenizer）用轻量扩散或 flow-matching——Qwen2.5-Omni 的 sliding-window DiT 语音解码器、Ming-Omni 的扩散式音视频生成头均是如此。2025 年后又出现了第三次回摆：Qwen3-Omni 用多码本 codec token 配合轻量因果卷积网络替代扩散，换取更低的首包延迟；GPT-4o 的原生图像生成则证明了 AR 图像生成可以做到第一流质量。范式之争远未终结。</p>
+<h3 id="25">2.5 流式处理与全双工</h3>
+<p>传统语音对话是<strong>回合制</strong>（turn-based）：用户说完 → ASR 转写 → LLM 生成 → TTS 合成，级联误差与延迟层层叠加。先算一笔延迟账：ASR 需要等用户说完并积累数百毫秒的语音上下文才能给出稳定转写，LLM 生成首个 token 需要一次完整前向，TTS 又要等一句文本成形才能开始合成——三个串行环节各自引入数百毫秒，总延迟轻易超过一秒，而人类对话的自然反应间隙约为 200–300 毫秒。更隐蔽的代价是<strong>信息流失</strong>：ASR 把语气、停顿、情感全部转写成了标点都没有的纯文本，TTS 再凭猜测把它们加回去，一来一回，副语言信息经历了两次有损变换。端到端 omni 语音模型把这一链条压缩为单模型，GPT-4o 报告其语音响应最快 232 毫秒、平均 320 毫秒，进入人类对话反应时间的区间。</p>
+<p><strong>全双工（full-duplex）</strong>更进一步：模型在说话的同时持续聆听，允许被打断、允许主动插话。这要求感知流与生成流在同一时间轴上并行推进，而非交替占用。其形式化挑战在于：AR 模型本质上是"读完再写"的串行过程，要支持双工，要么在时间轴上交错排列输入输出 token（MiniCPM-o 4.5 的 Omni-Flow），要么用多任务训练让模型自行学习"何时说、何时听"（Freeze-Omni），要么引入专门的双工控制通道（BayLing-Duplex 的单 LLM 方案）。这是 2025–2026 年 omni 方向最活跃的系统研究前沿。</p>
+<h2 id="3">3. 经典方法谱系</h2>
+<p>omni 方向的演化可以划分为三个阶段：<strong>统一 token 化探索期（2023）</strong>、<strong>端到端 omni 确立期（2024）</strong>、<strong>实时全双工竞争期（2025–2026）</strong>。</p>
+<p><strong>2023 年：统一 token 化的奠基</strong>。SEED-LLaMA 提出语义级离散图像 tokenizer（SEED），证明同一套图像 token 可以同时服务于理解与生成，打通了统一建模的第一块拼图。年底的 Unified-IO 2 把这一思想推到极致：图像、文本、音频乃至机器人动作全部被 token 化到共享语义空间，用单一 encoder-decoder Transformer 处理 35 个以上的基准任务，是首个名副其实的 any-to-any 自回归模型。同期的 CoDi-2 则展示了另一条路线——用 LLM 作为控制器编排多个模态生成器，实现交错的 any-to-any 输出。</p>
+<p><strong>2024 年：端到端 omni 的确立</strong>。AnyGPT（2 月）给出全离散序列建模的最简范式：speech/music/image/text 全部离散 token 化，不改 LLM 任何架构即可训练 any-to-any 模型，并合成了首个 10.8 万条多模态任意组合指令数据。Chameleon（5 月）代表 Meta 对早期融合路线的重注：图像 BPE 化后与文本混合训练，并贡献了 QK-norm 等一系列稳定性技巧。同月 GPT-4o 发布，以闭源姿态定义了 omni 体验的上限：单模型端到端处理音视频文本、320 毫秒平均语音延迟。开源社区随即跟进：VITA（8 月）率先实现视频-语音-文本同时输入与双工唤醒交互；Freeze-Omni（11 月）提出冻结 LLM 主干、外挂语音编解码模块的低成本路线；GLM-4-Voice（12 月）以离散语音 token 实现流式中英双工语音对话。</p>
+<p><strong>2025–2026 年：实时全双工竞争期</strong>。Qwen2.5-Omni（2025 年 3 月）提出 Thinker-Talker 架构与 TMRoPE 时间对齐位置编码，成为开源 omni 的工程蓝本；9 月的 Qwen3-Omni 升级为 MoE Thinker-Talker，宣称在 36 项音视频基准中 32 项达到开源 SOTA，且文本能力相对同规模单模态模型无退化。MiniCPM-o 4.5（2026 年 4 月）以 9B 参数实现端侧实时全双工，Omni-Flow 框架把回合制交互改造为时间轴对齐的全双工过程。工业侧，Gemini 2.5 家族与 Live API 提供原生音频对话与主动音频能力，代表闭源实时 omni 的标杆。</p>
+<p><strong>谱系背后的三次范式转移</strong>。把三年谱系连起来看，每一次阶段跃迁都对应一次"问题定义"的转移。2023 年的问题是<strong>表征问题</strong>——"图像和声音能不能变成 token"，答案由 SEED、Unified-IO 2 给出，是肯定的；2024 年的问题是<strong>架构问题</strong>——"统一模型怎么组织计算"，早期融合与晚期融合分道扬镳，端到端击败流水线；2025 年之后的问题是<strong>交互问题</strong>——"模型如何存在于时间之中"，延迟、双工、主动性成为新的度量衡。值得注意的是前两个阶段的问题并未被"解决"，而是被<strong>吸收</strong>：表征之争沉淀为"输入连续、输出离散"的非对称共识，架构之争沉淀为"解耦模块、端到端训练"的折中方案。omni 方向的成熟过程，就是把一个又一个开放争论转化为工程默认值的过程——这也正是第 6 章要系统展开的权衡图谱。</p>
+<h3 id="_2">关键论文一览表</h3>
+<table>
+<thead>
+<tr>
+<th>论文 / 系统</th>
+<th>年份</th>
+<th>核心思想</th>
+<th>架构要点</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEED-LLaMA [6]</td>
+<td>2023</td>
+<td>语义级离散图像 token</td>
+<td>SEED tokenizer + LLaMA</td>
+<td>理解-生成统一 token 化开端</td>
+</tr>
+<tr>
+<td>Unified-IO 2 [7]</td>
+<td>2023</td>
+<td>全模态统一 token 空间</td>
+<td>单 encoder-decoder，含 action</td>
+<td>首个含动作的 any-to-any</td>
+</tr>
+<tr>
+<td>CoDi-2 [8]</td>
+<td>2023</td>
+<td>LLM 编排多模态生成</td>
+<td>LLM + 各模态扩散解码器</td>
+<td>交错混合模态输出</td>
+</tr>
+<tr>
+<td>AnyGPT [9]</td>
+<td>2024</td>
+<td>全离散序列建模</td>
+<td>不改 LLM 架构，纯数据层适配</td>
+<td>108k any-to-any 指令数据</td>
+</tr>
+<tr>
+<td>Chameleon [12]</td>
+<td>2024</td>
+<td>早期融合混合模态基座</td>
+<td>图像 BPE token + QK-norm 稳定训练</td>
+<td>early-fusion 训练经验集大成</td>
+</tr>
+<tr>
+<td>GPT-4o [11]</td>
+<td>2024</td>
+<td>端到端原生 omni</td>
+<td>单 Transformer 处理音视频文本</td>
+<td>平均 320ms 语音延迟</td>
+</tr>
+<tr>
+<td>VITA [14]</td>
+<td>2024</td>
+<td>开源交互式 omni</td>
+<td>Mixtral 8x7B 底座 + 双工唤醒</td>
+<td>开源首个双工交互</td>
+</tr>
+<tr>
+<td>Freeze-Omni [17]</td>
+<td>2024</td>
+<td>冻结 LLM 的语音对话</td>
+<td>冻结主干 + 外挂 speech 编解码</td>
+<td>8 卡、6 万条 QA 即可训练</td>
+</tr>
+<tr>
+<td>GLM-4-Voice [18]</td>
+<td>2024</td>
+<td>端到端流式语音对话</td>
+<td>离散语音 token + streaming 生成</td>
+<td>中英双工</td>
+</tr>
+<tr>
+<td>Qwen2.5-Omni [23]</td>
+<td>2025</td>
+<td>Thinker-Talker 解耦</td>
+<td>TMRoPE + 双轨 AR Talker + DiT 解码</td>
+<td>开源 omni 工程蓝本</td>
+</tr>
+<tr>
+<td>Ming-Omni [24]</td>
+<td>2025</td>
+<td>专用 encoder + MoE</td>
+<td>扩散式 audio/image 生成头</td>
+<td>蚂蚁开源</td>
+</tr>
+<tr>
+<td>Gemini 2.5 [26]</td>
+<td>2025</td>
+<td>原生多模态 + 长上下文</td>
+<td>3 小时视频理解 + Live API</td>
+<td>闭源实时 omni 标杆</td>
+</tr>
+<tr>
+<td>Qwen3-Omni [27]</td>
+<td>2025</td>
+<td>MoE Thinker-Talker</td>
+<td>多码本 codec + 因果卷积解码</td>
+<td>234ms 理论首包延迟</td>
+</tr>
+<tr>
+<td>MiniCPM-o 4.5 [29]</td>
+<td>2026</td>
+<td>端侧实时全双工</td>
+<td>Omni-Flow 时间轴对齐</td>
+<td>9B，&lt;12GB 内存运行</td>
+</tr>
+<tr>
+<td>BayLing-Duplex [30]</td>
+<td>2026</td>
+<td>单 LLM 原生全双工</td>
+<td>无外挂对齐模块</td>
+<td>全双工架构极简化</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. 代表作深度剖析</h2>
+<p>本章选取六篇代表作，按"架构思想"而非时间顺序组织：Chameleon 与 AnyGPT 代表统一 token 化路线的一正一反两个样本；Qwen2.5-Omni 与 Qwen3-Omni 代表工业级晚期融合路线的主线；Freeze-Omni 与 MiniCPM-o 4.5 则分别代表"低改造成本"与"全双工交互"两个极端上的系统设计。每篇按统一框架剖析：研究问题、关键洞察、技术方法、实验结果、批判性分析。</p>
+<h3 id="41-chameleonmeta-202412">4.1 Chameleon：早期融合的训练稳定性教科书（Meta, 2024）[12]</h3>
+<p><strong>研究问题</strong>。晚期融合路线（视觉编码器 + LLM）已被证明行之有效，但它天然是"理解导向"的：图像只能作为输入被读取，无法作为输出被书写。Meta 的问题是——能否从头训练一个<strong>所有模态从第一层起就共享计算</strong>的混合模态基座，让模型在任意位置交错地理解和生成图像与文本？</p>
+<p><strong>关键洞察</strong>。Chameleon 的核心判断是：混合模态早期融合的主要障碍不是表征能力，而是<strong>优化稳定性</strong>。当图像 token 与文本 token 共享同一个 softmax 与同一套参数时，两类分布差异巨大的 token 在训练中相互干扰，损失在中后期频繁发散。谁解决了稳定训练，谁就解锁了早期融合。</p>
+<p><strong>技术方法</strong>。图像经一个基于 VQ 的图像 tokenizer 离散化为 1024 个 token（码本规模 8192），与文本 BPE token 拼接为单一序列，用标准 next-token prediction 从头训练，模型规模包括 7B 与 34B。真正的贡献在训练配方上：论文系统报告了早期融合特有的不稳定现象，并给出组合方案——<strong>QK-norm</strong>（对 query/key 做归一化以抑制注意力 logit 的恶性增长）、层归一化位置的调整、以及在训练后期对特定层 dropout 的谨慎使用。对齐阶段则给出了混合模态 SFT 的数据配比与安全对齐经验。</p>
+<p><strong>实验结果</strong>。Chameleon 在图像描述（image captioning）任务上达到当时的 SOTA；纯文本任务上超过 Llama-2、与 Mixtral 8x7B 和 Gemini-Pro 相当；在人类评判的长文混合模态生成评测中，匹配甚至超过规模大得多的 Gemini Pro 与 GPT-4V。这证明单一早期融合模型可以同时是可用的文本模型、视觉理解模型与图像生成模型。</p>
+<p><strong>批判性分析</strong>。优点：它是早期融合路线公开经验最完整的一份记录，QK-norm 等技巧已成为后续混合模态训练的标配；统一的 token 空间使"交错生成图文"这一能力在架构上毫不勉强。局限：VQ 图像 token 的信息损失使生成图像的细节与文字渲染能力明显弱于同期扩散模型；从头预训练的成本让学术实验室难以复现路线本身（能复现的只是结论）；论文对音频、视频的缺席意味着它验证的是"图-文融合"而非完整 omni。可复现性：模型权重未随论文完整开放，训练配方细节虽有披露但算力门槛极高。</p>
+<p><strong>一句话评价</strong>：早期融合路线迄今最有分量的一次正名——它证明了路线可行，也诚实地标明了代价。<strong>评级：★★★★★（架构思想必读）</strong></p>
+<h3 id="42-anygpt-20249">4.2 AnyGPT：纯离散序列建模的最小范式（复旦大学等, 2024）[9]</h3>
+<p><strong>研究问题</strong>。接入一种新模态，到底需要改动多少东西？AnyGPT 把这个问题推向极端：<strong>能否不改 LLM 的任何架构与训练范式，只靠数据层的离散化预处理，就实现 any-to-any？</strong></p>
+<p><strong>关键洞察</strong>。如果把模态接入类比为"教模型一门新语言"，那么需要的只是一本词典（tokenizer）和足够多的平行语料（对齐数据），而不需要新的大脑。离散表征是各模态之间最低成本的"通用货币"。</p>
+<p><strong>技术方法</strong>。四种模态各配一个现成离散 tokenizer：语音用 SpeechTokenizer（RVQ 结构）、音乐用 Encodec、图像用 SEED tokenizer、文本沿用 BPE。所有模态 token 汇入同一个扩展词表，以 LLaMA-2 7B 为底座做多模态继续预训练，训练目标仍是标准交叉熵。生成时，模型自回归产出目标模态的 token 序列，再交由对应的 detokenizer/扩散解码器还原为波形或像素。数据侧的亮点是用生成模型合成了<strong>首个大规模 any-to-any 指令数据集 AnyInstruct-108K</strong>：10.8 万条多轮对话，任意交错地混合四种模态的输入输出。</p>
+<p><strong>实验结果</strong>。AnyGPT 在各模态的单项任务上取得了与专用模型"可比"的性能（非超越），并首次展示了任意模态组合的多轮对话能力——例如"看图说话再配乐"。</p>
+<p><strong>批判性分析</strong>。优点：范式极度简洁，论证了"离散化 + 数据工程"足以搭建可用的 omni 原型，对算力有限的研究者是最友好的切入路线；AnyInstruct-108K 也揭示了 any-to-any 数据稀缺的瓶颈并给出合成解法。局限："可比而非超越"四个字正是纯离散路线的天花板——多层 RVQ 的语音 token 序列极长（远超文本），长序列自回归误差累积明显，语音与音乐生成质量受 tokenizer 重建质量直接钳制；理解任务上，离散化损失的细粒度信息使其弱于连续编码器方案。可复现性：tokenizer 均为开源组件，路线本身可在中等算力下复现缩小版，这也是它作为教学范式的价值。</p>
+<p><strong>一句话评价</strong>：把 any-to-any 归约为数据问题的极简证明，是理解 omni 设计空间最好的"思想基线"。<strong>评级：★★★★（入门复现首选）</strong></p>
+<h3 id="43-qwen25-omnithinker-talker-202523">4.3 Qwen2.5-Omni：Thinker-Talker 解耦架构的工程蓝本（阿里, 2025）[23]</h3>
+<p><strong>研究问题</strong>。端到端语音对话有两个相互矛盾的要求：一方面文本生成需要深思熟虑（慢思考），另一方面语音输出需要流式低延迟（快说话）；若用单一 AR 模型同时吐文本与语音 token，两种模态的解码节奏互相干扰。此外，视频与音频流的时间戳对齐在长视频输入下会崩溃——模型会"看错帧、听错段"。</p>
+<p><strong>关键洞察</strong>。理解与说话应当<strong>分模块但端到端联合训练</strong>：让一个"思考者"专心推理，让一个"说话者"盯着思考者的内部状态实时发声。这不是回到流水线——信息在模块间以隐状态（而非离散文本）直接传递，没有级联误差。</p>
+<p><strong>技术方法</strong>。架构由三部分组成。<strong>Thinker</strong> 是一个多模态 LLM：音频与视觉编码器均采用块式（block-wise）流式处理，音视频按时间戳交错排列，并配合新提出的 <strong>TMRoPE（Time-aligned Multimodal RoPE）</strong>——把时间信息显式编入旋转位置编码，使视频帧与对应音频段在位置空间中天然对齐。<strong>Talker</strong> 是一个双轨自回归模型（dual-track AR）：它直接读取 Thinker 的隐状态与高层文本表征，自回归地预测语音 codec token，与文本生成并行而互不干扰。语音 token 的波形还原采用<strong>滑动窗口 DiT</strong>（sliding-window diffusion transformer）：限制感受野的流式扩散解码，牺牲少量全局一致性换取极低的首包延迟。Thinker 与 Talker 端到端联合训练与推理。</p>
+<p><strong>实验结果</strong>。在同等规模下，Qwen2.5-Omni 的视觉能力与 Qwen2.5-VL 相当、音频能力超过专门的 Qwen2-Audio——即<strong>新增模态没有稀释单模态能力</strong>；在 OmniBench 等多模态基准上达到 SOTA。最有说服力的证据是：以语音作为指令输入时，其在 MMLU、GSM8K 等知识推理基准上的成绩与文本输入基本持平，说明"听懂了"和"读懂了"在模型内部收敛到了同一水平。语音生成侧，流式 Talker 在自然度与鲁棒性上超过了多数流式乃至非流式的对照系统。</p>
+<p><strong>批判性分析</strong>。优点：Thinker-Talker 是"解耦而不割裂"的典范——既拿到流水线的工程可控性（语音侧可独立优化延迟），又保留端到端的表征共享（无 ASR 级联误差）；TMRoPE 为音视频时间对齐给出了简洁优雅的方案，已被后续工作广泛效仿。局限：双轨 Talker 仍是"文本先行"的隐式依赖，语音韵律与推理内容的深层耦合（例如"犹豫的语气"）难以表达；输出模态仅限文本与语音，图像生成缺席，距离完整 any-to-any 尚有一半路程；DiT 解码器的流式实现工程复杂度高。可复现性：模型权重开源，技术报告披露充分，是当前复现 omni 系统的最佳蓝本。</p>
+<p><strong>一句话评价</strong>：开源 omni 从"能用"走向"好用"的分水岭，后来者几乎都在它的坐标系里定义自己。<strong>评级：★★★★★（工程实践必读）</strong></p>
+<h3 id="44-qwen3-omni-moe-202527">4.4 Qwen3-Omni：无退化的全模态与 MoE 升级（阿里, 2025）[27]</h3>
+<p><strong>研究问题</strong>。Qwen2.5-Omni 遗留了两个问题：其一，"与单模态模型相当"的宣称需要更强的证据——多模态训练往往在看不见的角落牺牲文本智能（跷跷板效应）；其二，DiT 解码的计算开销使首包延迟难以进一步压缩，多语言语音合成的覆盖也不足。</p>
+<p><strong>关键洞察</strong>。用<strong>混合专家（MoE）</strong>扩大容量而不增加推理成本，是化解跷跷板效应的结构性方案——不同模态可以一定程度上各用各的专家；而语音解码侧，<strong>表达力足够强的多码本 codec token 可以让轻量自回归取代扩散</strong>。</p>
+<p><strong>技术方法</strong>。Qwen3-Omni 采用 Thinker-Talker 的 MoE 版本（30B-A3B，总参 30B、激活约 3B）。Talker 改为自回归预测<strong>多码本（multi-codebook）离散语音 codec</strong>：多个并行码本共同承载音色、韵律与内容信息，由于码本表征足够丰富，原先沉重的块式扩散被替换为<strong>轻量因果卷积网络（causal ConvNet）</strong>，从第一个 codec 帧起即可流式出声。冷启动条件下，理论端到端首包延迟降至 234 毫秒。语言覆盖大幅扩展：文本交互 119 种语言、语音理解 19 种、语音生成 10 种。团队还衍生出两个变体：显式跨模态推理的 Thinking 版，以及填补社区空白的通用音频描述模型 Captioner（对任意音频输出低幻觉的详细描述）。三个变体均以 Apache 2.0 协议开源。</p>
+<p><strong>实验结果</strong>。论文的核心宣称是"<strong>首次在文本、图像、音频、视频四个模态上相对同规模单模态模型无任何退化</strong>"。在 36 项音频与音视频基准中，32 项达到开源 SOTA、22 项达到总榜 SOTA，超过 Gemini-2.5-Pro、Seed-ASR、GPT-4o-Transcribe 等闭源系统——开源 omni 在音频维度上第一次整体反超闭源标杆。</p>
+<p><strong>批判性分析</strong>。优点：MoE 化 + 多码本 codec 的组合是 2025 年 omni 架构最具影响力的升级，"无退化"的验证方式（与同系列单模态模型逐项对照）为社区树立了更严格的评估范式；Captioner 的衍生说明 omni 基座可以低成本派生垂直能力。局限："无退化"的声明基于自家 Qwen 系列对照模型，跨家族验证尚待第三方；全双工能力依然缺席——它仍是回合制框架下的低延迟，而非边说边听；234 毫秒是理论值，真实部署受工程链路影响。可复现性：Apache 2.0 全量开源，社区复现与二次开发活跃。</p>
+<p><strong>一句话评价</strong>：开源 omni 的能力上限刷新之作，也把"交互范式"这个未解决的问题衬托得更加刺眼。<strong>评级：★★★★★（2025 年必追）</strong></p>
+<h3 id="45-freeze-omni-202417">4.5 Freeze-Omni：冻结主干的低成本双工路线（小米/武大等, 2024）[17]</h3>
+<p><strong>研究问题</strong>。训练 omni 语音模型一定要动 LLM 主干吗？绝大多数实验室没有从头多模态预训练的算力，而微调主干又面临灾难性遗忘——语音能力涨上来，文本智能掉下去。Freeze-Omni 问：能否<strong>全程冻结 LLM</strong>，只训练外挂的语音输入输出模块？</p>
+<p><strong>关键洞察</strong>。LLM 的文本智能是一座已经封顶的大厦，与其冒险改造地基，不如在大厦外加装"耳朵"和"嘴巴"，并保证加装过程不碰主体结构。冻结主干同时带来两个免费收益：语音模态的智能水平自动与文本主干对齐；训练数据需求下降数个量级。</p>
+<p><strong>技术方法</strong>。语音输入侧：一个 speech encoder 经适配层接入冻结 LLM 的嵌入空间；语音输出侧：从 LLM 隐状态出发预测语音 codec token，再经声码器还原波形。训练采用<strong>三阶段策略</strong>，全程只需文本-语音配对数据（ASR/TTS 数据）与约 6 万条多轮文本问答数据，在 8 张 GPU 上即可完成。全双工能力通过<strong>多任务训练</strong>实现：模型同时学习"继续说"与"被打断/倾听"的状态判断，从而获得无需外部 VAD 模块的双工对话风格。</p>
+<p><strong>实验结果</strong>。Freeze-Omni 在语音模态下的智能表现与其文本主干基本持平，端到端语音响应延迟低，且在有限资源下避免了灾难性遗忘。作为参照，FD-Bench [31] 用 40 余小时合成语音、293 段模拟对话与 1200 次打断对 Freeze-Omni、Moshi、VITA-1.5 做了系统双工评测，结果显示包括 Freeze-Omni 在内的所有模型在频繁打断与噪声场景下仍会漏响应——双工鲁棒性远未解决。</p>
+<p><strong>批判性分析</strong>。优点：这是"资源受限者如何入场"的最佳答案，三阶段配方清晰、数据需求诚实、冻结策略从根本上绕开了遗忘问题；其多任务双工训练思路影响了后续一大批工作。局限：冻结意味着天花板由外挂模块与主干的接口决定，语音理解的细粒度（语气、副语言信息）很难穿透到冻结的表征空间；输出侧依赖主干隐状态，韵律可控性有限；"冻结主干"与"端到端联合优化"的性能差距在更大规模对照中尚未充分量化。可复现性：路线本身即是为可复现性设计，8 卡门槛对学术实验室友好。</p>
+<p><strong>一句话评价</strong>：工程上最务实、思想上最克制的一份方案——它用"不做什么"定义了自己的价值。<strong>评级：★★★★（低资源入场必读）</strong></p>
+<h3 id="46-minicpm-o-45-202629">4.6 MiniCPM-o 4.5：把时间轴还给模型（面壁智能, 2026）[29]</h3>
+<p><strong>研究问题</strong>。到 2026 年，omni 模型的瓶颈已经不是模态覆盖或延迟数字，而是<strong>交互范式本身</strong>。MiniCPM-o 4.5 的技术报告把这一点说得极为直白：现有模型（包括自家前作）的感知与响应仍是交替进行的两个阶段——模型说话时听不见，听的时候说不出；而且绝大多数模型是"被动应答"的，不会基于对现场环境的持续理解主动开口。</p>
+<p><strong>关键洞察</strong>。回合制交互是一个<strong>数据组织的假象</strong>：只要把多模态输入输出沿同一条时间轴对齐排列，全双工就不再是外挂的状态机，而是普通序列建模的自然结果；主动行为也会在同一框架内自然涌现。</p>
+<p><strong>技术方法</strong>。核心技术是 <strong>Omni-Flow</strong>：一个统一的流式框架，把音频流、视频流（感知）与语音生成流（响应）沿共享时间轴交错排列。训练好的模型在每一时刻同时"看、听、说"：生成第 $t$ 个语音帧时，注意力可以覆盖到同一时刻的最新视听输入，从而做到被打断时即刻调整、或在持续理解现场后主动发出提醒与评论。模型总参 9B，视觉侧继承 MiniCPM-V 4.5 [28] 的高效 3D-Resampler 编码。依靠架构效率与推理优化，整机可在<strong>内存小于 12GB 的端侧设备</strong>上完成实时全双工交互。</p>
+<p><strong>实验结果</strong>。在视觉-语言能力上逼近 Gemini 2.5 Flash，达到同规模开源 SOTA；在 omni 理解基准上超过参数规模大其三倍有余的 Qwen3-Omni-30B-A3B，且语音生成质量更好、计算效率显著更高。这是"小模型 + 好范式"战胜"大模型 + 旧范式"的一次标志性结果。</p>
+<p><strong>批判性分析</strong>。优点：Omni-Flow 把全双工从"系统技巧"提升为"建模范式"，理论上任何 AR omni 模型都可以按此重构数据而获得双工能力；端侧落地（&lt;12GB 内存）使实时 omni 第一次脱离云端 GPU 的假设，对隐私敏感与离线场景意义重大；主动交互的涌现说明时间轴对齐触及了某种本质。局限：全双工场景下的长期稳定性（连续交互数十分钟后的状态漂移、幻觉累积）缺乏公开评测；主动发言的"分寸感"（何时该说、何时沉默）目前主要靠数据分布隐式学习，可控性未解；9B 的端侧甜点是以牺牲复杂推理深度为代价的。可复现性：模型开源，技术报告对 Omni-Flow 的数据组织有较好披露，复现门槛中等。</p>
+<p><strong>一句话评价</strong>：2026 年最具范式意义的 omni 工作——它没有刷新"能力"，而是改写了"交互"的定义。<strong>评级：★★★★★（前沿方向必读）</strong></p>
+<h3 id="47">4.7 六篇代表作的横切面</h3>
+<p>六篇论文放在一起，恰好张成 omni 设计空间的三个坐标轴。<strong>架构激进程度</strong>上，Chameleon（从头早期融合）与 Freeze-Omni（主干纹丝不动）位于两极，Qwen 系与 MiniCPM-o 居中；<strong>问题焦点</strong>上，Chameleon 与 AnyGPT 关心表征统一，Qwen 系关心能力与延迟的工程平衡，Freeze-Omni 与 MiniCPM-o 4.5 关心交互形态；<strong>资源假设</strong>上，从 Chameleon 的千卡月到 Freeze-Omni 的 8 卡，跨越了三个数量级，却都做出了被后续工作反复引用的贡献——这为"算力决定论"提供了一个重要的反例：在 omni 方向，<strong>问题选择的清晰度依然可以对冲资源劣势</strong>。带着这三个坐标轴进入下一章，会更容易看清 2025–2026 年的前沿究竟在哪几条轴上推进。</p>
+<h2 id="5-20252026">5. 研究前沿（2025–2026）</h2>
+<p>如果说 2023–2024 年的 omni 研究回答的是"能不能做"，那么 2025–2026 年的研究回答的是"像不像人"。能力覆盖的竞赛在 Qwen3-Omni 之后趋于收敛——模态输入的排列组合基本被穷尽，基准分数的提升进入边际递减区间。取而代之的是三条更深层的前沿线索：交互范式从回合制走向全双工与主动交互；生成头设计在扩散与 codec 之间反复权衡、逼近延迟的物理下限；模型形态向端侧下沉，把实时 omni 从云端演示变为口袋里的产品。本章按子方向展开，并同步梳理评测体系与闭源标杆的动态。</p>
+<h3 id="51">5.1 从回合制到全双工：交互范式的重构</h3>
+<p>回合制之所以成为默认，并非因为它好，而是因为它<strong>容易工程化</strong>：把整个对话切成"听"与"说"两个互不重叠的阶段后，感知模块与生成模块可以各自独立优化，系统状态机一目了然。代价是交互体验的机械化——人类对话中约有三到四成的发言以重叠、插话或即时反馈（"嗯""对"）的形式出现，回合制系统把这些全部过滤掉了。2025 年之前，"语音对话"的默认形态因此是回合制加外部控制：一个 VAD（voice activity detection）模块判断用户说完了没有，说完才触发生成。GLM-4-Voice [18] 等系统虽实现了端到端流式合成，但轮次切换仍依赖外挂判决。2025–2026 年的主线是把轮次决策<strong>内化进模型本身</strong>：</p>
+<ul>
+<li><strong>时间轴对齐路线</strong>：MiniCPM-o 4.5 的 Omni-Flow（见 4.6）把感知流与生成流沿同一时间轴交错，双工成为序列建模的副产品。</li>
+<li><strong>单 LLM 原生双工</strong>：BayLing-Duplex（2026 年 6 月）[30] 证明一个标准自回归 LLM 只增加少量特殊 token，就能自行决定"何时听、何时说、何时停"，无需任何外挂轮次模块；方案从 GLM-4-Voice 出发改造，可迁移到其他 LLM 并复用现有训练与推理栈。这把全双工的架构复杂度压到了历史最低。</li>
+<li><strong>主动交互</strong>：2026 年 8 月的 generalized style-aware 全双工框架 [32] 进一步研究"主动发起话轮"（proactive turn-taking）——模型不仅应答，还能在合适的时机基于风格感知主动开口，与 MiniCPM-o 4.5 的主动提醒行为共同指向"环境型助理"的雏形。</li>
+</ul>
+<p>三条路线并非互斥：时间轴对齐解决的是"数据怎么排"，单 LLM 方案解决的是"架构怎么简"，主动交互解决的是"能力往哪走"，可以预见 2027 年前后将出现三者合一的系统。评测侧也在追赶：FD-Bench [31] 首次系统定义了打断处理、延迟管理、噪声鲁棒等全双工专属指标，其结果（所有参评开源系统在频繁打断下仍会失效）说明双工鲁棒性是 2026 年之后明确的攻坚点。</p>
+<h3 id="52-codec">5.2 语音生成头：扩散与 codec 的第三次回摆</h3>
+<p>语音输出侧的技术选型在三年内摇摆了三次。2024 年的主流是 codec 自回归（GLM-4-Voice、Freeze-Omni）：简单、流式、但质量受码率限制。2025 年 Qwen2.5-Omni 与 Ming-Omni [24] 转向 flow-matching/扩散式 detokenizer：自然度显著提升，代价是迭代去噪的计算与延迟。2025 年 9 月 Qwen3-Omni 又摆回 codec——但用的是<strong>多码本高表达力 codec + 轻量因果 ConvNet</strong>：用码本容量的提升换取解码器的简化，理论首包延迟 234 毫秒。三次摇摆的共同启示是：<strong>瓶颈不在生成范式本身，而在"离散 token 表达力"与"解码器复杂度"这条跷跷板上</strong>——码本越强，解码器越轻。沿此推演，语音生成头的理想终点是一个"语义-声学充分解耦"的 codec：语义码本承载内容与韵律意图（与 LLM 的推理结果对齐），声学码本承载音色与细节（可由轻量解码器快速还原）。当前各路 codec 在两类信息的纠缠程度上差异很大，这也是不同系统"换声不换智"或"换智不换声"难以兼得的根源。预计 2026 年后的竞争焦点正是语义-声学解耦的高质量 codec，而非又一种新的生成范式。</p>
+<h3 id="53-omni">5.3 端侧与效率：omni 的下沉</h3>
+<p>端侧化的驱动力值得先说清楚。云端 omni 的痛点不只是成本：音视频流是隐私密度最高的数据形态（家中的画面、交谈的内容），用户对"常开的摄像头与麦克风连着云端"有天然戒备；同时全双工交互对网络抖动极其敏感，任何一次卡顿都会破坏"自然对话"的错觉。MiniCPM-o 4.5 证明 9B 可以在 &lt;12GB 内存设备上跑实时全双工；Qwen3-Omni 的 MoE（30B-A3B）说明激活参数可以压到 3B 量级而不损能力。两条线索汇合后，"端侧 omni"从工程噱头变成了有明确需求支撑的方向：隐私（音视频不出设备）、离线可用、以及与手机/眼镜/耳机等新硬件形态的绑定。端侧 omni 的开放问题集中在长时运行的功耗与热约束（全双工意味着模型永不休眠）、以及小模型上的推理深度保持——端侧模型最容易被牺牲的恰恰是最难基准化的复杂推理能力。</p>
+<h3 id="54">5.4 评测：从"能不能"到"像不像人"</h3>
+<p>omni 评测正在经历结构性升级，其背后的逻辑是：当"能输入多模态"不再是新闻，评测必须测量那些<strong>只有在多模态同时存在时才存在的能力</strong>。OmniBench（2024）[15] 首次要求模型同时理解图、声、文三种输入，其结果颇具冲击力：多数基线模型即使把图像和音频替换成文字描述，准确率仍低于 50%——<strong>跨模态上下文的整合能力在现有训练范式中被系统性忽视</strong>；随论文发布的 OmniInstruct（8.45 万条三模态指令数据）是迄今常用的补救数据集。OmniEval（2025）[4] 把评测推进到音视频同步理解：810 个音画同步视频（中文 285、英文 525）、2617 个问答对（开放题 1412、选择题 1205），覆盖 3 大类 12 子类任务，并引入更细粒度的时序定位任务 Grounding。FD-Bench [31] 则专测全双工。三个基准合起来的图景是：模型在"单模态输入、文本输出"上已趋饱和，在"多模态同时输入""双工交互""主动行为"三个维度上均存在显著缺口——这恰好是前沿研究的发力点。值得注意的是评测方法学本身的转向：OmniEval 引入音视频强耦合任务（答案必须从画面与声音的配合中推出）、FD-Bench 用 LLM+TTS+ASR 搭建自动化的双工对话仿真管线（293 段模拟对话、1200 次打断均由机器生成与评判）。当人工评判的成本无法覆盖交互式能力时，"用模型评测模型"从妥协变成了方法论本身，其可靠性也随之成为新的研究问题。</p>
+<h3 id="55">5.5 长期流式系统：从分钟级演示到小时级陪伴</h3>
+<p>全双工解决的是"同一时刻听说并行"，另一个被低估的前沿是<strong>时间尺度的延伸</strong>：让 omni 系统在连续数小时的音视频流中保持可用。这里的技术难点与全双工正交——后者是同一时刻的并行，前者是不同时刻的取舍。静态问答范式下，一段视频被一次性编码、问完即弃；流式场景下，模型必须在显存预算内做持续的"压缩式遗忘"：哪些画面值得保留细节、哪些可以只留摘要、哪些可以彻底丢弃，且取舍标准要随用户的实时兴趣动态调整。InternLM-XComposer2.5-OmniLive（2024 年 12 月）[19] 是这一方向的早期探索，定位为"长期流式音视频交互系统"，处理的是与静态问答完全不同的工程问题——持续流入的视觉与音频如何在有限显存内被增量编码、过期上下文如何被淘汰、相关历史如何被唤起。这条路线与端侧 omni 合流后的形态颇具想象空间：一副眼镜上的模型需要连续"陪看"数小时，既不漏掉关键事件，也不被无意义的背景噪声淹没。目前该方向缺乏公开基准，多数工作停留在系统演示阶段，是评测与数据侧的机会窗口。</p>
+<h3 id="56">5.6 推理与智能体的渗透</h3>
+<p>omni 模型正在快速吸收 LLM 领域过去两年的两项核心进展。<strong>推理</strong>方面，Qwen3-Omni 发布了显式跨模态推理的 Thinking 版，Step-Audio-R1.5（2026 年 4 月）[33] 则把强化学习驱动的推理能力引入语音 omni——用户"说"出一道难题，模型先在内部推理再开口回答，且推理过程可以利用听觉线索（说话人的犹豫、强调）。<strong>智能体化</strong>方面，Step-Audio 2（2025 年 7 月）[25] 把工具调用与检索增强生成（RAG）集成进端到端语音模型，使语音助手可以边对话边查资料、调接口。这两条线索共同指向一个判断：omni 不再是一个独立赛道，而是 LLM 能力栈的"输入输出层"——LLM 世界每出现一种新能力（长思维链、工具使用、记忆），omni 侧就会在半年内出现对应的"听说版"。对研究者而言，这意味着跟踪 LLM 主线的进展，本身就是在为 omni 选题。</p>
+<h3 id="57">5.7 闭源标杆的动态</h3>
+<p>GPT-4o [11] 在 2024 年定义了体验上限后，OpenAI 于 2025 年补上了输出侧的关键拼图——原生自回归图像生成（"4o image generation"），使 omni 的输出端从"语音"扩展到"图像"，验证了 AR 图像生成可以达到第一流质量。Google 侧，Gemini 2.5 家族 [26] 以原生多模态加长上下文（可理解长达 3 小时的视频）配合 Live API 的 native audio 与 proactive audio 能力，代表闭源实时 omni 的工业标杆。闭源模型目前的护城河已不在单点能力（开源在多数可测基准上逼近或反超），而在<strong>产品级的交互打磨</strong>：打断的自然度、情感的感知与表达、以及跨会话的记忆。</p>
+<p>开闭源关系的一个结构性变化值得记录：2024 年开源 omni 的角色是"追赶并复现 GPT-4o 的演示"；到 2026 年，角色反转为"开源定义问题、闭源定义体验"——全双工、主动交互、端侧部署这几个最活跃的问题都先在开源论文中被清晰表述，闭源系统则凭借数据与产品迭代优势率先把体验做顺。对研究者而言这是利好消息：问题的提出权在开源社区手里，而这正是学术贡献最能着力的位置。</p>
+<h2 id="6">6. 技术路线对比与权衡</h2>
+<h3 id="61">6.1 三组核心争论的总结</h3>
+<p><strong>争论一：离散 token 化 vs 连续表征。</strong> 离散化（AnyGPT、Chameleon、Unified-IO 2）换来架构的绝对统一与训练范式的零改动，代价是 tokenizer 的信息瓶颈——重建质量封顶生成质量，量化损失拖累理解精度。连续表征（Qwen2.5-Omni、MiniCPM-o、VITA）保住了各模态的信息保真度与预训练资产，代价是异构模块带来的工程复杂度。2025–2026 年的实践给出了一个非对称的答案：<strong>输入侧连续、输出侧离散</strong>几乎成为共识——理解任务对信息损失更敏感，生成任务则可以通过强力 detokenizer 弥补。</p>
+<p><strong>争论二：早期融合 vs 晚期融合。</strong> 早期融合跨模态交互最充分、支持任意交错的混合模态输出，但必须从头训练且稳定性代价高昂（Chameleon 的整本"训练手册"即为明证）。晚期融合复用单模态预训练、工程可控，但跨模态对齐质量取决于连接器，输出模态难以交错。现实格局是：资源最充足的闭源玩家（GPT-4o、Gemini）倾向原生早期融合，开源社区几乎全部选择晚期融合加解耦生成头——这不是理论之争的终局，而是<strong>算力约束下的理性分工</strong>。</p>
+<p><strong>争论三：流水线 vs 端到端。</strong> 流水线（ASR→LLM→TTS）的级联误差与延迟曾是端到端路线的全部理由；Thinker-Talker 的成功则揭示了第三条路：<strong>模块化解耦 + 端到端联合训练 + 隐状态直连</strong>，兼取两者之长。值得警惕的是"端到端原教旨主义"——Qwen3-Omni 与 MiniCPM-o 4.5 的经验都表明，恰当的模块化反而让优化目标更清晰、能力归因更容易。</p>
+<h3 id="62">6.2 融合策略与代表系统对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>早期融合（离散统一）</th>
+<th>晚期融合 + 解耦生成</th>
+<th>冻结主干外挂</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代表</td>
+<td>Chameleon [12]、AnyGPT [9]、Unified-IO 2 [7]</td>
+<td>Qwen2.5/3-Omni [23][27]、MiniCPM-o 4.5 [29]、VITA [14]、Ming-Omni [24]</td>
+<td>Freeze-Omni [17]、LLaMA-Omni 系</td>
+</tr>
+<tr>
+<td>预训练成本</td>
+<td>极高（从头）</td>
+<td>中（复用单模态权重）</td>
+<td>极低（8 卡级）</td>
+</tr>
+<tr>
+<td>跨模态交互深度</td>
+<td>最深（逐层共享）</td>
+<td>中（连接器 + LLM 内部）</td>
+<td>浅（接口受限）</td>
+</tr>
+<tr>
+<td>输出交错能力</td>
+<td>任意交错</td>
+<td>逐段切换</td>
+<td>基本无</td>
+</tr>
+<tr>
+<td>信息保真度</td>
+<td>受 tokenizer 限制</td>
+<td>高</td>
+<td>高（输入）/中（输出）</td>
+</tr>
+<tr>
+<td>遗忘风险</td>
+<td>不适用（从头训）</td>
+<td>需数据配比控制</td>
+<td>结构性规避</td>
+</tr>
+<tr>
+<td>适合玩家</td>
+<td>算力巨头</td>
+<td>中大型团队</td>
+<td>学术实验室</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63">6.3 语音生成方案对比</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>代表</th>
+<th>首包延迟</th>
+<th>自然度</th>
+<th>工程复杂度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单码本 codec AR</td>
+<td>GLM-4-Voice [18]、Freeze-Omni [17]</td>
+<td>低</td>
+<td>中（受码率限制）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>扩散/flow-matching detokenizer</td>
+<td>Qwen2.5-Omni [23]、Ming-Omni [24]</td>
+<td>中高（滑动窗口缓解）</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>多码本 codec + 轻量解码</td>
+<td>Qwen3-Omni [27]</td>
+<td>极低（234ms 理论值）</td>
+<td>高</td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64">6.4 融合策略的代价账本</h3>
+<p>值得单独强调的是各路线隐藏的成本项。早期融合的隐性成本是<strong>数据配比的敏感性</strong>：Chameleon 的报告显示图像 token 占比的微小变动会引起文本能力的可测波动，而最优配比随规模变化，没有可迁移的规律。晚期融合的隐性成本是<strong>连接器成为能力瓶颈</strong>：当 LLM 升级到下一代，所有模态对齐层需要重新训练，"复用预训练资产"的承诺在每代底座更新时都要部分兑现一次。冻结主干的隐性成本则是<strong>天花板显性化</strong>：外挂模块容量有限，当任务需要深层的跨模态推理（而非浅层的感知翻译）时，性能缺口会突然暴露。三条路线的成本分别支付在训练期、维护期与能力上限上。</p>
+<h3 id="65">6.5 场景化的选型建议</h3>
+<p>脱离应用场景谈路线优劣没有意义。几种典型场景下的合理选择：<strong>学术原型验证</strong>（验证一个新思想，预算 &lt;10 卡月）应选冻结主干外挂或 AnyGPT 式纯离散微调，把变量控制在最小范围；<strong>产品级语音助手</strong>（对延迟与自然度敏感）应选 Thinker-Talker 式解耦，语音头可独立迭代而不动理解侧；<strong>混合模态内容创作</strong>（图文交错的长文档生成）目前只有早期融合路线能原生支持，绕不开 Chameleon 式的从头训练或其蒸馏；<strong>端侧部署</strong>则几乎被 MiniCPM-o 式的小模型加高效重采样路线垄断，MoE 是云端大规模服务的专属杠杆。</p>
+<h3 id="66">6.6 文字分析：不存在免费的统一</h3>
+<p>把三组争论放在一起看，一个贯穿性的结论是：<strong>omni 模型的每一次"统一"都把复杂度从一处转移到了另一处</strong>。统一 token 化把架构复杂度转移给了 tokenizer 与训练稳定性；晚期融合把复杂度转移给了连接器与数据配比；Thinker-Talker 把复杂度转移给了流式系统工程。选型的本质不是寻找"正确架构"，而是判断自己最容易承担哪种复杂度。对入门研究者而言，这个判断的标准答案几乎总是：选择把复杂度转移给<strong>数据工程</strong>的方案（外挂、冻结、合成数据），因为那是唯一可以靠耐心而非算力解决的复杂度。</p>
+<p>最后值得指出三组争论的一个共同走向：<strong>都在向"混合态"收敛</strong>。离散与连续之争收敛为"输入连续、输出离散"的非对称设计；融合之争收敛为"理解侧晚期融合、生成侧按需解耦"的实用主义；流水线与端到端之争收敛为"模块化解耦、端到端训练、隐状态直连"。纯粹的路线在 2026 年已经几乎绝迹——Chameleon 式的原教旨早期融合与 ASR-LLM-TTS 式的原教旨流水线，都只在特定的资源极端（极多或极少）下才有理由存在。这个收敛并不意味着争论的终结，而是争论的粒度变细了：下一个被争夺的设计点，正在从"用什么架构"变成"全双工的时间轴怎么排"（第 5.1 节）与"语音码本如何解耦语义与声学"（第 5.2 节）这样更具体、也更难的问题上。</p>
+<h2 id="7">7. 开放问题与未来方向</h2>
+<p>以下八个问题按"从系统到科学"的顺序排列：前四个偏向可预期的工程攻坚，后四个触及尚未形成共识的概念地基。它们的共同特征是——<strong>没有一个能靠单纯扩大规模解决</strong>，这正是它们值得被写在这里的原因。</p>
+<ol>
+<li>
+<p><strong>全双工的鲁棒性与分寸感</strong>。FD-Bench 的评测表明，现有系统在频繁打断与噪声下仍会漏响应 [31]。更难的子问题是"何时保持沉默"——主动发言的分寸目前完全依赖数据分布隐式学习，缺乏可解释的控制机制。这与对话系统经典的轮次预测（turn-taking）问题在 LLM 时代重新汇合，但多了视觉上下文的维度。</p>
+</li>
+<li>
+<p><strong>跷跷板效应的机理与根治</strong>。Qwen3-Omni 宣称的"无退化"是在同家族对照下的工程结论，而非机理理解。为什么多模态训练有时会稀释文本智能、有时不会？MoE 的专家分工是根治还是掩盖？缺乏受控实验的系统性研究。</p>
+</li>
+<li>
+<p><strong>输出侧的完整 any-to-any</strong>。绝大多数开源 omni 的输出仍止步于"文本 + 语音"，图像与视频生成缺席；GPT-4o 的原生图像生成证明了可行性，但开源世界尚未出现"图、声、文三向输出"且能力均衡的模型。把统一生成（diffusion 系）与 omni 理解合流，是下一个明确的里程碑。</p>
+</li>
+<li>
+<p><strong>超长时流式交互的记忆与漂移</strong>。全双工意味着模型要连续运行数十分钟乃至数小时：KV cache 的增长、状态漂移、长期记忆的读写，都是流式场景特有的新问题，现有基准（包括 FD-Bench）都还是分钟级的短时评测。</p>
+</li>
+<li>
+<p><strong>评测的根本困境</strong>。omni 能力的高维性使"总分"失去意义：一个模型可以延迟极低但理解平庸，另一个可以理解深刻但双工笨拙。OmniBench/OmniEval/FD-Bench 各自覆盖了一个切面，但"像不像人"这一终极标准仍依赖昂贵的人工评判，缺乏可复现的代理指标。</p>
+</li>
+<li>
+<p><strong>语音中的副语言信息</strong>。情感、犹豫、反讽等副语言线索在离散 codec 与冻结表征两条路线上都会大量流失，而它们恰是自然交互的核心。如何让 omni 模型理解并表达副语言信息，是语音侧最深远的开放问题。</p>
+</li>
+<li>
+<p><strong>安全与对齐的模态盲区</strong>。文本对齐技术（RLHF、宪法式方法）已相对成熟，但音频与视频通道引入了文本世界不存在的攻击面与风险面：语音指令中的语气欺骗、音频越狱（用声学特征绕过安全过滤）、深度伪造声纹的模仿生成，以及全双工场景下"该挂电话时不挂"的行为对齐。Omni 模型的安全评测几乎空白，而随着模型获得主动发言能力 [32]，"主动说错话"的风险第一次成为现实问题。</p>
+</li>
+<li>
+<p><strong>数据飞轮的冷启动</strong>。AnyGPT 的 AnyInstruct-108K 至今仍被引用，恰恰说明 any-to-any 交错数据在三年后依然稀缺。真实世界中几乎不存在天然的多模态交错对话语料，合成数据（用生成模型造训练数据）是当前唯一可行的路径，但合成数据的质量上限受制于生成模型本身——omni 模型在某种程度上是在"用自己的短板训练自己"。打破这个循环需要新的数据引擎设计。</p>
+</li>
+</ol>
+<h2 id="8">8. 研究机会点评（给入门研究者的建议）</h2>
+<p>omni 方向对入门者有一种迷惑性：明星工作（Qwen3-Omni、MiniCPM-o 4.5）都出自工业实验室，容易让人得出"这里没有学术界的位置"的结论。但第 4.7 节的分析已经表明，这个方向的许多关键进展——AnyGPT 的范式证明、Freeze-Omni 的低成本路线、FD-Bench 的评测定义——恰恰来自资源有限的团队。关键在于选对战场：避开能力军备竞赛，进入<strong>测量、机理与交互行为</strong>这三类巨头无暇深耕的问题。以下按门槛从低到高给出具体建议。</p>
+<p><strong>算力门槛适中、问题清晰的方向</strong>：</p>
+<ul>
+<li><strong>全双工评测与数据</strong>：FD-Bench 刚刚起步，双工场景的中文评测、长时稳定性评测、以及"打断-恢复"行为的数据集构建都是低成本高可见度的工作。评测类工作在 omni 这种"能力超前于测量"的领域尤其稀缺。</li>
+<li><strong>基于 Freeze-Omni 范式的垂直改造</strong>：冻结主干 + 外挂模块的 8 卡配方，天然适合接入专业领域（医疗问诊语音、方言、儿童语音）——主干智能白得，领域适配只需要语音侧数据。</li>
+<li><strong>Omni-Flow 式数据重构的迁移研究</strong>：把时间轴对齐的数据组织应用到其他开源 omni 模型（如 Qwen2.5-Omni）上，验证双工能力的"可迁移性"，是一个有明确实验设计、算力可控且结论无论正负都有价值的题目。</li>
+<li><strong>副语言信息的探测性研究</strong>：用 probing 方法量化各 tokenizer/编码器对情感、语气信息的保留程度——纯分析类工作，单卡可做，且直接对话开放问题 6。</li>
+</ul>
+<p><strong>需要坦诚说明的"巨头游戏"</strong>：</p>
+<ul>
+<li><strong>从头早期融合预训练</strong>（Chameleon 式）：千卡月级别的投入，学术界能做的只是消费其结论。</li>
+<li><strong>与 Qwen3-Omni/Gemini 正面比拼综合能力</strong>：开源 omni 的能力上限竞争已经是头部实验室的军备竞赛，单点 SOTA 的窗口期以周计。</li>
+<li><strong>通用音频 codec 的军备竞赛</strong>：多码本 codec 的训练需要海量音频与可观的工程积累，除非有独特数据资源，不建议作为入场点。</li>
+</ul>
+<p><strong>中间地带：可以参与但需借势的方向</strong>。MoE 化、Thinking 版推理、主动交互控制等方向由头部实验室主导，但开源权重（Qwen3-Omni 的 Apache 2.0 协议、MiniCPM-o 的开源）意味着学术团队可以在其上做<strong>后训练研究</strong>：用 RLHF/DPO 改善双工行为的分寸感、用可解释性工具分析专家路由的模态分工、或为其补齐特定语言/方言的语音生成。这类"站在开源肩膀上"的工作算力门槛在数十卡量级，产出节奏也能跟上领域速度。</p>
+<p><strong>关于顶会潜力的一个判断</strong>。omni 方向的论文评审正在从"你覆盖了多少模态"转向"你回答了哪个真问题"。2024 年拼模态覆盖的工作在 2026 年已难以通过评审；相反，针对单一明确问题（打断鲁棒性、副语言建模、双工评测、跷跷板效应机理）的深度工作，即使只用 7B 模型，也有稳定的发表空间。选题时不妨用一个测试：能否用一句话说清楚"没有本文，社区不知道什么"？</p>
+<p><strong>一条务实的成长路径</strong>：先用 AnyGPT 范式复现一个迷你 any-to-any 模型（理解全离散路线）→ 在 Freeze-Omni 框架上做一次垂直适配（理解外挂路线）→ 选一个双工或评测的切口做出增量贡献。三步走完，对 omni 设计空间的理解将超过绝大多数只读论文的人。</p>
+<h2 id="9">9. 术语表</h2>
+<p>以下术语按"架构—训练—交互—系统"的顺序排列，覆盖全文出现过的核心概念，每条用一句话给出可操作的定义。</p>
+<ul>
+<li><strong>Any-to-any（任意到任意）</strong>：模型接受任意模态组合输入并产生任意模态组合输出的能力目标。</li>
+<li><strong>Omni-modal（全模态）</strong>：与 any-to-any 同义的表述，强调单一模型覆盖全部主流模态。</li>
+<li><strong>Unified tokenization（统一 token 化）</strong>：将图像、音频等连续信号离散化为与文本同构的 token 序列的技术路线。</li>
+<li><strong>图像 tokenizer / detokenizer</strong>：把图像压缩为离散码本索引（及反向重建）的编码器-解码器对，如 VQ-VAE、SEED。</li>
+<li><strong>神经音频编解码器（neural audio codec）</strong>：用 RVQ 等技术把波形压缩为多层离散 token 的模型，如 EnCodec、SoundStream。</li>
+<li><strong>RVQ（残差向量量化）</strong>：逐层量化残差的多码本量化方法，是音频 codec 的主流结构。</li>
+<li><strong>Early fusion（早期融合）</strong>：各模态 token 从网络第一层起共享计算的架构策略。</li>
+<li><strong>Late fusion（晚期融合）</strong>：各模态独立编码、仅在 LLM 内部交汇的架构策略。</li>
+<li><strong>Connector（连接器）</strong>：把模态编码器输出映射到 LLM 嵌入空间的适配模块（线性层、Q-Former、重采样器等）。</li>
+<li><strong>Thinker-Talker</strong>：Qwen omni 系提出的解耦架构——Thinker 负责理解推理，Talker 读其隐状态流式合成语音，二者端到端联合训练。</li>
+<li><strong>TMRoPE（Time-aligned Multimodal RoPE）</strong>：把时间信息编入旋转位置编码、对齐音视频时间戳的位置编码方案。</li>
+<li><strong>Dual-track AR（双轨自回归）</strong>：Talker 同时接收文本与隐状态两条信息流、并行生成语音 token 的解码结构。</li>
+<li><strong>Detokenizer / vocoder（解码头）</strong>：把离散语音/图像 token 还原为连续信号（波形、像素）的生成模块，可为扩散、flow-matching 或轻量卷积网络。</li>
+<li><strong>MoE（混合专家）</strong>：每层含多个专家网络、按路由激活稀疏子集的架构，用于扩容量而不增推理成本。</li>
+<li><strong>Full-duplex（全双工）</strong>：模型同时听与说、支持打断与插话的交互模式，对应传统电话信道的术语。</li>
+<li><strong>半双工 / 回合制（turn-based）</strong>：听与说交替进行、依赖 VAD 判断轮次结束的交互模式。</li>
+<li><strong>VAD（语音活动检测）</strong>：判断音频中何时有人说话的传统模块，回合制系统靠它切换轮次。</li>
+<li><strong>Barge-in（打断）</strong>：用户在系统说话中途插话的行为，全双工系统的核心考验。</li>
+<li><strong>Proactive turn-taking（主动话轮）</strong>：模型未经用户请求、基于对环境的持续理解主动发起发言的能力。</li>
+<li><strong>跷跷板效应（seesaw effect）</strong>：多模态联合训练中某些模态能力提升以其他能力退化为代价的现象。</li>
+<li><strong>灾难性遗忘（catastrophic forgetting）</strong>：继续训练新任务/模态时模型丧失原有能力的现象，冻结主干是结构性规避手段。</li>
+<li><strong>首包延迟（first-packet latency）</strong>：从输入结束到第一段可播放语音输出的时间，流式语音系统的核心指标。</li>
+<li><strong>Omni-Flow</strong>：MiniCPM-o 4.5 提出的流式框架，把全模态输入输出沿共享时间轴对齐以实现全双工。</li>
+</ul>
+<h2 id="10">10. 参考文献</h2>
+<p>以下文献的 arXiv 编号均经逐一验证（标题与摘要页核对一致）。GPT-4o 与 Gemini Live API 的部分能力以官方发布为准，已在条目中注明。</p>
+<p>[1] Unified Multimodal Understanding and Generation Models: Advances, Challenges, and Opportunities, 2025, arXiv:2505.02567, https://arxiv.org/abs/2505.02567
+[2] Discrete Diffusion in Large Language and Multimodal Models: A Survey, 2025, arXiv:2506.13759, https://arxiv.org/abs/2506.13759
+[3] Audio-Visual Intelligence in Large Foundation Models, 2026, arXiv:2605.04045, https://arxiv.org/abs/2605.04045
+[4] OmniEval: A Benchmark for Evaluating Omni-modal Models with Visual, Auditory, and Textual Inputs, 2025, arXiv:2506.20960, https://arxiv.org/abs/2506.20960
+[5] Generative AI in Depth: A Survey of Recent Advances, Model Variants, and Real-World Applications, 2025, arXiv:2510.21887, https://arxiv.org/abs/2510.21887
+[6] SEED-LLaMA: Making LLaMA SEE and Draw with SEED Tokenizer, Tencent AI Lab, 2023, arXiv:2310.01218, https://arxiv.org/abs/2310.01218
+[7] Unified-IO 2: Scaling Autoregressive Multimodal Models with Vision, Language, Audio, and Action, AI2 等, 2023, arXiv:2312.17172, https://arxiv.org/abs/2312.17172
+[8] CoDi-2: In-Context, Interleaved, and Interactive Any-to-Any Generation, Microsoft, 2023, arXiv:2311.18775, https://arxiv.org/abs/2311.18775
+[9] AnyGPT: Unified Multimodal LLM with Discrete Sequence Modeling, 复旦大学等, 2024, arXiv:2402.12226, https://arxiv.org/abs/2402.12226
+[10] SEED-X: Multimodal Models with Unified Multi-granularity Comprehension and Generation, 2024, arXiv:2404.14396, https://arxiv.org/abs/2404.14396
+[11] GPT-4o System Card, OpenAI, 2024, arXiv:2410.21276, https://arxiv.org/abs/2410.21276（模型发布为 [官方发布/技术报告]）
+[12] Chameleon: Mixed-Modal Early-Fusion Foundation Models, Meta, 2024, arXiv:2405.09818, https://arxiv.org/abs/2405.09818
+[13] MiniCPM-V: A GPT-4V Level MLLM on Your Phone, 面壁智能, 2024, arXiv:2408.01800, https://arxiv.org/abs/2408.01800
+[14] VITA: Towards Open-Source Interactive Omni Multimodal LLM, 腾讯优图等, 2024, arXiv:2408.05211, https://arxiv.org/abs/2408.05211
+[15] OmniBench: Towards The Future of Universal Omni-Language Models, 2024, arXiv:2409.15272, https://arxiv.org/abs/2409.15272
+[16] Baichuan-Omni Technical Report, 百川智能, 2024, arXiv:2410.08565, https://arxiv.org/abs/2410.08565
+[17] Freeze-Omni: A Smart and Low Latency Speech-to-speech Dialogue Model with Frozen LLM, 小米/武汉大学等, 2024, arXiv:2411.00774, https://arxiv.org/abs/2411.00774
+[18] GLM-4-Voice: Towards Intelligent and Human-Like End-to-End Spoken Chatbot, 智谱 AI, 2024, arXiv:2412.02612, https://arxiv.org/abs/2412.02612
+[19] InternLM-XComposer2.5-OmniLive, 上海人工智能实验室, 2024, arXiv:2412.09596, https://arxiv.org/abs/2412.09596
+[20] VITA-1.5: Towards GPT-4o Level Real-Time Vision and Speech Interaction, 2025, arXiv:2501.01957, https://arxiv.org/abs/2501.01957
+[21] Baichuan-Omni-1.5 Technical Report, 百川智能, 2025, arXiv:2501.15368, https://arxiv.org/abs/2501.15368
+[22] Step-Audio: Unified Understanding and Generation in Intelligent Speech Interaction, 阶跃星辰, 2025, arXiv:2502.11946, https://arxiv.org/abs/2502.11946
+[23] Qwen2.5-Omni Technical Report, 阿里巴巴, 2025, arXiv:2503.20215, https://arxiv.org/abs/2503.20215
+[24] Ming-Omni: A Unified Multimodal Model for Perception and Generation, 蚂蚁集团, 2025, arXiv:2506.09344, https://arxiv.org/abs/2506.09344
+[25] Step-Audio 2 Technical Report, 阶跃星辰, 2025, arXiv:2507.16632, https://arxiv.org/abs/2507.16632
+[26] Gemini 2.5: Pushing the Frontier with Advanced Reasoning, Multimodality, Long Context, Google, 2025, arXiv:2507.06261, https://arxiv.org/abs/2507.06261
+[27] Qwen3-Omni Technical Report, 阿里巴巴, 2025, arXiv:2509.17765, https://arxiv.org/abs/2509.17765
+[28] MiniCPM-V 4.5, 面壁智能, 2025, arXiv:2509.18154, https://arxiv.org/abs/2509.18154
+[29] MiniCPM-o 4.5: Towards Real-Time Full-Duplex Omni-Modal Interaction, 面壁智能, 2026, arXiv:2604.27393, https://arxiv.org/abs/2604.27393
+[30] BayLing-Duplex: Native Full-Duplex Speech Dialogue with a Single Autoregressive LLM, 2026, arXiv:2606.14528, https://arxiv.org/abs/2606.14528
+[31] FD-Bench: A Benchmark for Full-Duplex Spoken Dialogue Systems, 2025, arXiv:2507.19040, https://arxiv.org/abs/2507.19040
+[32] Enabling Proactive Spoken Turns via Generalized Style-Aware Full-Duplex Framework, 2026, arXiv:2608.28630, https://arxiv.org/abs/2608.28630
+[33] Step-Audio-R1.5 Technical Report, 阶跃星辰, 2026, arXiv:2604.25719, https://arxiv.org/abs/2604.25719</p>
+</article>
+<footer class="footer"><span>多模态图谱 · 由 Codex + sub-agent swarm 于 2026-09 调研撰写</span><a href="#top">回到顶部 ↑</a></footer>
+</main>
+</div>
+<div class="reading-bar" id="reading-bar"></div>
+<script src="../../js/site.js"></script>
+</body>
+</html>
