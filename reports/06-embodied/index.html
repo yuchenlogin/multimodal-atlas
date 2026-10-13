@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>从像素到动作：具身智能与 VLA 模型 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -53,33 +53,33 @@
 <p><img alt="VLA 管线：从视觉-语言观测到动作生成的完整链路" src="/multimodal-atlas/assets/fig_vla_pipeline.png" /></p>
 <p><em>图 1：视觉-语言-动作模型的通用管线——视觉编码器与语言模型主干提供语义表征，动作接口（离散 token 或 flow/diffusion 专家）将其转化为机器人可执行的连续动作块。</em></p>
 <h3 id="21-">2.1 具身智能的问题设定：感知-决策-动作闭环</h3>
-<p>机器人学习的标准形式化是部分可观测马尔可夫决策过程（Partially Observable Markov Decision Process, POMDP）。在时刻 $t$，机器人从传感器获得观测 $o_t$（RGB 图像、深度、本体感受 proprioception 如关节角、末端位姿），基于语言指令 $\ell$ 与历史，策略 $\pi$ 输出动作 $a_t$：</p>
-<p>$$
+<p>机器人学习的标准形式化是部分可观测马尔可夫决策过程（Partially Observable Markov Decision Process, POMDP）。在时刻 <span class="arithmatex">\(t\)</span>，机器人从传感器获得观测 <span class="arithmatex">\(o_t\)</span>（RGB 图像、深度、本体感受 proprioception 如关节角、末端位姿），基于语言指令 <span class="arithmatex">\(\ell\)</span> 与历史，策略 <span class="arithmatex">\(\pi\)</span> 输出动作 <span class="arithmatex">\(a_t\)</span>：</p>
+<div class="arithmatex">\[
 a_t \sim \pi_\theta(\cdot \mid o_{\le t}, \ell), \qquad a_t \in \mathbb{R}^d
-$$</p>
-<p>动作通常是 $d$ 维连续向量：例如 7 维机械臂动作（6 自由度末端位姿增量 + 1 维夹爪开合），或移动操作臂的更高维向量（底盘速度 + 臂 + 夹爪）。环境按动力学 $s_{t+1} = f(s_t, a_t)$ 演化，机器人获得新的观测，闭环继续。与游戏 AI 的关键区别在于：状态不可完全观测（遮挡、接触力不可见）、动力学含接触与形变（难建模）、且采样在真实时间里进行（一个 episode 可能耗时数十秒）。</p>
+\]</div>
+<p>动作通常是 <span class="arithmatex">\(d\)</span> 维连续向量：例如 7 维机械臂动作（6 自由度末端位姿增量 + 1 维夹爪开合），或移动操作臂的更高维向量（底盘速度 + 臂 + 夹爪）。环境按动力学 <span class="arithmatex">\(s_{t+1} = f(s_t, a_t)\)</span> 演化，机器人获得新的观测，闭环继续。与游戏 AI 的关键区别在于：状态不可完全观测（遮挡、接触力不可见）、动力学含接触与形变（难建模）、且采样在真实时间里进行（一个 episode 可能耗时数十秒）。</p>
 <p>这个闭环看似与游戏 AI、推荐系统同构，但魔鬼在细节里。其一，<strong>时间尺度的错位</strong>：语义层面的决策（"该去拿杯子了"）以秒计，而稳定的运动控制需要 10Hz 到上百 Hz 的连续输出，单一模型同时承担两个尺度在架构上是巨大的张力——后文将看到，几乎所有成功的 VLA 系统都以某种方式回应了这一张力。其二，<strong>观测-动作空间的异构性</strong>：输入是高维图像（数十万像素）与离散语言，输出是低维但强约束的连续向量，且动作的正确性无法由局部损失完全刻画（抓握成功与否取决于整条轨迹的接触力学后果）。其三，<strong>数据分布的长尾性</strong>：物理世界的物体、光照、布局组合是无界的，而任何真实数据集都是有界的，泛化不是加分项而是生死线。</p>
 <p><strong>为什么传统方法不够用？</strong> 经典机器人学把闭环拆成感知（检测/分割/位姿估计）、规划（运动规划、任务规划）、控制（MPC、阻抗控制）三个独立模块，各自依赖人工建模，在结构化工厂里工作良好，但在开放家庭环境中因感知误差级联与建模失效而脆弱。机器人学习试图用数据替代人工建模，但早期的单任务强化学习（RL）或模仿学习（IL）策略泛化极差：换一个杯子、挪一下桌子，成功率就崩溃。这正是"基础模型时代"的具身智能要解决的痛点：不是学一个任务的策略，而是学一个<strong>可泛化、可语言条件化、可迁移</strong>的通用策略。</p>
 <h3 id="22">2.2 模仿学习与行为克隆</h3>
-<p>VLA 的主训练范式是行为克隆（Behavior Cloning, BC）：给定专家遥操作（teleoperation）采集的轨迹数据集 $\mathcal{D} = {(o_t, \ell, a_t)}$，最大化动作的对数似然：</p>
-<p>$$
-\mathcal{L}<em _o_ell_a_sim_mathcal_D="(o,\ell,a)\sim\mathcal{D">{\text{BC}} = -\mathbb{E}</em> \log \pi_\theta(a \mid o, \ell)
-$$}</p>
+<p>VLA 的主训练范式是行为克隆（Behavior Cloning, BC）：给定专家遥操作（teleoperation）采集的轨迹数据集 <span class="arithmatex">\(\mathcal{D} = \{(o_t, \ell, a_t)\}\)</span>，最大化动作的对数似然：</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\text{BC}} = -\mathbb{E}_{(o,\ell,a)\sim\mathcal{D}} \log \pi_\theta(a \mid o, \ell)
+\]</div>
 <p>BC 简单、稳定、可扩展，但有协变量偏移（covariate shift）问题：训练分布是专家轨迹，测试时策略一旦偏离专家轨迹，就进入从未见过的状态，误差逐步累积。DAgger 类交互式方法可以缓解，但需要专家在线标注，成本高昂。实践中，大规模数据多样性本身被发现是对抗协变量偏移最暴力的解——这是 RT-1 与 Open X-Embodiment 的核心经验。</p>
-<p>与 BC 相对的是强化学习路线：通过与环境交互最大化回报 $\mathbb{E}\sum_t \gamma^t r_t$。RL 原则上能超越示范数据的上限（从自己的成败中学习），但真实机器人上的 RL 面临样本效率（一次真实交互以秒计，而 sim 中数百万步的算法难以直接迁移）与安全探索（试错即损耗硬件）的双重约束。因此 2022–2024 年的主流共识是"BC 打底、RL 点缀"，而 2025 年后 RL post-training 的复兴正是试图打破这一格局——详见第 5.5 节。</p>
-<p>另一个初学者易混淆的概念是<strong>语言条件化</strong>。VLA 中的语言指令 $\ell$ 不只是任务标签，而是泛化的载体：训练时见过"拿起红杯子"与"拿起蓝盘子"的策略，应当组合泛化到"拿起蓝杯子"。语言在这里扮演了任务空间的结构化参数化角色——这是语言条件策略区别于传统多任务策略（用 one-hot 任务 ID 条件化）的本质优势，也是 VLM 语义知识能够注入的自然接口。</p>
+<p>与 BC 相对的是强化学习路线：通过与环境交互最大化回报 <span class="arithmatex">\(\mathbb{E}\sum_t \gamma^t r_t\)</span>。RL 原则上能超越示范数据的上限（从自己的成败中学习），但真实机器人上的 RL 面临样本效率（一次真实交互以秒计，而 sim 中数百万步的算法难以直接迁移）与安全探索（试错即损耗硬件）的双重约束。因此 2022–2024 年的主流共识是"BC 打底、RL 点缀"，而 2025 年后 RL post-training 的复兴正是试图打破这一格局——详见第 5.5 节。</p>
+<p>另一个初学者易混淆的概念是<strong>语言条件化</strong>。VLA 中的语言指令 <span class="arithmatex">\(\ell\)</span> 不只是任务标签，而是泛化的载体：训练时见过"拿起红杯子"与"拿起蓝盘子"的策略，应当组合泛化到"拿起蓝杯子"。语言在这里扮演了任务空间的结构化参数化角色——这是语言条件策略区别于传统多任务策略（用 one-hot 任务 ID 条件化）的本质优势，也是 VLM 语义知识能够注入的自然接口。</p>
 <h3 id="23-token-flow-matching">2.3 动作表示：离散 token、扩散与 flow matching</h3>
-<p>VLA 最关键的设计决策是如何表示动作 $a_t$。三条路线：</p>
-<p><strong>(a) 离散动作 token。</strong> 将连续动作空间的每一维均匀量化为 $B$ 个 bin（如 256 个），映射为词表中的 token，动作预测退化为自回归文本生成。这允许直接复用语言模型的训练与推理基础设施——RT-1、RT-2、OpenVLA 均采用此路线。代价是：量化损失精细控制精度，且高维动作（双臂、全身）导致 token 序列变长、推理变慢。</p>
+<p>VLA 最关键的设计决策是如何表示动作 <span class="arithmatex">\(a_t\)</span>。三条路线：</p>
+<p><strong>(a) 离散动作 token。</strong> 将连续动作空间的每一维均匀量化为 <span class="arithmatex">\(B\)</span> 个 bin（如 256 个），映射为词表中的 token，动作预测退化为自回归文本生成。这允许直接复用语言模型的训练与推理基础设施——RT-1、RT-2、OpenVLA 均采用此路线。代价是：量化损失精细控制精度，且高维动作（双臂、全身）导致 token 序列变长、推理变慢。</p>
 <p><strong>(b) 扩散动作头（diffusion action head）。</strong> 以观测与语言为条件，用去噪扩散过程生成动作。Diffusion Policy 证明，条件扩散可以表达<strong>多峰动作分布</strong>（同一个"抓杯子"指令下存在多条合理轨迹），而单高斯回归会学到峰间平均、产生物理上不可行的动作。</p>
-<p><strong>(c) Flow matching。</strong> 扩散的一个更简洁的连续归一化流变体。给定噪声 $a^\tau = \tau a + (1-\tau)\epsilon$（$\epsilon \sim \mathcal{N}(0, I)$，$\tau \in [0,1]$），训练网络预测速度场 $v_\theta(a^\tau, \tau; o, \ell) \approx a - \epsilon$，损失为：</p>
-<p>$$
-\mathcal{L}<em>{\text{flow}} = \mathbb{E}\left| v</em>\theta(a^\tau, \tau; o, \ell) - (a - \epsilon) \right|^2
-$$</p>
+<p><strong>(c) Flow matching。</strong> 扩散的一个更简洁的连续归一化流变体。给定噪声 <span class="arithmatex">\(a^\tau = \tau a + (1-\tau)\epsilon\)</span>（<span class="arithmatex">\(\epsilon \sim \mathcal{N}(0, I)\)</span>，<span class="arithmatex">\(\tau \in [0,1]\)</span>），训练网络预测速度场 <span class="arithmatex">\(v_\theta(a^\tau, \tau; o, \ell) \approx a - \epsilon\)</span>，损失为：</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\text{flow}} = \mathbb{E}\left\| v_\theta(a^\tau, \tau; o, \ell) - (a - \epsilon) \right\|^2
+\]</div>
 <p>推理时从纯噪声出发沿常微分方程积分数步即可得到动作。π0 与 GR00T N1 选择了这条路线：它保留了连续动作的高精度与多峰性，推理只需少量积分步，比自回归逐 token 解码更适合高频控制。</p>
 <p>一个具体例子有助于理解离散化的代价：假设机械臂末端位置控制精度需要 1mm，工作空间跨度约 1m，则单维至少需要 1000 个有效级别；而 256 bin 意味着约 4mm 的分辨率——对抓放足够，对插拔、擦拭、折叠等接触任务则力不从心。提高 bin 数会拉长 token 序列并稀释每维的监督信号，这正是离散路线的内在张力。</p>
-<p><strong>动作块（action chunk）。</strong> 现代 VLA 几乎不逐步预测单个动作，而是一次预测长度为 $H$ 的动作序列 $a_{t:t+H}$（如 π0 预测 50 步、以 50Hz 执行），部分开环执行后重新规划。Chunking 既摊薄了大模型的推理延迟，也使策略能表达短时程的连贯运动模式。</p>
-<p>形式化地看协变量偏移：若单步策略的误差率为 $\epsilon$，则 $T$ 步闭环执行中，策略访问专家分布外状态的概率随 $T$ 增长，累计性能退化可达到 $O(T^2\epsilon)$ 量级——这就是为什么单步准确率看似很高的策略，在长程任务上仍会灾难性失败。CALVIN 以"连续完成多少个任务"作为核心指标，正是对这一效应的直接度量。</p>
+<p><strong>动作块（action chunk）。</strong> 现代 VLA 几乎不逐步预测单个动作，而是一次预测长度为 <span class="arithmatex">\(H\)</span> 的动作序列 <span class="arithmatex">\(a_{t:t+H}\)</span>（如 π0 预测 50 步、以 50Hz 执行），部分开环执行后重新规划。Chunking 既摊薄了大模型的推理延迟，也使策略能表达短时程的连贯运动模式。</p>
+<p>形式化地看协变量偏移：若单步策略的误差率为 <span class="arithmatex">\(\epsilon\)</span>，则 <span class="arithmatex">\(T\)</span> 步闭环执行中，策略访问专家分布外状态的概率随 <span class="arithmatex">\(T\)</span> 增长，累计性能退化可达到 <span class="arithmatex">\(O(T^2\epsilon)\)</span> 量级——这就是为什么单步准确率看似很高的策略，在长程任务上仍会灾难性失败。CALVIN 以"连续完成多少个任务"作为核心指标，正是对这一效应的直接度量。</p>
 <h3 id="24-vlm-vla">2.4 从 VLM 到 VLA：知识迁移的赌注</h3>
 <p>VLM（如 CLIP/SigLIP 视觉编码器 + LLM 主干）在互联网数据上学到了丰富的语义：它能认出"百事可乐"、理解"把最左边的物体放到最右边"、甚至进行多步推理。VLA 的赌注是这些语义表征可以<strong>接地（ground）</strong>到物理动作上。实现方式是在预训练 VLM 的基础上做协同微调（co-fine-tuning）：混合机器人轨迹数据与原始视觉-语言任务数据（VQA、图文匹配），让模型既不遗忘 web 知识（避免灾难性遗忘），又学会输出动作。协同微调的配比、冻结策略与损失权重是每个 VLA 工作的核心工程秘密。</p>
 <p>这里有一个值得初学者深思的问题：为什么语义知识对动作有用？直觉上，"知道什么是锤子"与"会抡锤子"是两种知识——前者是陈述性的（declarative），后者是程序性的（procedural）。VLA 路线的隐含假设是：陈述性知识构成的表征空间能为程序性知识的学习提供良好的归纳偏置——模型不需要从像素中重新发现"这是锤子"，只需在已知"锤子"的表征之上学习"如何操作锤子"。RT-2 的涌现能力实验（见 4.2 节）为这一假设提供了迄今最直接的证据；而 LIBERO 的发现（朴素预训练有时有害）则提醒我们，这一迁移并非无条件免费午餐。</p>

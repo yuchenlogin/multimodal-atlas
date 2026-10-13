@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>度量智能：评测基准与评估方法 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -59,8 +59,8 @@
 <p>目前主流的评分函数有三大类：</p>
 <ol>
 <li><strong>约束输出 + 规则匹配</strong>。要求模型按固定格式作答（"只输出选项字母"），再用正则表达式抽取答案。MME [7] 的"Yes/No"判断题是极端情形：输出空间被压缩到二元，评分退化为字符串匹配。问题在于：指令遵循能力弱的模型会被"不会答题格式"而非"不懂内容"惩罚；为此 MMBench [8] 引入 ChatGPT 辅助的选项抽取，把模型的自由回答先映射到选项再比对。</li>
-<li><strong>多选题 + 鲁棒化协议</strong>。把评测统一为多选题（multiple-choice question, MCQ）格式，使评分确定化。但 MCQ 引入新问题：模型存在选项位置偏好（position bias），即系统性偏好某个字母。MMBench 提出的 <strong>CircularEval</strong> 是经典解法：将 $N$ 个选项循环移位，生成 $N$ 个排列版本的问题，模型须在全部排列上都答对才算通过。这等价于对选项顺序做了一次"集成"，用 $N$ 倍的推理成本换取对位置偏好的免疫。</li>
-<li><strong>LLM-as-a-judge</strong>。用一个强 LLM（通常 GPT-4 级别）比较模型输出与参考答案，给出 0—1 或离散等级分数。MM-Vet [10] 在 2023 年率先将其系统化。形式上，judge 是一个函数 $J(x, q, y, y^<em>) \mapsto s \in [0,1]$，其中 $x$ 为图像、$q$ 为问题、$y$ 为被评模型的回答、$y^</em>$ 为参考答案。它解决了开放式回答的评分难题，却把整个评测的可靠性押在 judge 模型本身的公正性上——这是本报告第 5 节要展开的深层矛盾。</li>
+<li><strong>多选题 + 鲁棒化协议</strong>。把评测统一为多选题（multiple-choice question, MCQ）格式，使评分确定化。但 MCQ 引入新问题：模型存在选项位置偏好（position bias），即系统性偏好某个字母。MMBench 提出的 <strong>CircularEval</strong> 是经典解法：将 <span class="arithmatex">\(N\)</span> 个选项循环移位，生成 <span class="arithmatex">\(N\)</span> 个排列版本的问题，模型须在全部排列上都答对才算通过。这等价于对选项顺序做了一次"集成"，用 <span class="arithmatex">\(N\)</span> 倍的推理成本换取对位置偏好的免疫。</li>
+<li><strong>LLM-as-a-judge</strong>。用一个强 LLM（通常 GPT-4 级别）比较模型输出与参考答案，给出 0—1 或离散等级分数。MM-Vet [10] 在 2023 年率先将其系统化。形式上，judge 是一个函数 <span class="arithmatex">\(J(x, q, y, y^*) \mapsto s \in [0,1]\)</span>，其中 <span class="arithmatex">\(x\)</span> 为图像、<span class="arithmatex">\(q\)</span> 为问题、<span class="arithmatex">\(y\)</span> 为被评模型的回答、<span class="arithmatex">\(y^*\)</span> 为参考答案。它解决了开放式回答的评分难题，却把整个评测的可靠性押在 judge 模型本身的公正性上——这是本报告第 5 节要展开的深层矛盾。</li>
 </ol>
 <h3 id="22-taxonomy">2.2 能力 taxonomy：我们在度量什么</h3>
 <p>一个基准首先要回答：它声称度量的能力如何分解？文献中形成了几种有代表性的能力划分：</p>

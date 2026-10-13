@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>从 Transformer 到多模态基座 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -66,7 +66,7 @@
 <h3 id="12">1.2 本方向的核心问题</h3>
 <p>本篇贯穿三条核心问题线索：</p>
 <ol>
-<li><strong>表达与效率的张力</strong>：自注意力赋予任意两位置 $O(1)$ 的交互路径，代价是 $O(n^2)$ 的计算与存储。这条线索驱动了 MQA/GQA/MLA（压缩推理期 KV cache）、FlashAttention（压缩访存）、滑窗与稀疏注意力（压缩计算图）、乃至 linear attention / 状态空间模型（换掉注意力本身）等一系列工作。</li>
+<li><strong>表达与效率的张力</strong>：自注意力赋予任意两位置 <span class="arithmatex">\(O(1)\)</span> 的交互路径，代价是 <span class="arithmatex">\(O(n^2)\)</span> 的计算与存储。这条线索驱动了 MQA/GQA/MLA（压缩推理期 KV cache）、FlashAttention（压缩访存）、滑窗与稀疏注意力（压缩计算图）、乃至 linear attention / 状态空间模型（换掉注意力本身）等一系列工作。</li>
 <li><strong>规模与数据的张力</strong>：模型变大几乎总是变好，但算力与数据都是稀缺资源。给定预算，参数与数据如何配比？规模之外何时出现质变？这条线索驱动了 Kaplan 幂律、Chinchilla 计算最优、涌现能力研究与多模态 scaling 扩展。</li>
 <li><strong>能力与人意的张力</strong>：next-token prediction 训练出的是"互联网文本续写机"，不是"助手"。如何让强大但野生的模型变得有用、诚实、无害？这条线索驱动了 SFT → RLHF → DPO → RLVR 的整段后训练史。</li>
 </ol>
@@ -77,79 +77,79 @@
 <p>上图给出了 2017–2026 年间的代表性模型时间线。可以看到一个清晰模式：文本侧的架构创新（Transformer、RoPE、GQA、MoE、FlashAttention）通常领先多模态应用 1–3 年，随后被多模态模型批量吸收。本篇讲述的正是时间线左侧这些"被吸收的基件"。</p>
 <h2 id="2">2. 基础知识</h2>
 <h3 id="21-rnn-self-attention">2.1 从 RNN 到注意力：为什么需要 Self-Attention</h3>
-<p>在 Transformer 之前，序列建模的主力是 RNN/LSTM。RNN 的根本缺陷有二：其一，计算必须沿时间步串行进行，第 $t$ 步的隐状态依赖第 $t-1$ 步，无法并行——这意味着序列长度直接乘在训练时间上，GPU 的并行算力被结构性浪费；其二，信息必须逐步传递，长距离依赖在反复的非线性压缩中衰减（梯度消失问题的另一种表现），LSTM 的门控机制缓解了但并未根除这个问题。CNN 系的方案（如 ConvS2S）可以并行，但感受野随层数线性增长，建模全局依赖需要堆很多层。注意力机制（attention）最初是作为 RNN 编码器-解码器之间的辅助对齐工具出现的——解码每个词时"回头看"源句的哪些词最相关。而 Vaswani 等人在 2017 年提出了一个激进的观点：<strong>既然注意力已经足够强，为什么不抛弃循环与卷积，只用注意力？</strong> 这就是《Attention Is All You Need》[1]。回看历史，这个"激进"判断的赌注在于：它赌硬件的并行红利会补偿注意力 $O(n^2)$ 的复杂度劣势——在当时序列长度只有几十上百的机器翻译场景，这个赌注稳赢。</p>
+<p>在 Transformer 之前，序列建模的主力是 RNN/LSTM。RNN 的根本缺陷有二：其一，计算必须沿时间步串行进行，第 <span class="arithmatex">\(t\)</span> 步的隐状态依赖第 <span class="arithmatex">\(t-1\)</span> 步，无法并行——这意味着序列长度直接乘在训练时间上，GPU 的并行算力被结构性浪费；其二，信息必须逐步传递，长距离依赖在反复的非线性压缩中衰减（梯度消失问题的另一种表现），LSTM 的门控机制缓解了但并未根除这个问题。CNN 系的方案（如 ConvS2S）可以并行，但感受野随层数线性增长，建模全局依赖需要堆很多层。注意力机制（attention）最初是作为 RNN 编码器-解码器之间的辅助对齐工具出现的——解码每个词时"回头看"源句的哪些词最相关。而 Vaswani 等人在 2017 年提出了一个激进的观点：<strong>既然注意力已经足够强，为什么不抛弃循环与卷积，只用注意力？</strong> 这就是《Attention Is All You Need》[1]。回看历史，这个"激进"判断的赌注在于：它赌硬件的并行红利会补偿注意力 <span class="arithmatex">\(O(n^2)\)</span> 的复杂度劣势——在当时序列长度只有几十上百的机器翻译场景，这个赌注稳赢。</p>
 <h3 id="22-self-attention">2.2 自注意力（Self-Attention）：数学形式</h3>
-<p>给定输入序列的 token 表示矩阵 $X \in \mathbb{R}^{n \times d}$（$n$ 为序列长度，$d$ 为模型维度），通过三组可学习投影矩阵 $W^Q, W^K, W^V \in \mathbb{R}^{d \times d_k}$ 得到查询（query）、键（key）、值（value）：</p>
-<p>$$Q = XW^Q,\quad K = XW^K,\quad V = XW^V$$</p>
+<p>给定输入序列的 token 表示矩阵 <span class="arithmatex">\(X \in \mathbb{R}^{n \times d}\)</span>（<span class="arithmatex">\(n\)</span> 为序列长度，<span class="arithmatex">\(d\)</span> 为模型维度），通过三组可学习投影矩阵 <span class="arithmatex">\(W^Q, W^K, W^V \in \mathbb{R}^{d \times d_k}\)</span> 得到查询（query）、键（key）、值（value）：</p>
+<div class="arithmatex">\[Q = XW^Q,\quad K = XW^K,\quad V = XW^V\]</div>
 <p>缩放点积注意力（scaled dot-product attention）定义为：</p>
-<p>$$\mathrm{Attention}(Q, K, V) = \mathrm{softmax}!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V$$</p>
-<p>逐行看：第 $i$ 个 token 的输出是所有 token 的 value 向量的加权和，权重由它的 query 与每个 key 的点积相似度经 softmax 归一化得到。这里有两个关键设计决策：</p>
+<div class="arithmatex">\[\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V\]</div>
+<p>逐行看：第 <span class="arithmatex">\(i\)</span> 个 token 的输出是所有 token 的 value 向量的加权和，权重由它的 query 与每个 key 的点积相似度经 softmax 归一化得到。这里有两个关键设计决策：</p>
 <ul>
 <li><strong>为什么用点积</strong>：点积可整块用矩阵乘法实现，高度并行，充分利用 GPU 的矩阵乘单元；</li>
-<li><strong>为什么除以 $\sqrt{d_k}$</strong>：当 $d_k$ 较大时，点积的方差随维度线性增长，softmax 会进入梯度极小的饱和区。除以 $\sqrt{d_k}$ 使注意力分数的方差维持在 $O(1)$，这是原作者基于"query/key 分量独立同分布、均值 0 方差 1"假设推出的缩放因子 [1]。</li>
+<li><strong>为什么除以 <span class="arithmatex">\(\sqrt{d_k}\)</span></strong>：当 <span class="arithmatex">\(d_k\)</span> 较大时，点积的方差随维度线性增长，softmax 会进入梯度极小的饱和区。除以 <span class="arithmatex">\(\sqrt{d_k}\)</span> 使注意力分数的方差维持在 <span class="arithmatex">\(O(1)\)</span>，这是原作者基于"query/key 分量独立同分布、均值 0 方差 1"假设推出的缩放因子 [1]。</li>
 </ul>
-<p>自注意力一次性建立了任意两个位置之间的直接通路——路径长度为 $O(1)$，彻底解决了 RNN 的长距离依赖衰减问题；代价是 $QK^\top$ 矩阵带来 $O(n^2 d)$ 的计算与 $O(n^2)$ 的注意力矩阵存储，这是后面所有效率变体要对付的"原罪"。</p>
-<p>一个有助直觉的类比：把每个 token 想成图书馆里的读者，query 是"我想找什么资料"，key 是"我能提供什么资料"的索引卡，value 是资料本身。每个读者拿自己的 query 去匹配所有人的索引卡，按匹配度加权取回资料——一轮操作后，每个位置都聚合了全序列的相关信息。RNN 里信息要"口口相传"，距离 $k$ 的两个位置需要 $k$ 步传递且每步都有损耗；注意力则相当于一次全员大会，代价是会议规模随人数的平方增长。</p>
-<p><strong>因果掩码（causal masking）</strong>：用于自回归语言建模时，第 $i$ 个位置不允许"看到"未来，实现上在 softmax 之前把 $QK^\top$ 的上三角（$j &gt; i$ 的部分）置为 $-\infty$。这一改动把 Transformer 从双向编码器变成了从左到右的生成器，是 GPT 系列的起点（见 2.8 节）。</p>
+<p>自注意力一次性建立了任意两个位置之间的直接通路——路径长度为 <span class="arithmatex">\(O(1)\)</span>，彻底解决了 RNN 的长距离依赖衰减问题；代价是 <span class="arithmatex">\(QK^\top\)</span> 矩阵带来 <span class="arithmatex">\(O(n^2 d)\)</span> 的计算与 <span class="arithmatex">\(O(n^2)\)</span> 的注意力矩阵存储，这是后面所有效率变体要对付的"原罪"。</p>
+<p>一个有助直觉的类比：把每个 token 想成图书馆里的读者，query 是"我想找什么资料"，key 是"我能提供什么资料"的索引卡，value 是资料本身。每个读者拿自己的 query 去匹配所有人的索引卡，按匹配度加权取回资料——一轮操作后，每个位置都聚合了全序列的相关信息。RNN 里信息要"口口相传"，距离 <span class="arithmatex">\(k\)</span> 的两个位置需要 <span class="arithmatex">\(k\)</span> 步传递且每步都有损耗；注意力则相当于一次全员大会，代价是会议规模随人数的平方增长。</p>
+<p><strong>因果掩码（causal masking）</strong>：用于自回归语言建模时，第 <span class="arithmatex">\(i\)</span> 个位置不允许"看到"未来，实现上在 softmax 之前把 <span class="arithmatex">\(QK^\top\)</span> 的上三角（<span class="arithmatex">\(j &gt; i\)</span> 的部分）置为 <span class="arithmatex">\(-\infty\)</span>。这一改动把 Transformer 从双向编码器变成了从左到右的生成器，是 GPT 系列的起点（见 2.8 节）。</p>
 <h3 id="23-multi-head-attention">2.3 多头注意力（Multi-Head Attention）</h3>
-<p>单一注意力分布只能在一个表示子空间里计算相似度。多头注意力把 $Q, K, V$ 分别切成 $h$ 份（每份维度 $d_k = d/h$），并行计算 $h$ 组注意力再拼接投影：</p>
-<p>$$\mathrm{MHA}(X) = \mathrm{Concat}(\mathrm{head}_1, \dots, \mathrm{head}_h)\, W^O,\qquad \mathrm{head}_i = \mathrm{Attention}(XW_i^Q, XW_i^K, XW_i^V)$$</p>
-<p>直觉上，不同 head 可以学习不同性质的关系（语法依存、指代、位置邻近等）——后续的可解释性研究确实在特定 head 中观察到了可辨识的句法与语义角色。多头的计算量与单头（同总维度）几乎相同，却显著增强了表达能力。原始 Transformer 的 base/big 配置为 $d=512/1024$、$h=8/16$ [1]；当代大模型如 7B 量级常用 $d=4096, h=32$。</p>
-<p>一个实用的比例经验：head 维度 $d_k$ 通常固定在 64–128，扩大模型时优先加 head 数而非加大 $d_k$。过小的 $d_k$ 让每个 head 的"相似度判断"欠参数化，过大的 $d_k$ 则浪费并行的多样性。这个看似琐碎的工程约定，在 2.7 节的 KV cache 讨论中会突然变得重要——head 数与 $d_k$ 的乘积直接决定缓存体积。</p>
+<p>单一注意力分布只能在一个表示子空间里计算相似度。多头注意力把 <span class="arithmatex">\(Q, K, V\)</span> 分别切成 <span class="arithmatex">\(h\)</span> 份（每份维度 <span class="arithmatex">\(d_k = d/h\)</span>），并行计算 <span class="arithmatex">\(h\)</span> 组注意力再拼接投影：</p>
+<div class="arithmatex">\[\mathrm{MHA}(X) = \mathrm{Concat}(\mathrm{head}_1, \dots, \mathrm{head}_h)\, W^O,\qquad \mathrm{head}_i = \mathrm{Attention}(XW_i^Q, XW_i^K, XW_i^V)\]</div>
+<p>直觉上，不同 head 可以学习不同性质的关系（语法依存、指代、位置邻近等）——后续的可解释性研究确实在特定 head 中观察到了可辨识的句法与语义角色。多头的计算量与单头（同总维度）几乎相同，却显著增强了表达能力。原始 Transformer 的 base/big 配置为 <span class="arithmatex">\(d=512/1024\)</span>、<span class="arithmatex">\(h=8/16\)</span> [1]；当代大模型如 7B 量级常用 <span class="arithmatex">\(d=4096, h=32\)</span>。</p>
+<p>一个实用的比例经验：head 维度 <span class="arithmatex">\(d_k\)</span> 通常固定在 64–128，扩大模型时优先加 head 数而非加大 <span class="arithmatex">\(d_k\)</span>。过小的 <span class="arithmatex">\(d_k\)</span> 让每个 head 的"相似度判断"欠参数化，过大的 <span class="arithmatex">\(d_k\)</span> 则浪费并行的多样性。这个看似琐碎的工程约定，在 2.7 节的 KV cache 讨论中会突然变得重要——head 数与 <span class="arithmatex">\(d_k\)</span> 的乘积直接决定缓存体积。</p>
 <h3 id="24-ffn">2.4 前馈网络（FFN）与激活函数</h3>
 <p>每个 Transformer 块里，注意力之后是一个逐位置（position-wise）两层 MLP：</p>
-<p>$$\mathrm{FFN}(x) = W_2\, \sigma(W_1 x + b_1) + b_2$$</p>
-<p>隐层维度通常为 $4d$（原论文 $d_{ff}=2048$ 对 $d=512$）[1]。FFN 占模型参数量的约 2/3，被认为是模型的"知识存储器"，而注意力负责"信息搬运"。</p>
+<div class="arithmatex">\[\mathrm{FFN}(x) = W_2\, \sigma(W_1 x + b_1) + b_2\]</div>
+<p>隐层维度通常为 <span class="arithmatex">\(4d\)</span>（原论文 <span class="arithmatex">\(d_{ff}=2048\)</span> 对 <span class="arithmatex">\(d=512\)</span>）[1]。FFN 占模型参数量的约 2/3，被认为是模型的"知识存储器"，而注意力负责"信息搬运"。</p>
 <p>激活函数经历了 ReLU → GELU → SwiGLU 的演进。当代开源模型的标准配置是 <strong>SwiGLU</strong>：</p>
-<p>$$\mathrm{SwiGLU}(x) = \bigl(\mathrm{Swish}(xW_1) \odot xW_3\bigr) W_2,\quad \mathrm{Swish}(x) = x \cdot \mathrm{sigmoid}(x)$$</p>
-<p>门控结构（element-wise 乘一个线性分支）带来更平滑的优化景观；为保持参数量不变，隐层维度通常从 $4d$ 调整到约 $8d/3$。SwiGLU 是 LLaMA、Qwen、Mistral、DeepSeek 等现代模型的共同选择 [13, 19, 22]。</p>
+<div class="arithmatex">\[\mathrm{SwiGLU}(x) = \bigl(\mathrm{Swish}(xW_1) \odot xW_3\bigr) W_2,\quad \mathrm{Swish}(x) = x \cdot \mathrm{sigmoid}(x)\]</div>
+<p>门控结构（element-wise 乘一个线性分支）带来更平滑的优化景观；为保持参数量不变，隐层维度通常从 <span class="arithmatex">\(4d\)</span> 调整到约 <span class="arithmatex">\(8d/3\)</span>。SwiGLU 是 LLaMA、Qwen、Mistral、DeepSeek 等现代模型的共同选择 [13, 19, 22]。</p>
 <h3 id="25-post-norm-pre-norm">2.5 残差连接与归一化：Post-Norm 到 Pre-Norm</h3>
-<p>深网络训练的两个敌人是梯度消失与表示漂移。Transformer 用残差连接 $x + \mathrm{SubLayer}(x)$ 保证梯度有直通路径，用层归一化（LayerNorm）把每层输入拉回稳定分布。二者的组合方式有重要分野：</p>
+<p>深网络训练的两个敌人是梯度消失与表示漂移。Transformer 用残差连接 <span class="arithmatex">\(x + \mathrm{SubLayer}(x)\)</span> 保证梯度有直通路径，用层归一化（LayerNorm）把每层输入拉回稳定分布。二者的组合方式有重要分野：</p>
 <ul>
-<li><strong>Post-Norm</strong>（原始 Transformer）：$x \leftarrow \mathrm{LayerNorm}(x + \mathrm{SubLayer}(x))$。归一化施加在残差相加之后，意味着"主干"上的表示每过一层就被重新归一一次；浅层时这有利于表示规整，但层数加深后，反向传播的梯度要穿过每一层的 LayerNorm 雅可比，深层模型在训练初期极易出现梯度爆炸/消失，必须配合精心设计的学习率 warmup 才能启动。</li>
-<li><strong>Pre-Norm</strong>：$x \leftarrow x + \mathrm{SubLayer}(\mathrm{LayerNorm}(x))$。归一化只作用在分支内部，残差主干从第一层到最后一层是纯粹的恒等累加——反向传播时梯度沿主干无损直达任意深度。这就是为什么 GPT-3 时代的 96 层、PaLM 的 118 层能够稳定训练：Pre-Norm 把"深度"从优化难题变成了简单的超参数。代价是理论上表示能力略弱（主干缺乏正则），实践中无人介意。</li>
+<li><strong>Post-Norm</strong>（原始 Transformer）：<span class="arithmatex">\(x \leftarrow \mathrm{LayerNorm}(x + \mathrm{SubLayer}(x))\)</span>。归一化施加在残差相加之后，意味着"主干"上的表示每过一层就被重新归一一次；浅层时这有利于表示规整，但层数加深后，反向传播的梯度要穿过每一层的 LayerNorm 雅可比，深层模型在训练初期极易出现梯度爆炸/消失，必须配合精心设计的学习率 warmup 才能启动。</li>
+<li><strong>Pre-Norm</strong>：<span class="arithmatex">\(x \leftarrow x + \mathrm{SubLayer}(\mathrm{LayerNorm}(x))\)</span>。归一化只作用在分支内部，残差主干从第一层到最后一层是纯粹的恒等累加——反向传播时梯度沿主干无损直达任意深度。这就是为什么 GPT-3 时代的 96 层、PaLM 的 118 层能够稳定训练：Pre-Norm 把"深度"从优化难题变成了简单的超参数。代价是理论上表示能力略弱（主干缺乏正则），实践中无人介意。</li>
 </ul>
 <p>归一化层本身也在简化：<strong>RMSNorm</strong> 去掉了 LayerNorm 的均值中心化，只做均方根缩放：</p>
-<p>$$\mathrm{RMSNorm}(x) = \frac{x}{\sqrt{\frac{1}{d}\sum_{i=1}^{d} x_i^2 + \epsilon}} \cdot g$$</p>
+<div class="arithmatex">\[\mathrm{RMSNorm}(x) = \frac{x}{\sqrt{\frac{1}{d}\sum_{i=1}^{d} x_i^2 + \epsilon}} \cdot g\]</div>
 <p>实验表明中心化贡献有限而计算可省约一半归一化开销。RMSNorm + Pre-Norm + SwiGLU + RoPE 构成 2023 年后开源大模型的"现代配方"四件套 [13, 22]。</p>
 <h3 id="26">2.6 位置编码：让模型知道"谁在哪"</h3>
 <p>自注意力本身是<strong>置换等变</strong>（permutation-equivariant）的：打乱输入顺序，输出也仅被打乱。但语言里顺序即意义，必须显式注入位置信息。</p>
-<p><strong>（1）正弦绝对位置编码（Sinusoidal）</strong> [1]：为每个位置 $pos$ 构造一个确定性的向量，维度 $2i$ 与 $2i+1$ 分别为</p>
-<p>$$\mathrm{PE}(pos, 2i) = \sin!\left(\frac{pos}{10000^{2i/d}}\right),\qquad \mathrm{PE}(pos, 2i+1) = \cos!\left(\frac{pos}{10000^{2i/d}}\right)$$</p>
-<p>不同频率的正弦/余弦构成一组"位置基"，任意偏移 $k$ 后 $\mathrm{PE}(pos+k)$ 是 $\mathrm{PE}(pos)$ 的线性函数，理论上便于学习相对位置。优点是零参数、可外推到任意长度；实践中直接加到 token 嵌入上。</p>
-<p><strong>（2）可学习位置嵌入（Learned PE）</strong>：BERT、GPT-2、ViT 给每个位置一个可训练向量。效果略优于正弦编码，但训练时见过最长 $n_{\max}$ 个位置，推理时无法超出——外推性差是其致命伤。</p>
+<p><strong>（1）正弦绝对位置编码（Sinusoidal）</strong> [1]：为每个位置 <span class="arithmatex">\(pos\)</span> 构造一个确定性的向量，维度 <span class="arithmatex">\(2i\)</span> 与 <span class="arithmatex">\(2i+1\)</span> 分别为</p>
+<div class="arithmatex">\[\mathrm{PE}(pos, 2i) = \sin\!\left(\frac{pos}{10000^{2i/d}}\right),\qquad \mathrm{PE}(pos, 2i+1) = \cos\!\left(\frac{pos}{10000^{2i/d}}\right)\]</div>
+<p>不同频率的正弦/余弦构成一组"位置基"，任意偏移 <span class="arithmatex">\(k\)</span> 后 <span class="arithmatex">\(\mathrm{PE}(pos+k)\)</span> 是 <span class="arithmatex">\(\mathrm{PE}(pos)\)</span> 的线性函数，理论上便于学习相对位置。优点是零参数、可外推到任意长度；实践中直接加到 token 嵌入上。</p>
+<p><strong>（2）可学习位置嵌入（Learned PE）</strong>：BERT、GPT-2、ViT 给每个位置一个可训练向量。效果略优于正弦编码，但训练时见过最长 <span class="arithmatex">\(n_{\max}\)</span> 个位置，推理时无法超出——外推性差是其致命伤。</p>
 <p><strong>（3）相对位置编码与 ALiBi</strong> [10]：与其编码绝对位置，不如直接在注意力分数里加入与相对距离有关的偏置。<strong>ALiBi（Attention with Linear Biases）</strong> 把它推到极致：</p>
-<p>$$\mathrm{score}(q_i, k_j) = \frac{q_i \cdot k_j}{\sqrt{d_k}} - m_h \cdot |i - j|$$</p>
-<p>每个 head 用一个固定的斜率 $m_h$（按 $2^{-8h/H}$ 几何数列设置），距离越远惩罚越大。ALiBi 完全不加位置向量，却能实现出色的长度外推：论文报告 1.3B 模型在 1024 长度上训练，可外推到 2048 长度且困惑度与训练到 2048 的正弦位置模型相当 [10]。缺点是线性偏置表达能力有限，长距离信息被硬性衰减。</p>
-<p><strong>（4）旋转位置编码 RoPE（Rotary Position Embedding）</strong> [8]：当代大模型的事实标准。核心思想是：把 $d$ 维向量两两分组，对位置 $m$ 的 query/key 向量施加一个与 $m$ 成正比的二维旋转。形式化地，将嵌入维度两两配对为 $(x_{2i}, x_{2i+1})$，定义旋转矩阵</p>
-<p>$$R_{\Theta, m} = \begin{pmatrix} \cos m\theta_i &amp; -\sin m\theta_i \ \sin m\theta_i &amp; \cos m\theta_i \end{pmatrix},\qquad \theta_i = 10000^{-2i/d}$$</p>
-<p>对位置 $m$ 的 query 与位置 $n$ 的 key 分别旋转后做点积，利用旋转矩阵的性质 $R_{\Theta,m}^\top R_{\Theta,n} = R_{\Theta, n-m}$，注意力分数只依赖<strong>相对位置</strong> $n-m$：</p>
-<p>$$\langle R_{\Theta,m}\, q,\; R_{\Theta,n}\, k \rangle = \langle q,\; R_{\Theta,\,n-m}\, k \rangle$$</p>
-<p>这实现了"以绝对方式实现、以相对方式生效"：实现上只是对 $Q, K$ 各做一次逐位置的旋转（可以用复数乘法高效计算——把每对维度看作一个复数，位置 $m$ 的旋转就是乘以 $e^{im\theta_i}$），效果上注意力天然感知相对距离，且远程依赖随距离自然衰减（RoPE 论文证明的长程衰减性质）[8]。</p>
-<p>值得玩味的是各维度的频率分工：低维（$i$ 小）对应的 $\theta_i$ 大、旋转快，负责编码近距离的精细位置差；高维旋转慢、周期长达上万，负责粗粒度的远程结构。这种"多尺度时钟"结构与原始正弦编码一脉相承——RoPE 可以看作把正弦编码从"加在嵌入上"改为"乘在 Q/K 上"，从而让相对性成为内禀性质而非需要学习的巧合。RoPE 的主要弱点是训练长度外的外推能力差，由此催生了位置插值（Position Interpolation）、NTK-aware 缩放与 <strong>YaRN</strong>（按频率分组做差异化插值，少量微调即可数倍扩展上下文窗口）[18] 等一系列长上下文技术。2026 年的位置编码综述把这条谱系总结为：absolute → relative → RoPE → 长上下文 scaling [27]。</p>
+<div class="arithmatex">\[\mathrm{score}(q_i, k_j) = \frac{q_i \cdot k_j}{\sqrt{d_k}} - m_h \cdot |i - j|\]</div>
+<p>每个 head 用一个固定的斜率 <span class="arithmatex">\(m_h\)</span>（按 <span class="arithmatex">\(2^{-8h/H}\)</span> 几何数列设置），距离越远惩罚越大。ALiBi 完全不加位置向量，却能实现出色的长度外推：论文报告 1.3B 模型在 1024 长度上训练，可外推到 2048 长度且困惑度与训练到 2048 的正弦位置模型相当 [10]。缺点是线性偏置表达能力有限，长距离信息被硬性衰减。</p>
+<p><strong>（4）旋转位置编码 RoPE（Rotary Position Embedding）</strong> [8]：当代大模型的事实标准。核心思想是：把 <span class="arithmatex">\(d\)</span> 维向量两两分组，对位置 <span class="arithmatex">\(m\)</span> 的 query/key 向量施加一个与 <span class="arithmatex">\(m\)</span> 成正比的二维旋转。形式化地，将嵌入维度两两配对为 <span class="arithmatex">\((x_{2i}, x_{2i+1})\)</span>，定义旋转矩阵</p>
+<div class="arithmatex">\[R_{\Theta, m} = \begin{pmatrix} \cos m\theta_i &amp; -\sin m\theta_i \\ \sin m\theta_i &amp; \cos m\theta_i \end{pmatrix},\qquad \theta_i = 10000^{-2i/d}\]</div>
+<p>对位置 <span class="arithmatex">\(m\)</span> 的 query 与位置 <span class="arithmatex">\(n\)</span> 的 key 分别旋转后做点积，利用旋转矩阵的性质 <span class="arithmatex">\(R_{\Theta,m}^\top R_{\Theta,n} = R_{\Theta, n-m}\)</span>，注意力分数只依赖<strong>相对位置</strong> <span class="arithmatex">\(n-m\)</span>：</p>
+<div class="arithmatex">\[\langle R_{\Theta,m}\, q,\; R_{\Theta,n}\, k \rangle = \langle q,\; R_{\Theta,\,n-m}\, k \rangle\]</div>
+<p>这实现了"以绝对方式实现、以相对方式生效"：实现上只是对 <span class="arithmatex">\(Q, K\)</span> 各做一次逐位置的旋转（可以用复数乘法高效计算——把每对维度看作一个复数，位置 <span class="arithmatex">\(m\)</span> 的旋转就是乘以 <span class="arithmatex">\(e^{im\theta_i}\)</span>），效果上注意力天然感知相对距离，且远程依赖随距离自然衰减（RoPE 论文证明的长程衰减性质）[8]。</p>
+<p>值得玩味的是各维度的频率分工：低维（<span class="arithmatex">\(i\)</span> 小）对应的 <span class="arithmatex">\(\theta_i\)</span> 大、旋转快，负责编码近距离的精细位置差；高维旋转慢、周期长达上万，负责粗粒度的远程结构。这种"多尺度时钟"结构与原始正弦编码一脉相承——RoPE 可以看作把正弦编码从"加在嵌入上"改为"乘在 Q/K 上"，从而让相对性成为内禀性质而非需要学习的巧合。RoPE 的主要弱点是训练长度外的外推能力差，由此催生了位置插值（Position Interpolation）、NTK-aware 缩放与 <strong>YaRN</strong>（按频率分组做差异化插值，少量微调即可数倍扩展上下文窗口）[18] 等一系列长上下文技术。2026 年的位置编码综述把这条谱系总结为：absolute → relative → RoPE → 长上下文 scaling [27]。</p>
 <h3 id="27-mqa-gqa-mla-flashattention">2.7 注意力效率变体：MQA / GQA / MLA 与 FlashAttention</h3>
-<p>自回归推理时，每生成一个 token 都要用它与<strong>所有历史 token</strong> 做注意力。为避免重复计算，历史 token 的 $K, V$ 被缓存下来（KV cache）。KV cache 的大小为 $O(n \cdot h \cdot d_k \cdot L)$（$L$ 为层数），长序列 + 大 batch 下显存带宽成为推理瓶颈——这正是 MQA/GQA/MLA 的靶心。</p>
+<p>自回归推理时，每生成一个 token 都要用它与<strong>所有历史 token</strong> 做注意力。为避免重复计算，历史 token 的 <span class="arithmatex">\(K, V\)</span> 被缓存下来（KV cache）。KV cache 的大小为 <span class="arithmatex">\(O(n \cdot h \cdot d_k \cdot L)\)</span>（<span class="arithmatex">\(L\)</span> 为层数），长序列 + 大 batch 下显存带宽成为推理瓶颈——这正是 MQA/GQA/MLA 的靶心。</p>
 <p>先建立一个关键的数量级直觉：解码阶段每个新 token 都要从 HBM 读入<strong>全部</strong>历史 KV cache，而矩阵-向量乘的算术强度极低——解码是纯粹的访存受限（memory-bound）操作。也就是说，推理速度几乎与 FLOPs 无关，正比于 KV cache 的字节数。于是"压缩 KV cache"与"加速推理"变成了同一件事，这就是下面三种方案的统一逻辑，差别只在压缩手法。</p>
 <ul>
-<li><strong>MQA（Multi-Query Attention，2019）</strong> [4]：所有 query head 共享同一组 $K, V$。KV cache 缩小 $h$ 倍，解码显著加速；代价是质量下降。</li>
-<li><strong>GQA（Grouped-Query Attention，2023）</strong> [16]：把 $h$ 个 query head 分成 $g$ 组，每组共享一组 $K, V$。$g=1$ 退化为 MQA，$g=h$ 退化为 MHA。论文表明 GQA-8 的质量几乎与 MHA 持平、推理速度接近 MQA，并可通过对已有 MHA 检查点用 5% 预训练算力"uptraining"转换而来 [16]。GQA 如今是 Llama 2/3、Mistral、Qwen 等开源模型的标配。</li>
-<li><strong>MLA（Multi-head Latent Attention，DeepSeek-V2/V3，2024）</strong> [21, 23]：不再共享 K/V head，而是把每个 token 的 $K, V$ 联合低秩压缩到一个潜在向量 $c_t \in \mathbb{R}^{d_c}$（$d_c \ll h \cdot d_k$），推理时只缓存 $c_t$（及 RoPE 所需的少量解耦 key），使用时再升维重构：</li>
+<li><strong>MQA（Multi-Query Attention，2019）</strong> [4]：所有 query head 共享同一组 <span class="arithmatex">\(K, V\)</span>。KV cache 缩小 <span class="arithmatex">\(h\)</span> 倍，解码显著加速；代价是质量下降。</li>
+<li><strong>GQA（Grouped-Query Attention，2023）</strong> [16]：把 <span class="arithmatex">\(h\)</span> 个 query head 分成 <span class="arithmatex">\(g\)</span> 组，每组共享一组 <span class="arithmatex">\(K, V\)</span>。<span class="arithmatex">\(g=1\)</span> 退化为 MQA，<span class="arithmatex">\(g=h\)</span> 退化为 MHA。论文表明 GQA-8 的质量几乎与 MHA 持平、推理速度接近 MQA，并可通过对已有 MHA 检查点用 5% 预训练算力"uptraining"转换而来 [16]。GQA 如今是 Llama 2/3、Mistral、Qwen 等开源模型的标配。</li>
+<li><strong>MLA（Multi-head Latent Attention，DeepSeek-V2/V3，2024）</strong> [21, 23]：不再共享 K/V head，而是把每个 token 的 <span class="arithmatex">\(K, V\)</span> 联合低秩压缩到一个潜在向量 <span class="arithmatex">\(c_t \in \mathbb{R}^{d_c}\)</span>（<span class="arithmatex">\(d_c \ll h \cdot d_k\)</span>），推理时只缓存 <span class="arithmatex">\(c_t\)</span>（及 RoPE 所需的少量解耦 key），使用时再升维重构：</li>
 </ul>
-<p>$$c_t = W^{DKV} x_t,\qquad k_t = W^{UK} c_t,\quad v_t = W^{UV} c_t$$</p>
-<p>由于 $W^{UK}$ 可与 $W^Q$ 在推理时合并（矩阵乘结合律），升维几乎不产生额外计算。DeepSeek-V2 报告 KV cache 减少 93.3%、最大生成吞吐提升至 5.76 倍 [21]。MLA 代表了从"删 head"到"压表示"的思路升级：缓存的是信息的低秩瓶颈而非删减后的原表示。</p>
+<div class="arithmatex">\[c_t = W^{DKV} x_t,\qquad k_t = W^{UK} c_t,\quad v_t = W^{UV} c_t\]</div>
+<p>由于 <span class="arithmatex">\(W^{UK}\)</span> 可与 <span class="arithmatex">\(W^Q\)</span> 在推理时合并（矩阵乘结合律），升维几乎不产生额外计算。DeepSeek-V2 报告 KV cache 减少 93.3%、最大生成吞吐提升至 5.76 倍 [21]。MLA 代表了从"删 head"到"压表示"的思路升级：缓存的是信息的低秩瓶颈而非删减后的原表示。</p>
 <ul>
-<li><strong>FlashAttention（2022）</strong> [12]：与前三个改架构的方法不同，FlashAttention 是<strong>不改变数学结果的系统层优化</strong>。标准实现把 $n\times n$ 注意力矩阵整体物化到 GPU 高带宽显存（HBM），读写开销 $O(n^2)$；FlashAttention 利用 GPU 片上 SRAM 分块（tiling）计算注意力，配合在线 softmax（online softmax，逐块维护归一化常数）避免物化整个矩阵，HBM 访问量从 $O(n^2)$ 降到 $O(n^2 d^2 / M)$（$M$ 为 SRAM 大小），显存复杂度降为线性，并带来端到端加速（论文报告 BERT-large 训练 15% 墙钟时间加速）[12]。FlashAttention-2 进一步优化并行划分（沿序列维度并行而非仅 batch×head）与 warp 分工（减少共享内存读写与同步），速度再翻倍 [17]。</li>
+<li><strong>FlashAttention（2022）</strong> [12]：与前三个改架构的方法不同，FlashAttention 是<strong>不改变数学结果的系统层优化</strong>。标准实现把 <span class="arithmatex">\(n\times n\)</span> 注意力矩阵整体物化到 GPU 高带宽显存（HBM），读写开销 <span class="arithmatex">\(O(n^2)\)</span>；FlashAttention 利用 GPU 片上 SRAM 分块（tiling）计算注意力，配合在线 softmax（online softmax，逐块维护归一化常数）避免物化整个矩阵，HBM 访问量从 <span class="arithmatex">\(O(n^2)\)</span> 降到 <span class="arithmatex">\(O(n^2 d^2 / M)\)</span>（<span class="arithmatex">\(M\)</span> 为 SRAM 大小），显存复杂度降为线性，并带来端到端加速（论文报告 BERT-large 训练 15% 墙钟时间加速）[12]。FlashAttention-2 进一步优化并行划分（沿序列维度并行而非仅 batch×head）与 warp 分工（减少共享内存读写与同步），速度再翻倍 [17]。</li>
 </ul>
-<p>一个常见误解需要澄清：FlashAttention 并没有降低注意力的 FLOPs——$QK^\top V$ 的乘加次数一次不少。它优化的是<strong>内存墙</strong>：现代 GPU 的算力增长远快于显存带宽，许多 kernel 的实际瓶颈是把数据在 HBM 与 SRAM 之间来回搬运。FlashAttention 把 $O(n^2)$ 的中间矩阵读写从 HBM 挪进片上 SRAM，于是同样的数学、同样的精度，换来数倍的墙钟加速和线性的显存占用。它的深远影响在于确立了一个方法论：<strong>架构创新必须与硬件内存层级协同设计</strong>，这一视角在 2025 年 DeepSeek 团队的硬件复盘文中被系统化 [25]。今天，"是否 FlashAttention 友好"事实上成为新注意力变体能否被社区采纳的隐形门槛。</p>
+<p>一个常见误解需要澄清：FlashAttention 并没有降低注意力的 FLOPs——<span class="arithmatex">\(QK^\top V\)</span> 的乘加次数一次不少。它优化的是<strong>内存墙</strong>：现代 GPU 的算力增长远快于显存带宽，许多 kernel 的实际瓶颈是把数据在 HBM 与 SRAM 之间来回搬运。FlashAttention 把 <span class="arithmatex">\(O(n^2)\)</span> 的中间矩阵读写从 HBM 挪进片上 SRAM，于是同样的数学、同样的精度，换来数倍的墙钟加速和线性的显存占用。它的深远影响在于确立了一个方法论：<strong>架构创新必须与硬件内存层级协同设计</strong>，这一视角在 2025 年 DeepSeek 团队的硬件复盘文中被系统化 [25]。今天，"是否 FlashAttention 友好"事实上成为新注意力变体能否被社区采纳的隐形门槛。</p>
 <h3 id="271-moe">2.7.1 混合专家（MoE）：用稀疏激活解耦参数与计算</h3>
-<p>稠密（dense）模型的每个 token 都流经全部参数，参数量与计算量死死绑定——想把模型做大以容纳更多知识，就必须等比例付出训练和推理 FLOPs。<strong>混合专家（Mixture-of-Experts, MoE）</strong> 打破这个绑定：把每层 FFN 复制成 $N$ 份"专家"，配一个轻量路由网络（router/gating network），每个 token 只被分派给 $k \ll N$ 个专家。参数量扩大 $N$ 倍，每 token 的计算量只扩大 $k$ 倍。</p>
-<p>形式上，给定 token 表示 $x$，路由器产生专家打分并经 softmax 得到门控权重：</p>
-<p>$$p_i(x) = \mathrm{softmax}\bigl(W_r \, x\bigr)<em _in="\in" _mathrm_TopK="\mathrm{TopK" i="i">i,\qquad \mathrm{MoE}(x) = \sum</em>_i(x)$$}(x)} g_i(x)\, \mathrm{FFN</p>
-<p>其中 $g_i(x)$ 为 top-$k$ 选中专家的（重归一化）门控权重。Shazeer 等人 2017 年的稀疏门控 MoE [2] 首次在 LSTM 堆叠中验证了这一思想，并在打分中加入可学习噪声以促进负载均衡。但朴素 top-k 路由有一个工程灾难：如果路由坍缩到少数专家（"赢者通吃"），其余专家得不到训练、被选中专家又超出单卡容量，整个系统崩溃。围绕<strong>负载均衡</strong>的技术演进构成 MoE 史的主线：</p>
+<p>稠密（dense）模型的每个 token 都流经全部参数，参数量与计算量死死绑定——想把模型做大以容纳更多知识，就必须等比例付出训练和推理 FLOPs。<strong>混合专家（Mixture-of-Experts, MoE）</strong> 打破这个绑定：把每层 FFN 复制成 <span class="arithmatex">\(N\)</span> 份"专家"，配一个轻量路由网络（router/gating network），每个 token 只被分派给 <span class="arithmatex">\(k \ll N\)</span> 个专家。参数量扩大 <span class="arithmatex">\(N\)</span> 倍，每 token 的计算量只扩大 <span class="arithmatex">\(k\)</span> 倍。</p>
+<p>形式上，给定 token 表示 <span class="arithmatex">\(x\)</span>，路由器产生专家打分并经 softmax 得到门控权重：</p>
+<div class="arithmatex">\[p_i(x) = \mathrm{softmax}\bigl(W_r \, x\bigr)_i,\qquad \mathrm{MoE}(x) = \sum_{i \in \mathrm{TopK}(x)} g_i(x)\, \mathrm{FFN}_i(x)\]</div>
+<p>其中 <span class="arithmatex">\(g_i(x)\)</span> 为 top-<span class="arithmatex">\(k\)</span> 选中专家的（重归一化）门控权重。Shazeer 等人 2017 年的稀疏门控 MoE [2] 首次在 LSTM 堆叠中验证了这一思想，并在打分中加入可学习噪声以促进负载均衡。但朴素 top-k 路由有一个工程灾难：如果路由坍缩到少数专家（"赢者通吃"），其余专家得不到训练、被选中专家又超出单卡容量，整个系统崩溃。围绕<strong>负载均衡</strong>的技术演进构成 MoE 史的主线：</p>
 <ul>
-<li><strong>辅助均衡损失</strong>：Switch Transformer（top-1 路由，把路由简化到极致，证明万亿参数可训练）[9] 与 GLaM（1.2T 参数、top-2 路由、等算力下优于 GPT-3 级 dense 模型）[11] 都使用辅助损失惩罚专家负载的不均匀：$\mathcal{L}_{aux} = \alpha \cdot N \sum_i f_i \cdot P_i$，其中 $f_i$ 是分派给专家 $i$ 的 token 比例、$P_i$ 是路由分配给它的平均概率。代价是辅助损失与主损失存在目标冲突，系数 $\alpha$ 需要小心调节。</li>
-<li><strong>容量因子（capacity factor）</strong>：每个专家每步最多处理 $C = c \cdot (T/N)$ 个 token（$T$ 为 batch 内 token 总数），超出的 token 被丢弃（dropped）由残差连接旁路——这提醒我们 MoE 本质上是"有损"的稀疏化。</li>
-<li><strong>DeepSeek 路线的两次升级</strong>：DeepSeekMoE [31] 提出<strong>细粒度专家切分</strong>（把专家切得更小、选得更多，如 64 选 8 而非 8 选 2）加<strong>共享专家</strong>（一个始终激活的通用专家捕获公共知识，让路由专家专注差异化），逼近专家专业化的上界；DeepSeek-V3 [23] 进一步提出<strong>无辅助损失的负载均衡</strong>——不给主损失加干扰项，而是给路由打分加逐专家的动态偏置项 $b_i$，过载专家的偏置自动下调、欠载的上调（只影响路由选择、不影响加权权重），从机制上消除了辅助损失的目标冲突 [23]。</li>
+<li><strong>辅助均衡损失</strong>：Switch Transformer（top-1 路由，把路由简化到极致，证明万亿参数可训练）[9] 与 GLaM（1.2T 参数、top-2 路由、等算力下优于 GPT-3 级 dense 模型）[11] 都使用辅助损失惩罚专家负载的不均匀：<span class="arithmatex">\(\mathcal{L}_{aux} = \alpha \cdot N \sum_i f_i \cdot P_i\)</span>，其中 <span class="arithmatex">\(f_i\)</span> 是分派给专家 <span class="arithmatex">\(i\)</span> 的 token 比例、<span class="arithmatex">\(P_i\)</span> 是路由分配给它的平均概率。代价是辅助损失与主损失存在目标冲突，系数 <span class="arithmatex">\(\alpha\)</span> 需要小心调节。</li>
+<li><strong>容量因子（capacity factor）</strong>：每个专家每步最多处理 <span class="arithmatex">\(C = c \cdot (T/N)\)</span> 个 token（<span class="arithmatex">\(T\)</span> 为 batch 内 token 总数），超出的 token 被丢弃（dropped）由残差连接旁路——这提醒我们 MoE 本质上是"有损"的稀疏化。</li>
+<li><strong>DeepSeek 路线的两次升级</strong>：DeepSeekMoE [31] 提出<strong>细粒度专家切分</strong>（把专家切得更小、选得更多，如 64 选 8 而非 8 选 2）加<strong>共享专家</strong>（一个始终激活的通用专家捕获公共知识，让路由专家专注差异化），逼近专家专业化的上界；DeepSeek-V3 [23] 进一步提出<strong>无辅助损失的负载均衡</strong>——不给主损失加干扰项，而是给路由打分加逐专家的动态偏置项 <span class="arithmatex">\(b_i\)</span>，过载专家的偏置自动下调、欠载的上调（只影响路由选择、不影响加权权重），从机制上消除了辅助损失的目标冲突 [23]。</li>
 <li><strong>开源侧的代表</strong>：Mixtral 8×7B [20] 每层 8 个专家、top-2 路由，每 token 可访问 47B 参数但推理只用 13B 激活参数，质量对标 GPT-3.5 [20]——它向社区证明了稀疏 MoE 在开源预算下的可行性。</li>
 </ul>
 <p>系统层面，MoE 的代价藏在通信里：专家通常按<strong>专家并行</strong>（expert parallelism）分布在不同 GPU 上，每个 token 被路由到哪个专家，就要把它的激活值通过 all-to-all 通信发到对应卡上，算完再发回。负载不均在这里是双重打击——既浪费训练信号，又让最快的卡等最慢的卡。DeepSeek-V3 能把 671B MoE 的训练控制在 2.788M H800 小时 [23]，一半功劳在架构，另一半在与 all-to-all 通信深度协同的流水线设计。</p>
@@ -158,16 +158,16 @@
 <p>Transformer 块是通用的，差别在于训练目标：</p>
 <ul>
 <li><strong>掩码语言建模（MLM，BERT，2018）</strong>：双向编码器，随机遮盖 15% token 并预测之。表征质量高，适合理解类任务；但预训练-微调不一致（推理时没有 [MASK]），且天然不适合生成。</li>
-<li><strong>因果语言建模（CLM，GPT 系列）</strong>：单向解码器，标准 next-token prediction：给定 $x_{&lt;t}$ 最小化 $-\log P(x_t \mid x_{&lt;t})$。目标与生成完全一致，配合 scaling 展现出惊人通用性。</li>
+<li><strong>因果语言建模（CLM，GPT 系列）</strong>：单向解码器，标准 next-token prediction：给定 <span class="arithmatex">\(x_{&lt;t}\)</span> 最小化 <span class="arithmatex">\(-\log P(x_t \mid x_{&lt;t})\)</span>。目标与生成完全一致，配合 scaling 展现出惊人通用性。</li>
 </ul>
 <p>2019–2021 年间曾有 encoder-decoder（T5）、prefix-LM 等多种变体之争，争论的焦点是：双向上下文带来的表征质量，值不值得牺牲与生成的统一性？历史给出了裁决——随着 GPT-3 证明 CLM + 大规模可以"通吃"理解与生成（in-context learning 让理解任务也能被表述为条件生成），纯解码器 CLM 成为大模型唯一主流范式。这个裁决的逻辑值得记取：<strong>不是双向编码输了，而是"统一接口"赢了</strong>——当一切任务都能写成 next-token prediction，scaling 的红利就能无差别地灌溉所有任务。BERT 式双向编码并未消亡——它活在 ViT 的视觉预训练（如 MAE 的掩码图像建模）与 CLIP 类视觉编码器里，这正是多模态时代两条范式重新汇合的地方。现代预训练在这个骨架上发展出一系列工程实践：<strong>填充目标</strong>（FIM，fill-in-the-middle——把一段文本中间挖空、让模型在已知前后缀的条件下补全，训练时通过特殊 token 重排语序，使模型获得"补全"而非只会"续写"的能力，对代码模型尤其关键）；<strong>多阶段训练与退火</strong>（annealing——预训练末期混入高质量数据并快速衰减学习率，以低成本换取显著的知识注入）；<strong>数据配比课程</strong>（先通识后专业、先短后长的 curriculum）。这些技巧的细节属于第 11 篇（数据与训练）的范畴，但它们共享一个前提：CLM 目标的简单性使一切数据操作都可以安全地叠加在其上。</p>
 <h3 id="29-scaling-laws">2.9 Scaling Laws：规模的可预测性</h3>
 <p>大模型时代最深刻的方法论发现是：<strong>损失随规模的变化是平滑、可预测的幂律</strong>。</p>
-<p><strong>Kaplan 定律（2020）</strong> [5]：OpenAI 团队发现交叉熵损失 $L$ 随参数量 $N$、数据量 $D$、算力 $C$ 呈幂律，跨越七个数量级依然成立；且大模型的样本效率显著更高，因此给定算力应优先把预算投给参数（"大模型优先"），在远未收敛时停止训练。这一结论直接指导了 GPT-3（175B 参数、仅 300B token）的设计。</p>
+<p><strong>Kaplan 定律（2020）</strong> [5]：OpenAI 团队发现交叉熵损失 <span class="arithmatex">\(L\)</span> 随参数量 <span class="arithmatex">\(N\)</span>、数据量 <span class="arithmatex">\(D\)</span>、算力 <span class="arithmatex">\(C\)</span> 呈幂律，跨越七个数量级依然成立；且大模型的样本效率显著更高，因此给定算力应优先把预算投给参数（"大模型优先"），在远未收敛时停止训练。这一结论直接指导了 GPT-3（175B 参数、仅 300B token）的设计。</p>
 <p><strong>Chinchilla 定律（2022）</strong> [6]：DeepMind 训练了 400 余个 70M–16B 参数的模型、覆盖 5B–500B token，用三种独立方法拟合，得出相反结论：<strong>此前的大模型普遍训练不足（undertrained）；计算最优要求参数量与 token 数同比扩展——大约每参数 20 token</strong>。据此训练的 70B 模型 Chinchilla（1.4T token）在与 280B 的 Gopher 相同算力下全面反超，MMLU 达 67.5%（较 Gopher 提升超过 7 个百分点）[6]。Chinchilla 改写了整个行业的训练配方，LLaMA 系列"小模型 + 超量数据"的策略正是其直接后裔 [13]。</p>
-<p><strong>数学形式</strong>：把两条定律写成可操作的式子。Kaplan 发现损失对参数量 $N$、数据量 $D$、算力 $C$ 分别满足 $L \propto N^{-\alpha_N}$、$L \propto D^{-\alpha_D}$（指数在 $0.05$–$0.1$ 量级，跨越七个数量级仍成立）[5]；Chinchilla 则用三方拟合给出联合形式</p>
-<p>$$L(N, D) = E + \frac{A}{N^{\alpha}} + \frac{B}{D^{\beta}}$$</p>
-<p>其中 $E$ 是不可约损失（数据的内在熵），后两项分别是"模型不够大"与"数据不够多"的惩罚项。给定算力预算 $C \approx 6ND$（Transformer 训练 FLOPs 的经典近似），对 $N, D$ 做约束优化即可解出计算最优分配 $N^<em>(C) \propto C^{a}$、$D^</em>(C) \propto C^{b}$，且拟合结果显示 $a \approx b \approx 0.5$——这就是"同比扩展"的定量含义 [6]。理解这个框架比记住"20 token/参数"更重要：它是<strong>用可承受的小规模实验外推不可承受的大规模决策</strong>的方法论范本。</p>
+<p><strong>数学形式</strong>：把两条定律写成可操作的式子。Kaplan 发现损失对参数量 <span class="arithmatex">\(N\)</span>、数据量 <span class="arithmatex">\(D\)</span>、算力 <span class="arithmatex">\(C\)</span> 分别满足 <span class="arithmatex">\(L \propto N^{-\alpha_N}\)</span>、<span class="arithmatex">\(L \propto D^{-\alpha_D}\)</span>（指数在 <span class="arithmatex">\(0.05\)</span>–<span class="arithmatex">\(0.1\)</span> 量级，跨越七个数量级仍成立）[5]；Chinchilla 则用三方拟合给出联合形式</p>
+<div class="arithmatex">\[L(N, D) = E + \frac{A}{N^{\alpha}} + \frac{B}{D^{\beta}}\]</div>
+<p>其中 <span class="arithmatex">\(E\)</span> 是不可约损失（数据的内在熵），后两项分别是"模型不够大"与"数据不够多"的惩罚项。给定算力预算 <span class="arithmatex">\(C \approx 6ND\)</span>（Transformer 训练 FLOPs 的经典近似），对 <span class="arithmatex">\(N, D\)</span> 做约束优化即可解出计算最优分配 <span class="arithmatex">\(N^*(C) \propto C^{a}\)</span>、<span class="arithmatex">\(D^*(C) \propto C^{b}\)</span>，且拟合结果显示 <span class="arithmatex">\(a \approx b \approx 0.5\)</span>——这就是"同比扩展"的定量含义 [6]。理解这个框架比记住"20 token/参数"更重要：它是<strong>用可承受的小规模实验外推不可承受的大规模决策</strong>的方法论范本。</p>
 <p><strong>涌现现象的另一面</strong>：与平滑幂律并存的是"涌现"（emergent abilities）——某些能力（如多步算术、思维链推理）在模型规模跨越阈值前接近随机水平、之后突然可用 [30]。后续研究表明部分"涌现"是评测指标的伪影（不连续指标把平滑进步显示成跳变），但它准确刻画了一个实践事实：scale 不只是量变。这场争论至今未完全平息，也是 scaling 文献中少有的概念性争议。</p>
 <p><strong>多模态扩展</strong>：把 scaling law 推广到多模态时，数据侧出现新问题——高质量图文对、视频-文本对的规模远小于纯文本，<strong>数据受限（data-constrained）</strong> 条件下的 scaling（重复数据的边际收益递减）、混合模态的配比最优解成为前沿问题。加上 2024 年后 test-time compute（推理时扩展，如长思维链）的兴起，"scale"一词已从单一的预训练算力扩展为"预训练 + 数据 + 推理"三维资源分配问题。</p>
 <h3 id="210-rlhf-dpo-grpo">2.10 对齐技术栈：RLHF / DPO / GRPO</h3>
@@ -175,22 +175,22 @@
 <p><strong>RLHF 三段式（InstructGPT，2022）</strong> [7]：</p>
 <ol>
 <li><strong>SFT（监督微调）</strong>：用标注员撰写的示范回答微调预训练模型；</li>
-<li><strong>RM（奖励模型）</strong>：对同一 prompt 的多个模型回答做人工排序，训练一个标量奖励模型 $r_\theta(x, y)$，常用 Bradley-Terry 偏好模型：</li>
+<li><strong>RM（奖励模型）</strong>：对同一 prompt 的多个模型回答做人工排序，训练一个标量奖励模型 <span class="arithmatex">\(r_\theta(x, y)\)</span>，常用 Bradley-Terry 偏好模型：</li>
 </ol>
-<p>$$\mathcal{L}<em _x_="(x," y_l_="y_l)" y_w_="y_w,">{RM} = -\mathbb{E}</em>\left[\log \sigma\bigl(r_\theta(x, y_w) - r_\theta(x, y_l)\bigr)\right]$$</p>
+<div class="arithmatex">\[\mathcal{L}_{RM} = -\mathbb{E}_{(x, y_w, y_l)}\left[\log \sigma\bigl(r_\theta(x, y_w) - r_\theta(x, y_l)\bigr)\right]\]</div>
 <ol>
-<li><strong>PPO 强化学习</strong>：以 SFT 模型为初始策略 $\pi_\phi$，最大化期望奖励同时用 KL 散度防止跑偏：</li>
+<li><strong>PPO 强化学习</strong>：以 SFT 模型为初始策略 <span class="arithmatex">\(\pi_\phi\)</span>，最大化期望奖励同时用 KL 散度防止跑偏：</li>
 </ol>
-<p>$$\max_{\phi}\; \mathbb{E}<em>{y \sim \pi</em>\phi(\cdot|x)}\bigl[r_\theta(x, y)\bigr] - \beta\, \mathrm{KL}\bigl(\pi_\phi \,|\, \pi_{ref}\bigr)$$</p>
+<div class="arithmatex">\[\max_{\phi}\; \mathbb{E}_{y \sim \pi_\phi(\cdot|x)}\bigl[r_\theta(x, y)\bigr] - \beta\, \mathrm{KL}\bigl(\pi_\phi \,\|\, \pi_{ref}\bigr)\]</div>
 <p>PPO（Proximal Policy Optimization）[3] 用 clipped surrogate objective 约束每步策略更新幅度：</p>
-<p>$$\mathcal{L}^{CLIP}(\phi) = \mathbb{E}<em>t\left[\min\bigl(\rho_t \hat{A}_t,\; \mathrm{clip}(\rho_t, 1-\epsilon, 1+\epsilon)\hat{A}_t\bigr)\right],\qquad \rho_t = \frac{\pi</em>\phi(a_t|s_t)}{\pi_{\phi_{old}}(a_t|s_t)}$$</p>
+<div class="arithmatex">\[\mathcal{L}^{CLIP}(\phi) = \mathbb{E}_t\left[\min\bigl(\rho_t \hat{A}_t,\; \mathrm{clip}(\rho_t, 1-\epsilon, 1+\epsilon)\hat{A}_t\bigr)\right],\qquad \rho_t = \frac{\pi_\phi(a_t|s_t)}{\pi_{\phi_{old}}(a_t|s_t)}\]</div>
 <p>InstructGPT 的标志性结果是：1.3B 参数的 InstructGPT 在人类偏好评估中优于 175B 的 GPT-3——<strong>对齐带来的"可用性"增益超过 100 倍参数规模的差距</strong> [7]。</p>
-<p>这套管线也暴露了三个后来反复被研究的结构性问题：其一，<strong>奖励模型是真实偏好的有损代理</strong>，策略对它优化过度时会出现 reward hacking——回答越来越长、越来越迎合格式偏置而未必更好；KL 正则项 $\beta\,\mathrm{KL}(\pi_\phi | \pi_{ref})$ 正是为拉住策略、不让它跑离参考分布太远。其二，<strong>PPO 训练的系统性成本</strong>——actor、critic、reward model、reference model 四个模型同时在内存中，加上在线采样的 rollout 开销，使 RLHF 阶段的工程复杂度远超预训练。其三，<strong>alignment tax</strong>——对齐后模型在部分原始能力基准上退化，需要混入预训练梯度等手段缓解。这三个问题分别定义了后续研究的三个出口：更好的奖励（RLVR）、更简单的优化（DPO）、更温和的目标（各种正则化变体）。</p>
-<p><strong>DPO（Direct Preference Optimization，2023）</strong> [14]：RLHF 需要训练奖励模型 + 跑不稳定的在线 RL，工程负担重。DPO 的洞察是：KL 约束下的最优策略与奖励函数存在闭式关系 $r(x,y) = \beta \log \frac{\pi^*(y|x)}{\pi_{ref}(y|x)} + \beta \log Z(x)$，代入 Bradley-Terry 偏好模型，配分函数 $Z(x)$ 在成对比较中消去，直接得到对策略的分类式损失：</p>
-<p>$$\mathcal{L}<em>{DPO}(\pi</em>\phi; \pi_{ref}) = -\mathbb{E}<em>{(x,y_w,y_l)}\left[\log \sigma!\left(\beta \log \frac{\pi</em>\phi(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\phi(y_l|x)}{\pi_{ref}(y_l|x)}\right)\right]$$</p>
+<p>这套管线也暴露了三个后来反复被研究的结构性问题：其一，<strong>奖励模型是真实偏好的有损代理</strong>，策略对它优化过度时会出现 reward hacking——回答越来越长、越来越迎合格式偏置而未必更好；KL 正则项 <span class="arithmatex">\(\beta\,\mathrm{KL}(\pi_\phi \| \pi_{ref})\)</span> 正是为拉住策略、不让它跑离参考分布太远。其二，<strong>PPO 训练的系统性成本</strong>——actor、critic、reward model、reference model 四个模型同时在内存中，加上在线采样的 rollout 开销，使 RLHF 阶段的工程复杂度远超预训练。其三，<strong>alignment tax</strong>——对齐后模型在部分原始能力基准上退化，需要混入预训练梯度等手段缓解。这三个问题分别定义了后续研究的三个出口：更好的奖励（RLVR）、更简单的优化（DPO）、更温和的目标（各种正则化变体）。</p>
+<p><strong>DPO（Direct Preference Optimization，2023）</strong> [14]：RLHF 需要训练奖励模型 + 跑不稳定的在线 RL，工程负担重。DPO 的洞察是：KL 约束下的最优策略与奖励函数存在闭式关系 <span class="arithmatex">\(r(x,y) = \beta \log \frac{\pi^*(y|x)}{\pi_{ref}(y|x)} + \beta \log Z(x)\)</span>，代入 Bradley-Terry 偏好模型，配分函数 <span class="arithmatex">\(Z(x)\)</span> 在成对比较中消去，直接得到对策略的分类式损失：</p>
+<div class="arithmatex">\[\mathcal{L}_{DPO}(\pi_\phi; \pi_{ref}) = -\mathbb{E}_{(x,y_w,y_l)}\left[\log \sigma\!\left(\beta \log \frac{\pi_\phi(y_w|x)}{\pi_{ref}(y_w|x)} - \beta \log \frac{\pi_\phi(y_l|x)}{\pi_{ref}(y_l|x)}\right)\right]\]</div>
 <p>无需奖励模型、无需在线采样、无需 PPO 超参调优，一次普通的梯度训练即完成偏好对齐。DPO 在情感控制、摘要、对话任务上匹配或超过 PPO-based RLHF [14]，迅速成为开源社区后训练默认选项，并衍生出 IPO、KTO、ORPO 等方法族；2026 年的理论综述已将这一族方法统一在偏好学习框架下 [26]。</p>
-<p><strong>GRPO（Group Relative Policy Optimization）与 RLVR（2025）</strong> [24]：DeepSeek-R1 把强化学习推向新方向。GRPO 去掉了 PPO 的 value network（critic），改为对同一 prompt 采样一组 $G$ 个回答，用组内奖励的相对排名构造优势：</p>
-<p>$$\hat{A}_i = \frac{r_i - \mathrm{mean}({r_1,\dots,r_G})}{\mathrm{std}({r_1,\dots,r_G})}$$</p>
+<p><strong>GRPO（Group Relative Policy Optimization）与 RLVR（2025）</strong> [24]：DeepSeek-R1 把强化学习推向新方向。GRPO 去掉了 PPO 的 value network（critic），改为对同一 prompt 采样一组 <span class="arithmatex">\(G\)</span> 个回答，用组内奖励的相对排名构造优势：</p>
+<div class="arithmatex">\[\hat{A}_i = \frac{r_i - \mathrm{mean}(\{r_1,\dots,r_G\})}{\mathrm{std}(\{r_1,\dots,r_G\})}\]</div>
 <p>配合与 PPO 类似的 clipped 目标与 KL 正则更新策略。去掉 critic 的收益是双重的：省掉一个与 policy 同规模的价值网络的训练（显存与不稳定性的主要来源），且组内基线天然自适应——同一 prompt 的难样本获得负优势、易样本获得正优势，无需学习绝对的价值标度。</p>
 <p>关键转折在于奖励来源：<strong>RLVR（Reinforcement Learning with Verifiable Rewards）</strong> 用可程序化验证的奖励（数学答案是否正确、代码是否通过测试）替代 learned reward model，从根上规避了 reward hacking——你无法欺骗一个编译器或一个等号判定。DeepSeek-R1 证明纯 RL 即可激发长思维链、自我反思与验证等推理行为，不依赖人工标注的推理轨迹 [24]：论文记录了训练过程中模型的平均回答长度自发增长、出现"等等，让我重新检查"式的自我修正，这些行为没有出现在任何训练数据里，是 RL 压力下的自发产物。这直接重塑了 2025–2026 年后训练的技术主线，也把"推理"从 prompting 技巧升格为可训练的能力维度。</p>
 <h2 id="3">3. 经典方法谱系</h2>
@@ -252,7 +252,7 @@
 <td>RoFormer（RoPE）[8]</td>
 <td>2021</td>
 <td>旋转注入相对位置</td>
-<td>$R_{\Theta,n-m}$ 相对性</td>
+<td><span class="arithmatex">\(R_{\Theta,n-m}\)</span> 相对性</td>
 <td>现代 LLM 标配</td>
 </tr>
 <tr>
@@ -421,22 +421,22 @@
 <h3 id="41-attention-is-all-you-needtransformer20171">4.1 Attention Is All You Need（Transformer，2017）[1]</h3>
 <p><strong>研究问题</strong>：序列转导模型（如机器翻译）能否彻底摆脱循环与卷积结构？</p>
 <p><strong>关键洞察</strong>：注意力机制本身就足以建模序列内任意位置间的依赖；循环结构是并行计算的障碍而非表达能力的必需品。</p>
-<p><strong>技术方法</strong>：encoder-decoder 各 6 层，$d_{model}=512$（base）/1024（big），$h=8/16$ 头，$d_{ff}=2048/4096$；缩放点积注意力 + 正弦位置编码 + Post-Norm 残差；训练用 Adam、带 warmup 的学习率调度、label smoothing 与 dropout 正则。</p>
+<p><strong>技术方法</strong>：encoder-decoder 各 6 层，<span class="arithmatex">\(d_{model}=512\)</span>（base）/1024（big），<span class="arithmatex">\(h=8/16\)</span> 头，<span class="arithmatex">\(d_{ff}=2048/4096\)</span>；缩放点积注意力 + 正弦位置编码 + Post-Norm 残差；训练用 Adam、带 warmup 的学习率调度、label smoothing 与 dropout 正则。</p>
 <p><strong>实验结果</strong>：WMT 2014 英德翻译 28.4 BLEU，超越此前最佳（含集成模型）超过 2 BLEU；英法翻译 41.8 BLEU 创单模型纪录，且仅用 8 张 GPU 训 3.5 天——训练成本只是同期最佳模型的一小部分 [1]。</p>
-<p><strong>批判性分析</strong>：优点是结构简洁、并行度极高、可扩展性被后续九年反复验证；还有一个事后才看清的优点——它足够"空"。Transformer 几乎不内置任何关于语言的归纳偏置（不像 CNN 的局部性、RNN 的时间性），这意味着它既不限制模型学什么，也不限制模型从哪种模态学。这个"空"正是它能从文本迁移到图像、音频、视频、动作的根本原因：通用架构 + 数据 + 算力的组合击败了各种领域特化设计，即所谓 "bitter lesson" 的架构注脚。局限在于论文本身未预见 $O(n^2)$ 注意力在长序列下的代价，也未解决位置外推、训练稳定性（Post-Norm 需要 warmup）等问题——本篇 2.5–2.7 节的全部内容，都可以读作对这篇论文遗留问题的九年修复史。可复现性极佳——代码与超参全部公开，衍生出 Tensor2Tensor 与无数复现。</p>
+<p><strong>批判性分析</strong>：优点是结构简洁、并行度极高、可扩展性被后续九年反复验证；还有一个事后才看清的优点——它足够"空"。Transformer 几乎不内置任何关于语言的归纳偏置（不像 CNN 的局部性、RNN 的时间性），这意味着它既不限制模型学什么，也不限制模型从哪种模态学。这个"空"正是它能从文本迁移到图像、音频、视频、动作的根本原因：通用架构 + 数据 + 算力的组合击败了各种领域特化设计，即所谓 "bitter lesson" 的架构注脚。局限在于论文本身未预见 <span class="arithmatex">\(O(n^2)\)</span> 注意力在长序列下的代价，也未解决位置外推、训练稳定性（Post-Norm 需要 warmup）等问题——本篇 2.5–2.7 节的全部内容，都可以读作对这篇论文遗留问题的九年修复史。可复现性极佳——代码与超参全部公开，衍生出 Tensor2Tensor 与无数复现。</p>
 <p><strong>一句话评价</strong>：现代深度学习史上被引用最多的架构论文，整个报告系列的一切都从这里生长。评级：★★★★★（必读原文）。</p>
 <h3 id="42-an-image-is-worth-1616-wordsvit202029">4.2 An Image is Worth 16×16 Words（ViT，2020）[29]</h3>
 <p><strong>研究问题</strong>：图像识别能否像 NLP 一样，不依赖卷积归纳偏置，直接用纯 Transformer？</p>
 <p><strong>关键洞察</strong>：把图像切成固定大小的 patch（如 16×16 像素）拉平成向量序列，图像就变成了"一句话"；Transformer 在足够大的预训练数据下能自己学会 CNN 赖以成名的局部性与平移等变性。</p>
-<p><strong>技术方法</strong>：图像 $x \in \mathbb{R}^{H\times W\times C}$ 切成 $N = HW/P^2$ 个 $P\times P$ patch，每个 patch 经线性投影成 $d$ 维向量，加上可学习位置嵌入，序列前拼接可学习 [CLS] token，送入标准 Transformer encoder；用 [CLS] 输出做分类。模型族 ViT-B/L/H 分别为 86M/307M/632M 参数。</p>
+<p><strong>技术方法</strong>：图像 <span class="arithmatex">\(x \in \mathbb{R}^{H\times W\times C}\)</span> 切成 <span class="arithmatex">\(N = HW/P^2\)</span> 个 <span class="arithmatex">\(P\times P\)</span> patch，每个 patch 经线性投影成 <span class="arithmatex">\(d\)</span> 维向量，加上可学习位置嵌入，序列前拼接可学习 [CLS] token，送入标准 Transformer encoder；用 [CLS] 输出做分类。模型族 ViT-B/L/H 分别为 86M/307M/632M 参数。</p>
 <p><strong>实验结果</strong>：在 JFT-300M 等大规模数据上预训练后，ViT 在 ImageNet、CIFAR-100、VTAB 等基准上达到或超越当时最优 CNN，且预训练所需计算资源更少 [29]。但论文同样诚实地指出：在中等规模数据（ImageNet 级别，约 1.3M 图）上，ViT 不如同级别 ResNet——大数据是 ViT 发挥作用的前提。</p>
 <p><strong>批判性分析</strong>：优点是彻底统一了视觉与语言的建模范式，使"视觉编码器输出 token 序列 → 喂给 LLM"的多模态管线成为可能（后续 CLIP、SigLIP、Qwen-VL 的视觉塔全部是 ViT 变体）；从工程角度看，ViT 还带来一个隐性红利——视觉与文本共享同一套训练基础设施（kernel、并行策略、混合精度），跨模态团队的系统栈得以统一。局限同样清晰：二次复杂度对高分辨率图像代价高（分辨率翻倍、序列长度翻四倍、注意力开销翻十六倍），后续 Swin 等用滑窗层级结构缓解，但多模态大模型仍以纯 ViT 为主流视觉塔（因为预训练好的纯 ViT 权重生态最丰富）；patch 化丢失像素级细节，影响 OCR、细粒度定位等任务——多模态模型后来用动态分辨率、多尺度裁剪等技巧打补丁，都是对这个原始缺陷的回应。可复现性好，官方权重公开。</p>
 <p><strong>一个常被忽视的观察</strong>：ViT 论文标题说"一张图值 16×16 个词"，但它的真正遗产是把图像变成了<strong>可被 LLM 直接消费的离散序列</strong>。没有这一步，后续"视觉 token 拼进文本 token 一起做自回归"的整个 MLLM 范式无从谈起。从这个意义上说，ViT 与其说是视觉论文，不如说是多模态论文——它提前五年为多模态基座模型准备好了接口协议。</p>
 <p><strong>一句话评价</strong>：把视觉带入 Transformer 纪元的论文，多模态大模型视觉塔的直系祖先。评级：★★★★★。</p>
 <h3 id="43-training-compute-optimal-large-language-modelschinchilla20226">4.3 Training Compute-Optimal Large Language Models（Chinchilla，2022）[6]</h3>
-<p><strong>研究问题</strong>：给定固定训练算力预算 $C$，模型参数量 $N$ 与训练 token 数 $D$ 应如何分配？</p>
-<p><strong>关键洞察</strong>：Kaplan 定律的"大模型优先"结论是在数据不受限的假设下得出的；当把 $N$ 与 $D$ 作为联合变量拟合 $L(N, D)$ 时，最优解要求二者<strong>同比扩展</strong>。</p>
-<p><strong>技术方法</strong>：训练超过 400 个模型（70M–16B 参数、5B–500B token），用三种独立方法估计计算最优前沿：（1）固定模型族规模、扫描 token 数取各算力下损失最低点；（2）固定 FLOPs 预算、扫描模型规模取 isoFLOP 曲线谷底；（3）直接拟合参数化损失函数 $L(N,D) = E + A/N^\alpha + B/D^\beta$（不可约损失 + 参数项 + 数据项）。三种方法一致指向 $D \approx 20N$。</p>
+<p><strong>研究问题</strong>：给定固定训练算力预算 <span class="arithmatex">\(C\)</span>，模型参数量 <span class="arithmatex">\(N\)</span> 与训练 token 数 <span class="arithmatex">\(D\)</span> 应如何分配？</p>
+<p><strong>关键洞察</strong>：Kaplan 定律的"大模型优先"结论是在数据不受限的假设下得出的；当把 <span class="arithmatex">\(N\)</span> 与 <span class="arithmatex">\(D\)</span> 作为联合变量拟合 <span class="arithmatex">\(L(N, D)\)</span> 时，最优解要求二者<strong>同比扩展</strong>。</p>
+<p><strong>技术方法</strong>：训练超过 400 个模型（70M–16B 参数、5B–500B token），用三种独立方法估计计算最优前沿：（1）固定模型族规模、扫描 token 数取各算力下损失最低点；（2）固定 FLOPs 预算、扫描模型规模取 isoFLOP 曲线谷底；（3）直接拟合参数化损失函数 <span class="arithmatex">\(L(N,D) = E + A/N^\alpha + B/D^\beta\)</span>（不可约损失 + 参数项 + 数据项）。三种方法一致指向 <span class="arithmatex">\(D \approx 20N\)</span>。</p>
 <p><strong>实验结果</strong>：按此结论训练的 Chinchilla（70B 参数、1.4T token）在与 Gopher（280B、300B token）相同算力下，在绝大多数下游任务上显著反超 Gopher、GPT-3（175B）、Jurassic-1（178B）、Megatron-Turing NLG（530B）；MMLU 平均 67.5%，较 Gopher 提升超 7 个百分点 [6]。</p>
 <p><strong>批判性分析</strong>：方法论是经验科学的典范——三路径交叉验证、幂律外推有明确的置信区间；其研究设计本身就值得每位入门者抄笔记：不是训练一个超大模型然后写故事，而是训练数百个中小模型、把"预测大模型行为"当作一个可以被证伪的回归问题来处理。局限在于：（1）"20 token/参数"是<strong>训练计算最优</strong>而非<strong>推理成本最优</strong>，推理时代小模型超量训练（LLaMA 式）反而成为主流；（2）数据质量差异、数据重复（data-constrained 场景）未纳入模型；（3）未预见 test-time compute 范式——长思维链模型的最优配比可能系统性地偏向更小模型 + 更多推理算力。结论部分可复现（LLaMA 等公开模型间接验证了其预测）。</p>
 <p><strong>一句话评价</strong>：大模型时代最重要的一篇"如何花钱"的论文，其框架至今是所有训练预算讨论的起点。评级：★★★★★。</p>
@@ -450,9 +450,9 @@
 <h3 id="45-direct-preference-optimizationdpo202314">4.5 Direct Preference Optimization（DPO，2023）[14]</h3>
 <p><strong>研究问题</strong>：RLHF 的三段式管线（RM + PPO）复杂且不稳定，能否绕开显式奖励模型与在线强化学习，直接优化偏好？</p>
 <p><strong>关键洞察</strong>：在 KL 正则的 RLHF 目标下，最优策略对任意奖励函数有闭式解；反过来，奖励可以被最优策略与参考策略的对数比<strong>解析地参数化</strong>——代入 Bradley-Terry 模型后，配分函数消去，偏好学习退化为一个二分类问题。</p>
-<p><strong>技术方法</strong>：推导骨架值得再走一遍。KL 正则 RLHF 目标 $\max_\pi \mathbb{E}[r(x,y)] - \beta\,\mathrm{KL}(\pi | \pi_{ref})$ 对每个 prompt $x$ 是独立的优化问题，其闭式最优解为 $\pi^<em>(y|x) \propto \pi_{ref}(y|x) \exp(r(x,y)/\beta)$——软最大化（softmax）形式的策略。反解出 $r(x,y) = \beta \log \frac{\pi^</em>(y|x)}{\pi_{ref}(y|x)} + \beta \log Z(x)$ 代入 Bradley-Terry 模型，未知的配分函数 $Z(x)$ 在 $r(x,y_w) - r(x,y_l)$ 的差中精确消去，剩下的就是 2.10 节的 $\mathcal{L}<em ref="ref">{DPO}$：一个只含策略对数概率的 logistic 回归损失。实现上只需 SFT 模型（兼作 $\pi</em>$ 与初始化 $\pi_\phi$）与偏好数据集，一次监督式梯度训练即完成对齐；超参数只有 $\beta$（KL 强度）与学习率。</p>
+<p><strong>技术方法</strong>：推导骨架值得再走一遍。KL 正则 RLHF 目标 <span class="arithmatex">\(\max_\pi \mathbb{E}[r(x,y)] - \beta\,\mathrm{KL}(\pi \| \pi_{ref})\)</span> 对每个 prompt <span class="arithmatex">\(x\)</span> 是独立的优化问题，其闭式最优解为 <span class="arithmatex">\(\pi^*(y|x) \propto \pi_{ref}(y|x) \exp(r(x,y)/\beta)\)</span>——软最大化（softmax）形式的策略。反解出 <span class="arithmatex">\(r(x,y) = \beta \log \frac{\pi^*(y|x)}{\pi_{ref}(y|x)} + \beta \log Z(x)\)</span> 代入 Bradley-Terry 模型，未知的配分函数 <span class="arithmatex">\(Z(x)\)</span> 在 <span class="arithmatex">\(r(x,y_w) - r(x,y_l)\)</span> 的差中精确消去，剩下的就是 2.10 节的 <span class="arithmatex">\(\mathcal{L}_{DPO}\)</span>：一个只含策略对数概率的 logistic 回归损失。实现上只需 SFT 模型（兼作 <span class="arithmatex">\(\pi_{ref}\)</span> 与初始化 <span class="arithmatex">\(\pi_\phi\)</span>）与偏好数据集，一次监督式梯度训练即完成对齐；超参数只有 <span class="arithmatex">\(\beta\)</span>（KL 强度）与学习率。</p>
 <p><strong>实验结果</strong>：在情感控制、单轮对话、摘要等任务上，DPO 匹配或超过 PPO-based RLHF，且训练稳定性与计算成本显著更优 [14]。</p>
-<p><strong>批判性分析</strong>：优点是优雅（理论推导干净）+ 实用（工程简化一个数量级），迅速成为开源后训练事实标准；局限包括：偏好数据是离线的（off-policy），随着策略漂移，数据分布与当前策略脱节——PPO 的在线采样能持续"问自己现在会答成什么样"，DPO 只能问"当初那个模型答成什么样"；对偏好数据质量敏感，一个已知的系统性问题是长度偏置——标注者普遍偏好更长的回答，DPO 会忠实地把这个偏置放大为冗长输出；$\beta$ 控制隐式 KL 强度，极端偏好对下可能出现"赢家概率也被压低"的退化现象（只追求拉开差距而非抬高赢家），后续 length-normalized 与约束变体都在修补这一点。这些局限催生了在线 DPO、IPO、KTO 等改进族。2026 年的统一理论框架 [26] 证明 DPO 族与 RLHF 在数学上是同一目标的不同参数化——"去 RL 化"并非绕开 RL，而是把 RL 的解折叠进了监督目标。</p>
+<p><strong>批判性分析</strong>：优点是优雅（理论推导干净）+ 实用（工程简化一个数量级），迅速成为开源后训练事实标准；局限包括：偏好数据是离线的（off-policy），随着策略漂移，数据分布与当前策略脱节——PPO 的在线采样能持续"问自己现在会答成什么样"，DPO 只能问"当初那个模型答成什么样"；对偏好数据质量敏感，一个已知的系统性问题是长度偏置——标注者普遍偏好更长的回答，DPO 会忠实地把这个偏置放大为冗长输出；<span class="arithmatex">\(\beta\)</span> 控制隐式 KL 强度，极端偏好对下可能出现"赢家概率也被压低"的退化现象（只追求拉开差距而非抬高赢家），后续 length-normalized 与约束变体都在修补这一点。这些局限催生了在线 DPO、IPO、KTO 等改进族。2026 年的统一理论框架 [26] 证明 DPO 族与 RLHF 在数学上是同一目标的不同参数化——"去 RL 化"并非绕开 RL，而是把 RL 的解折叠进了监督目标。</p>
 <p><strong>一句话评价</strong>：一行损失函数掀翻整条 RLHF 流水线的论文，理论与实践结合的最佳范例。评级：★★★★★。</p>
 <h3 id="46-deepseek-v3-technical-report202423">4.6 DeepSeek-V3 Technical Report（2024）[23]</h3>
 <p><strong>研究问题</strong>：能否在受限硬件（出口管制下的 H800，互联带宽受限）上，以可承受的成本训练一个与顶级闭源模型同档的开源 MoE 模型？</p>
@@ -489,7 +489,7 @@
 <p><strong>预训练范式 = 多模态目标的模板</strong>。CLM（next-token prediction）不仅统治文本生成，也被推广为"next-patch/next-image-token prediction"（自回归图像生成，见第 05 篇）；BERT 式掩码建模则活在 MAE 式视觉自监督里。两大范式的分野与汇合贯穿整个系列。</p>
 </li>
 <li>
-<p><strong>Scaling laws = 多模态预算分配的方法论</strong>。Chinchilla 的 $L(N, D)$ 拟合框架 [6] 被逐字搬到多模态 scaling 研究：图文配比对、视觉 token 数与语言参数的最优配比、数据受限下的重复训练，都是 Kaplan→Chinchilla 方法论的直接后代（第 11 篇数据与训练将展开）。</p>
+<p><strong>Scaling laws = 多模态预算分配的方法论</strong>。Chinchilla 的 <span class="arithmatex">\(L(N, D)\)</span> 拟合框架 [6] 被逐字搬到多模态 scaling 研究：图文配比对、视觉 token 数与语言参数的最优配比、数据受限下的重复训练，都是 Kaplan→Chinchilla 方法论的直接后代（第 11 篇数据与训练将展开）。</p>
 </li>
 <li>
 <p><strong>对齐技术栈 = 原封不动的移植</strong>。SFT → DPO → RLVR 的三段式后训练对多模态模型几乎不加修改地复用：多模态指令微调就是 SFT、多模态偏好数据上的 DPO 就是 DPO、视觉数学/图表题上的可验证奖励就是 RLVR [24]。多模态对齐的特殊性（幻觉、跨模态安全）是第 09 篇的主题，但工具箱就是本篇 2.10 节的那一套。</p>

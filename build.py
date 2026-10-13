@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Build multimodal-atlas site: convert reports/*.md -> HTML pages with shared shell."""
-import re, os, sys, json, shutil
+import re, os
+from pathlib import Path
 import markdown
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(ROOT, "..", "reports")
+SRC = os.path.join(ROOT, "reports")
 
 META = {
  "00-foundations": ("从 Transformer 到多模态基座", "基础架构", "Attention、RoPE、MoE、Scaling Laws、RLHF——整个系列的地基", "🏛️"),
@@ -29,8 +30,8 @@ SHELL_HEAD = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} · 多模态图谱</title>
 <link rel="stylesheet" href="{prefix}css/site.css">
-<script>window.MathJax={{tex:{{inlineMath:[['$','$'],['\\\\(','\\\\)']],displayMath:[['$$','$$'],['\\\\[','\\\\]']],processEscapes:true}},svg:{{fontCache:'global'}},options:{{skipHtmlTags:['script','noscript','style','textarea','pre']}}}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={{tex:{{inlineMath:[['\\\\(','\\\\)']],displayMath:[['\\\\[','\\\\]']],processEscapes:true}},svg:{{fontCache:'global'}},options:{{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}}}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="{prefix}index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="{prefix}index.html#reports">报告</a><a href="{prefix}paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -68,26 +69,35 @@ def sidenav_html(active):
         links.append(f'<a class="{cls}" href="../{slug}/index.html"><span class="sidenav-icon">{icon}</span><span>{slug[3:]} · {kicker}</span></a>')
     return "\n".join(links)
 
-MD_EXTS = ["tables", "fenced_code", "toc", "pymdownx.tilde", "attr_list", "md_in_html"]
+MD_EXTS = ["tables", "fenced_code", "toc", "pymdownx.tilde", "attr_list", "md_in_html", "pymdownx.arithmatex"]
+
+
+def render_markdown(text):
+    """Protect TeX before Markdown parses underscores, braces and backslashes."""
+    return markdown.markdown(text, extensions=MD_EXTS, extension_configs={
+        "toc": {"toc_depth": "2-3"},
+        "pymdownx.arithmatex": {"generic": True},
+    })
 
 def convert(slug):
     title, kicker, desc, icon = META[slug]
     md_path = os.path.join(SRC, slug, "report.md")
-    text = open(md_path, encoding="utf-8").read()
+    text = Path(md_path).read_text(encoding="utf-8")
     # strip leading H1 (we render our own header)
     text = re.sub(r"^# .*\n", "", text, count=1)
     # demote heading levels by one (## -> # handled by CSS anyway) — keep as-is
-    # rewrite image paths ../../figures/x.png -> ../assets/x.png
+    # Rewrite source image paths for the GitHub Pages project subpath.
     text = text.replace("../../figures/", "/multimodal-atlas/assets/")
+    text = text.replace("../../assets/", "/multimodal-atlas/assets/")
     # render
-    html_body = markdown.markdown(text, extensions=MD_EXTS, extension_configs={"toc": {"toc_depth": "2-3"}})
+    html_body = render_markdown(text)
     # heading ids for TOC anchors: python-markdown toc extension adds ids
     out_dir = os.path.join(ROOT, "reports", slug)
     os.makedirs(out_dir, exist_ok=True)
     page = SHELL_HEAD.format(
         title=title, prefix="../../", kicker=f"{icon} 专题 {slug[:2]} · {kicker}",
         h1=title, subtitle=desc, slug=slug, sidenav=sidenav_html(slug)) + html_body + SHELL_FOOT.format(prefix="../../")
-    open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8").write(page)
+    Path(out_dir, "index.html").write_text(page, encoding="utf-8")
     return len(text)
 
 if __name__ == "__main__":

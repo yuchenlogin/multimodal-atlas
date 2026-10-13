@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>数据的炼金术：数据工程与训练方法 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -63,16 +63,16 @@
 <p><strong>阶段三：指令微调与后训练（SFT + preference/RLVR）</strong>。用指令跟随数据教模型"如何回答问题"，再用偏好数据或可验证奖励对齐人类偏好与推理行为。数据量从百万级骤降到十万甚至万级，但单条质量要求最高。</p>
 <p>这个三阶段骨架的隐含逻辑是<strong>成本的阶梯</strong>：阶段一的数据单价最低（爬取成本）、用量最大；阶段三的数据单价最高（人工或 GPT-4V 合成）、用量最小。数据工程的许多决策，本质是在这条成本曲线上做资源分配。值得强调的是，三阶段并非铁律：InternVL3 [17] 的原生预训练把前两个阶段合并为一次联合训练，而小模型团队常把后两个阶段合并为一次"混合 SFT"。阶段的划分是工具而非教条，其存在理由是让不同质量、不同单价的数据各得其所——理解了这一点，就不会把任何一家的具体配方当成普适模板。</p>
 <h3 id="22-anatomy">2.2 图文对数据的 Anatomy</h3>
-<p>一条原始图文对 $(x_i, t_i)$ 来自网页的 <code>&lt;img&gt;</code> 标签与其 alt-text。原始 alt-text 的平均质量之差，超出了多数初学者的想象：大量条目是 "IMG_2043.jpg"、"点击放大"、广告文案甚至与图片完全无关的 SEO 垃圾。LAION-5B [1] 的构建者估计，Common Crawl 中可提取的图文对超过 500 亿，但其中真正对训练有价值的不足十分之一。由此引出图文数据工程的三个基本操作：</p>
+<p>一条原始图文对 <span class="arithmatex">\((x_i, t_i)\)</span> 来自网页的 <code>&lt;img&gt;</code> 标签与其 alt-text。原始 alt-text 的平均质量之差，超出了多数初学者的想象：大量条目是 "IMG_2043.jpg"、"点击放大"、广告文案甚至与图片完全无关的 SEO 垃圾。LAION-5B [1] 的构建者估计，Common Crawl 中可提取的图文对超过 500 亿，但其中真正对训练有价值的不足十分之一。由此引出图文数据工程的三个基本操作：</p>
 <p><strong>过滤（filtering）</strong>。过滤的目标函数从来不是一个：要同时最大化图文匹配度、信息含量与安全性，三者经常互相冲突——一张带水印的图可能图文匹配极佳，一条 OCR 密集的信息图 caption 可能很短。最经典的过滤器是 CLIP score：用预训练 CLIP 模型计算图像与文本的 embedding 余弦相似度</p>
-<p>$$
-s(x, t) = \frac{f_v(x)^\top f_t(t)}{|f_v(x)|_2 \cdot |f_t(t)|_2},
-$$</p>
-<p>并丢弃 $s$ 低于阈值的样本。LAION-5B 保留了约 58.5 亿对英文图文对，其筛选阈值背后的直觉是：CLIP score 低意味着图文不匹配，训练这样的样本等于向模型注入噪声监督。此外还有尺寸过滤（丢弃过小图像）、长宽比过滤、NSFW 检测、水印检测、人脸/隐私过滤等一串规则过滤器，每个过滤器都在"数据量"与"数据质"之间做一次权衡。</p>
+<div class="arithmatex">\[
+s(x, t) = \frac{f_v(x)^\top f_t(t)}{\|f_v(x)\|_2 \cdot \|f_t(t)\|_2},
+\]</div>
+<p>并丢弃 <span class="arithmatex">\(s\)</span> 低于阈值的样本。LAION-5B 保留了约 58.5 亿对英文图文对，其筛选阈值背后的直觉是：CLIP score 低意味着图文不匹配，训练这样的样本等于向模型注入噪声监督。此外还有尺寸过滤（丢弃过小图像）、长宽比过滤、NSFW 检测、水印检测、人脸/隐私过滤等一串规则过滤器，每个过滤器都在"数据量"与"数据质"之间做一次权衡。</p>
 <p><strong>去重（deduplication）</strong>。网络数据存在严重重复：热门图片被成千上万网页转载。近似去重通常用感知哈希（pHash）或 embedding 近邻（如 SemDeDup）实现。重复数据的危害不仅是浪费算力——它会扭曲数据分布，让模型对高频样本过拟合，并在评测时造成训练-测试泄漏。后者尤其隐蔽：流行评测集（如 ImageNet、COCO）的图像在网络中大量存在，若不去重，模型的"泛化能力"可能有一部分只是记忆。严肃的数据集发布（如 DataComp 候选池、MINT-1T）都会对常见评测集做显式的去污（decontamination）处理。</p>
 <p><strong>重写（rewriting/recaptioning）</strong>。既然 alt-text 质量差，不如用一个已有的强模型重新为图像写描述。这是 ShareGPT4V [8]、veCLIP [32] 与 Recap-DataComp 路线的核心思想，我们将在第 4 节深入分析。veCLIP 特别值得一提：它把重写后的"视觉富化 caption"用于 CLIP 对比学习本身，证明合成 caption 的收益不限于生成式 MLLM，对双编码器表征学习同样成立——这一结果把 caption 质量从"生成任务的配菜"提升为"一切视觉-语言训练的主菜"。</p>
 <h3 id="23">2.3 交错图文数据：从"对"到"文档"</h3>
-<p>图文对只能教模型"一张图对应一段描述"，而真实世界的多模态内容是<strong>交错</strong>的：一篇教程里图与文交替出现，一段幻灯中图表与文字互相引用。交错图文数据（interleaved image-text data）以文档为单位，保留图文在原始网页中的相对顺序，形如 $(t_1, x_1, t_2, x_2, t_3, \ldots)$。Flamingo [31] 最早证明交错数据是上下文少样本学习（in-context few-shot learning）能力的关键：模型见过"图-文-图-文"的序列后，才能在推理时利用几个示例完成新任务。OBELICS [4]、MMC4 [5]、MINT-1T [6] 是这一范式的三个开源里程碑。交错数据的工程难度远高于图文对：需要解析 HTML DOM、判断图片在文档语义中的位置、丢弃与上下文无关的装饰图（图标、广告、头像），并做文档级而非样本级的去重与安全过滤。判断一张图"属于上下文还是装饰"没有完美的规则：常见做法结合图像尺寸、在 DOM 中的位置、文件名模式、以及前后文本是否出现指代（如"如上图所示"），但边缘案例（表情包、引用截图、数据图表）至今仍会让最好的管线犯错。MMC4 [5] 采取的是另一条路线：不解析原始 HTML，而是给已有的纯文本语料 C4 的每个文档"回配"检索到的图像，牺牲了原生排版的精确性，换取了构建的可扩展性。两种路线——OBELICS 的"保真"与 MMC4 的"回配"——代表了交错数据构建的一对基本权衡。</p>
+<p>图文对只能教模型"一张图对应一段描述"，而真实世界的多模态内容是<strong>交错</strong>的：一篇教程里图与文交替出现，一段幻灯中图表与文字互相引用。交错图文数据（interleaved image-text data）以文档为单位，保留图文在原始网页中的相对顺序，形如 <span class="arithmatex">\((t_1, x_1, t_2, x_2, t_3, \ldots)\)</span>。Flamingo [31] 最早证明交错数据是上下文少样本学习（in-context few-shot learning）能力的关键：模型见过"图-文-图-文"的序列后，才能在推理时利用几个示例完成新任务。OBELICS [4]、MMC4 [5]、MINT-1T [6] 是这一范式的三个开源里程碑。交错数据的工程难度远高于图文对：需要解析 HTML DOM、判断图片在文档语义中的位置、丢弃与上下文无关的装饰图（图标、广告、头像），并做文档级而非样本级的去重与安全过滤。判断一张图"属于上下文还是装饰"没有完美的规则：常见做法结合图像尺寸、在 DOM 中的位置、文件名模式、以及前后文本是否出现指代（如"如上图所示"），但边缘案例（表情包、引用截图、数据图表）至今仍会让最好的管线犯错。MMC4 [5] 采取的是另一条路线：不解析原始 HTML，而是给已有的纯文本语料 C4 的每个文档"回配"检索到的图像，牺牲了原生排版的精确性，换取了构建的可扩展性。两种路线——OBELICS 的"保真"与 MMC4 的"回配"——代表了交错数据构建的一对基本权衡。</p>
 <h3 id="24">2.4 指令微调数据的构造范式</h3>
 <p>指令微调（instruction tuning）数据是三元组（图像，指令，回答），其构造有三种主要范式：</p>
 <ol>

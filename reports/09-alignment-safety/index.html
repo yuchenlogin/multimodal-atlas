@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>对齐、幻觉与安全 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -61,18 +61,18 @@
 <h2 id="2">2. 基础知识</h2>
 <h3 id="21-mllm">2.1 MLLM 的对齐为何特殊</h3>
 <p>在纯文本 LLM 中，对齐（alignment）通常指通过人类反馈让模型输出符合"有用、诚实、无害"（helpful, honest, harmless, 3H）的价值观。将这套范式搬到 MLLM 时，会遇到三个纯文本场景不存在的结构性困难。</p>
-<p><strong>第一，条件模态的引入改变了"事实"的定义。</strong> 文本对齐中，真实性大致可由世界知识判定；而在 MLLM 中，回答的真假必须以当前图像为条件——"图中有几只狗"的正确答案不取决于先验中狗的常见数量，而取决于此刻这张特定的图。这意味着幻觉本质上是一种<strong>条件化失败</strong>：模型没有充分使用视觉条件 $v$，而是退化为基于文本先验的生成 $p(y \mid x_{\text{text}})$，而非期望的 $p(y \mid x_{\text{text}}, v)$。</p>
+<p><strong>第一，条件模态的引入改变了"事实"的定义。</strong> 文本对齐中，真实性大致可由世界知识判定；而在 MLLM 中，回答的真假必须以当前图像为条件——"图中有几只狗"的正确答案不取决于先验中狗的常见数量，而取决于此刻这张特定的图。这意味着幻觉本质上是一种<strong>条件化失败</strong>：模型没有充分使用视觉条件 <span class="arithmatex">\(v\)</span>，而是退化为基于文本先验的生成 <span class="arithmatex">\(p(y \mid x_{\text{text}})\)</span>，而非期望的 <span class="arithmatex">\(p(y \mid x_{\text{text}}, v)\)</span>。</p>
 <p><strong>第二，安全对齐可能在模态融合时被稀释。</strong> MM-SafetyBench [24] 的实验揭示了一个反直觉现象：即使底层 LLM 已经过严格的安全对齐，接入视觉编码器后，一张与恶意查询语义相关的图片就能让模型"忘记"安全约束，仿佛文本查询本身就是恶意的。这提示视觉特征的注入可能绕过了在纯文本 token 序列上学会的安全路由。</p>
 <p><strong>第三，偏好的判定依赖视觉 grounding。</strong> 标注者比较两个回答哪个更好时，需要核对图像内容；自动奖励模型亦然。这使得多模态偏好数据的标注成本更高、质量更难控制，也催生了"用 AI 反馈替代人类反馈"的研究线（RLAIF-V [16]）。</p>
 <p>还有一个更微妙的差异值得指出：<strong>多模态偏好可能是条件性的</strong>。mDPO [20] 的诊断实验表明，直接把文本 DPO 套用到多模态数据上时，模型会学到一种"无条件偏好"——它只根据回答本身的文本特征（长度、流畅度、自信语气）判断好坏，而忽视图像条件。一个语言华丽但与图像无关的回答可能被判为 chosen。这意味着多模态偏好学习必须在目标函数层面显式强化图像条件，否则对齐训练反而可能加剧幻觉：模型学会的是"说得像好答案"，而非"说得对"。</p>
 <h3 id="22">2.2 偏好学习的数学基础</h3>
-<p><strong>RLHF 两阶段范式。</strong> 给定提示 $x$（在多模态场景含图像），模型 $\pi_\theta$ 生成回答 $y$。人类标注者对回答对 $(y_w, y_l)$ 给出偏好（$y_w$ 优于 $y_l$）。Bradley-Terry 模型将偏好概率参数化为：</p>
-<p>$$P(y_w \succ y_l \mid x) = \sigma\big(r_\phi(x, y_w) - r_\phi(x, y_l)\big)$$</p>
-<p>其中 $r_\phi$ 是奖励模型，$\sigma$ 为 sigmoid。第一阶段通过最大化偏好对数似然训练 $r_\phi$；第二阶段用 PPO [37] 优化策略：</p>
-<p>$$\max_\theta \mathbb{E}<em>{y \sim \pi</em>\theta(\cdot \mid x)}\big[r_\phi(x,y)\big] - \beta\, \mathrm{KL}\big(\pi_\theta \,|\, \pi_{\text{ref}}\big)$$</p>
-<p>KL 正则项防止策略偏离参考模型 $\pi_{\text{ref}}$（通常是 SFT 模型）过远，避免奖励黑客（reward hacking）。</p>
+<p><strong>RLHF 两阶段范式。</strong> 给定提示 <span class="arithmatex">\(x\)</span>（在多模态场景含图像），模型 <span class="arithmatex">\(\pi_\theta\)</span> 生成回答 <span class="arithmatex">\(y\)</span>。人类标注者对回答对 <span class="arithmatex">\((y_w, y_l)\)</span> 给出偏好（<span class="arithmatex">\(y_w\)</span> 优于 <span class="arithmatex">\(y_l\)</span>）。Bradley-Terry 模型将偏好概率参数化为：</p>
+<div class="arithmatex">\[P(y_w \succ y_l \mid x) = \sigma\big(r_\phi(x, y_w) - r_\phi(x, y_l)\big)\]</div>
+<p>其中 <span class="arithmatex">\(r_\phi\)</span> 是奖励模型，<span class="arithmatex">\(\sigma\)</span> 为 sigmoid。第一阶段通过最大化偏好对数似然训练 <span class="arithmatex">\(r_\phi\)</span>；第二阶段用 PPO [37] 优化策略：</p>
+<div class="arithmatex">\[\max_\theta\ \mathbb{E}_{y \sim \pi_\theta(\cdot \mid x)}\big[r_\phi(x,y)\big] - \beta\, \mathrm{KL}\big(\pi_\theta \,\|\, \pi_{\text{ref}}\big)\]</div>
+<p>KL 正则项防止策略偏离参考模型 <span class="arithmatex">\(\pi_{\text{ref}}\)</span>（通常是 SFT 模型）过远，避免奖励黑客（reward hacking）。</p>
 <p><strong>DPO：跳过奖励模型。</strong> Rafailov 等人 [38] 观察到：在 KL 正则下的最优策略有闭式解，奖励可表示为策略与参考模型的对数比。于是偏好学习可直接对策略做二分类：</p>
-<p>$$\mathcal{L}<em _x_="(x," y_l_="y_l)" y_w_="y_w,">{\text{DPO}} = -\mathbb{E}</em>\Big)$$} \log \sigma\Big(\beta \log \frac{\pi_\theta(y_w \mid x)}{\pi_{\text{ref}}(y_w \mid x)} - \beta \log \frac{\pi_\theta(y_l \mid x)}{\pi_{\text{ref}}(y_l \mid x)</p>
+<div class="arithmatex">\[\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x, y_w, y_l)} \log \sigma\Big(\beta \log \frac{\pi_\theta(y_w \mid x)}{\pi_{\text{ref}}(y_w \mid x)} - \beta \log \frac{\pi_\theta(y_l \mid x)}{\pi_{\text{ref}}(y_l \mid x)}\Big)\]</div>
 <p>DPO 将两阶段流程压缩为一次监督式优化，训练更稳定、无需在线采样，成为多模态对齐的主流选择（HA-DPO、V-DPO、mDPO 等皆基于此）。</p>
 <p><strong>AI 反馈与宪法式对齐。</strong> 人类反馈昂贵且存在标注者间不一致，Anthropic 的 Constitutional AI [40] 提出替代方案：给模型一组书面原则（"宪法"），让其自我批评初稿回答并修正，再基于这些自我修正的数据做偏好学习，全程无需人工标注无害性。这一思路奠定了"RLAIF"（AI 反馈强化学习）路线，也是后来多模态侧 RLAIF-V 的直系前身。其哲学预设值得记住：<strong>原则本身来自人类，AI 只是原则的执行放大器</strong>——这与完全放任模型自我定义好坏有本质区别。</p>
 <p><strong>GRPO 与序列级变体。</strong> DeepSeekMath 提出的 GRPO（Group Relative Policy Optimization）[42] 省略价值网络，对同一提示采样一组回答，用组内相对奖励做优势归一化，显著降低 RL 训练成本。2025 年的 GSPO（Group Sequence Policy Optimization）[36] 进一步将重要性比率从 token 级提升到序列级，缓解了 MoE 模型 RL 训练的不稳定性，为长推理链 MLLM 的 RLHF 提供了更稳的优化器。</p>
@@ -87,7 +87,7 @@
 <p>幻觉与"错误"的区别在于：幻觉输出往往语言流畅、细节具体、自信满满，因此更难被用户察觉，危害也更大。</p>
 <p>还有两个与本报告相关但不完全重叠的概念需要区分。其一是<strong>忠实性（faithfulness）失败</strong>：模型对图像的理解可能正确，但生成时没有忠实转述（如视觉编码器正确识别了三个苹果，语言头却输出"两个"）；其二是<strong>视觉错觉（visual illusion）</strong>：图像本身具有歧义或欺骗性（如错觉图），此时"正确"答案本身就依赖上下文。HallusionBench [26] 的贡献之一正是将语言幻觉与视觉错觉放在同一对照框架下诊断——同一张图配两个相互矛盾的问题，检验模型回答的逻辑一致性，从而把"模型说谎"与"图像骗人"分离开来。</p>
 <h3 id="24">2.4 幻觉的三大成因</h3>
-<p><strong>（a）语言先验主导。</strong> MLLM 的解码本质上是自回归语言建模。POPE 论文 [11] 的关键发现是：在视觉指令中高频出现的对象、以及与图中对象高频共现的对象（如"桌子-椅子"），最容易被幻觉出来。模型学到了 $P(\text{chair} \mid \text{table})$ 的语言统计规律，在视觉证据不足时用它"脑补"。</p>
+<p><strong>（a）语言先验主导。</strong> MLLM 的解码本质上是自回归语言建模。POPE 论文 [11] 的关键发现是：在视觉指令中高频出现的对象、以及与图中对象高频共现的对象（如"桌子-椅子"），最容易被幻觉出来。模型学到了 <span class="arithmatex">\(P(\text{chair} \mid \text{table})\)</span> 的语言统计规律，在视觉证据不足时用它"脑补"。</p>
 <p><strong>（b）视觉 grounding 不足。</strong> 视觉 token 经过 projector 进入 LLM 后，在深层注意力中的影响力可能衰减。OPERA [49] 观察到：生成长回答时，模型的注意力会坍缩到少数几个 "summary token" 上，后续 token 的生成几乎不再"看"图像，从而脱离视觉事实。More Thinking, Less Seeing [30] 进一步发现：长推理链会系统性地减少对视觉 token 的注意力分配。</p>
 <p><strong>（c）数据偏置。</strong> 视觉指令微调数据（如 LLaVA 的 GPT-4 生成数据 [4]）存在系统性偏差：问题集中于常见物体、答案风格单一、负样本稀缺。模型因此倾向于回答"是"（存在性偏置）、描述常见场景模板。LRV-Instruction [12] 正是通过在指令数据中引入负样本与反事实样本来缓解这一问题。</p>
 <p>三个成因之间存在因果链：数据偏置塑造了语言先验的具体内容（哪些物体共现、答案该是什么风格）；视觉 grounding 不足决定了模型在多大程度上依赖先验而非证据；而解码动力学（注意力坍缩、长链漂移）则是先验最终"接管"生成的执行机制。这解释了为什么单一干预往往效果有限——只改数据不改解码，先验仍会在长生成中渗透；只改解码不改数据，模型内部的错误关联依然存在。有效的幻觉治理需要沿因果链多点设防，这也是 §6.1 对比表格背后的设计逻辑。</p>
@@ -114,7 +114,7 @@
 </ul>
 <h3 id="32">3.2 幻觉：度量、归因与缓解</h3>
 <p><strong>度量体系</strong>按时间演进：CHAIR [25]（2018，图像描述时代）→ POPE [11]（2023，轮询式探测）→ MME [34]（2023，含幻觉子任务的综合基准）→ HallusionBench [26]（2024，语言幻觉与视觉错觉的纠缠诊断）→ MMVP [27] / BLINK [28] / MMStar [29]（2024，揭示模型"视而不见"与感知短板）。</p>
-<p>CHAIR 值得单独一提。它要求生成式图像描述模型在带有物体标注的图像上生成 caption，然后计算两类指标：$\mathrm{CHAIR}_i$（生成句子中提及的物体里，不在图像标注中的比例）与 $\mathrm{CHAIR}_s$（至少包含一个幻觉物体的句子比例）。该工作还做出两个影响深远的诊断：其一，标准 caption 指标（BLEU、CIDEr）与幻觉率相关性很弱——"像人话"不等于"说真话"，这直接推动了后来 POPE 等专门度量的诞生；其二，通过对比不同解码与训练设置，作者发现幻觉既可能来自视觉误识别，也可能来自纯粹的语言先验（如 caption 训练集中"人拿着滑板"的高频搭配），这一二分法至今仍是幻觉归因的基本框架。MME [34] 则从评测供给侧推动了领域成熟：作为首个系统的 MLLM 综合基准，它将幻觉（存在性与数量判断）纳入 14 个子任务，使"幻觉率"成为每个新模型的必报指标；MMBench [48] 与 MM-Vet [47] 随后从不同侧面（全方位能力、综合能力与 LLM-as-a-judge 评分）完善了评测生态。</p>
+<p>CHAIR 值得单独一提。它要求生成式图像描述模型在带有物体标注的图像上生成 caption，然后计算两类指标：<span class="arithmatex">\(\mathrm{CHAIR}_i\)</span>（生成句子中提及的物体里，不在图像标注中的比例）与 <span class="arithmatex">\(\mathrm{CHAIR}_s\)</span>（至少包含一个幻觉物体的句子比例）。该工作还做出两个影响深远的诊断：其一，标准 caption 指标（BLEU、CIDEr）与幻觉率相关性很弱——"像人话"不等于"说真话"，这直接推动了后来 POPE 等专门度量的诞生；其二，通过对比不同解码与训练设置，作者发现幻觉既可能来自视觉误识别，也可能来自纯粹的语言先验（如 caption 训练集中"人拿着滑板"的高频搭配），这一二分法至今仍是幻觉归因的基本框架。MME [34] 则从评测供给侧推动了领域成熟：作为首个系统的 MLLM 综合基准，它将幻觉（存在性与数量判断）纳入 14 个子任务，使"幻觉率"成为每个新模型的必报指标；MMBench [48] 与 MM-Vet [47] 随后从不同侧面（全方位能力、综合能力与 LLM-as-a-judge 评分）完善了评测生态。</p>
 <p><strong>缓解路线</strong>分四类：</p>
 <table>
 <thead>
@@ -371,9 +371,9 @@
 <h3 id="42-vcdcvpr-202413">4.2 VCD：用"看不清"反衬"看得清"（CVPR 2024）[13]</h3>
 <p><strong>研究问题。</strong> 既然幻觉源于语言先验与统计偏差的过度主导，能否在不重新训练的前提下，在解码时就把这部分"非视觉"成分剥离掉？</p>
 <p><strong>关键洞察。</strong> 幻觉 token 有一个可利用的指纹：它们对视觉输入的变化不敏感。一个"真实"的物体词（图中确实有）应当强烈依赖图像内容；而一个幻觉词（如被语言先验诱导的"椅子"）即使在图像被扰动、视觉信息退化时，仍会被语言模型以相近的概率生成。VCD（Visual Contrastive Decoding）的洞察是：<strong>用失真图像作为"对照组"，对比两个解码分布，就能抑制不依赖视觉的 token。</strong></p>
-<p><strong>技术方法。</strong> 形式化地，设原始视觉输入为 $v$，失真版本为 $v'$（对图像加高斯噪声扰动视觉编码器的输入）。在第 $t$ 步解码时，VCD 构造对比分布：</p>
-<p>$$p_{\text{vcd}}(y_t) \propto \exp\big((1+\alpha)\,\mathcal{F}(y_t \mid x, v) - \alpha\,\mathcal{F}(y_t \mid x, v')\big)$$</p>
-<p>其中 $\mathcal{F}$ 为对数概率（logit 的 softmax 归一化），$\alpha$ 为放大系数。直觉：若某 token 在两个分布中概率相近（不依赖视觉），其 logit 差接近零，对比后得不到增益；若 token 真正由视觉证据支持，原始分布的概率显著高于失真分布，对比后被放大。VCD 还引入自适应合理性约束（adaptive plausibility constraint），只在原始分布高置信的候选 token 集合内做对比，防止放大噪声。</p>
+<p><strong>技术方法。</strong> 形式化地，设原始视觉输入为 <span class="arithmatex">\(v\)</span>，失真版本为 <span class="arithmatex">\(v'\)</span>（对图像加高斯噪声扰动视觉编码器的输入）。在第 <span class="arithmatex">\(t\)</span> 步解码时，VCD 构造对比分布：</p>
+<div class="arithmatex">\[p_{\text{vcd}}(y_t) \propto \exp\big((1+\alpha)\,\mathcal{F}(y_t \mid x, v) - \alpha\,\mathcal{F}(y_t \mid x, v')\big)\]</div>
+<p>其中 <span class="arithmatex">\(\mathcal{F}\)</span> 为对数概率（logit 的 softmax 归一化），<span class="arithmatex">\(\alpha\)</span> 为放大系数。直觉：若某 token 在两个分布中概率相近（不依赖视觉），其 logit 差接近零，对比后得不到增益；若 token 真正由视觉证据支持，原始分布的概率显著高于失真分布，对比后被放大。VCD 还引入自适应合理性约束（adaptive plausibility constraint），只在原始分布高置信的候选 token 集合内做对比，防止放大噪声。</p>
 <p><strong>实验结果。</strong> 在 POPE 上，VCD 使 LLaVA-1.5、MiniGPT-4、InstructBLIP 等模型的 F1 稳定提升；在 MME 幻觉子集与开放式描述评估（GPT-4 辅助）上，对象幻觉率显著下降，且无需任何训练或外部知识。消融显示失真程度与放大系数存在甜点区间：扰动太弱则对比无信息量，太强则损伤正常生成。</p>
 <p><strong>批判性分析。</strong> 优点：零训练成本、即插即用、理论动机清晰（直接对应 2.4 节的成因 (a)），工程价值极高。局限：(i) 每步解码需两次前向（原始+失真），推理开销约翻倍，在高吞吐部署中代价可观；(ii) 对"失真"的设计敏感，高斯噪声是粗糙的视觉退化近似——它均匀地破坏所有视觉信息，而真实的幻觉往往由特定类型的 grounding 失败（小物体、遮挡、罕见属性）触发，针对性失真（如掩蔽特定区域）是尚未充分探索的方向；(iii) 只缓解对象层面的幻觉，对复杂关系与推理幻觉作用有限；(iv) 本质是"症状治疗"，没有改变模型内部的表征缺陷——模型仍然学到了错误的视觉-语言关联，只是解码时被外部校正压住了。可复现性好，官方代码开源。</p>
 <p>与同宗方法的关系也值得一提：VCD 继承自文本域的对比解码思想（用大模型与小模型、或强提示与弱提示的分布差来放大"真正由能力贡献"的信号），其贡献在于找到了视觉域合适的"弱分布"构造——失真图像。这一构造的普适性使其迅速成为幻觉缓解的标准基线，后续的 M3ID、ICD 等工作大多是在"如何构造更好的对照分布"这一轴上做文章。</p>
@@ -532,7 +532,7 @@
 <p>回看全报告，幻觉、对齐、安全三条线索在每个层面都相互咬合：缓解幻觉的对齐训练可能引入对齐税，安全微调可能改变幻觉分布，推理模型的能力升级同时放大两类风险。以下七个开放问题，正是这些咬合点上尚未解开的结。</p>
 <ol>
 <li>
-<p><strong>幻觉的统一理论。</strong> 现有研究按现象分治（对象/属性/关系幻觉），缺乏一个从表征层面解释"为何语言先验会压过视觉证据"的统一框架。一个有前景的方向是将幻觉形式化为条件互信息 $I(y; v \mid x)$ 的退化问题，建立可计算的 grounding 强度度量——即不再满足于事后统计幻觉率，而是追问：在模型的内部表征里，这个 token 的生成究竟动用了多少视觉信息？</p>
+<p><strong>幻觉的统一理论。</strong> 现有研究按现象分治（对象/属性/关系幻觉），缺乏一个从表征层面解释"为何语言先验会压过视觉证据"的统一框架。一个有前景的方向是将幻觉形式化为条件互信息 <span class="arithmatex">\(I(y; v \mid x)\)</span> 的退化问题，建立可计算的 grounding 强度度量——即不再满足于事后统计幻觉率，而是追问：在模型的内部表征里，这个 token 的生成究竟动用了多少视觉信息？</p>
 </li>
 <li>
 <p><strong>对齐的泛化与分布外安全。</strong> 现有对齐在基准分布内有效，面对分布外输入（新型攻击、低资源语言、未见场景）时安全约束失效。安全对齐如何获得类似对抗鲁棒性的泛化保证，是理论瓶颈。</p>
