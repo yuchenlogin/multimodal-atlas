@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>任意到任意：全模态（Omni）大模型 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -58,15 +58,15 @@
 <h2 id="2">2. 基础知识</h2>
 <p>omni 模型建立在四块知识地基之上：把一切模态变成序列的<strong>统一 token 化</strong>思想、沿用自视觉-语言模型的<strong>连续编码器 + 连接器</strong>范式、决定计算共享程度的<strong>融合时机</strong>选择，以及决定输出形态的<strong>生成范式</strong>（自回归 vs 扩散）取舍。这四块地基之上，还要加上 omni 特有的第五块——<strong>流式处理与全双工</strong>的系统概念，它决定了模型能否从"离线处理器"变成"实时对话者"。本节逐一展开，每块地基都从"它要解决什么痛"讲起。</p>
 <h3 id="21-token">2.1 统一序列建模：把一切变成 token</h3>
-<p>自回归语言建模的核心思想异常简单：给定前文 $x_{&lt;t}$，预测下一个 token 的概率 $p(x_t \mid x_{&lt;t})$，整个序列的联合概率分解为</p>
-<p>$$p(x_1, \dots, x_T) = \prod_{t=1}^{T} p(x_t \mid x_{&lt;t}).$$</p>
+<p>自回归语言建模的核心思想异常简单：给定前文 <span class="arithmatex">\(x_{&lt;t}\)</span>，预测下一个 token 的概率 <span class="arithmatex">\(p(x_t \mid x_{&lt;t})\)</span>，整个序列的联合概率分解为</p>
+<div class="arithmatex">\[p(x_1, \dots, x_T) = \prod_{t=1}^{T} p(x_t \mid x_{&lt;t}).\]</div>
 <p>文本天然是离散的 token 序列，因此这一范式与文本无缝契合。omni 模型的第一条技术路线——<strong>统一 token 化（unified tokenization）</strong>——就是把图像、音频也变成离散 token 序列，然后"一视同仁"地用同一个 Transformer 做自回归预测。</p>
-<p>图像的离散化依赖<strong>图像 tokenizer</strong>：先训练一个编码器-解码器对 $(E, D)$，编码器把图像 $I$ 压缩为离散码本索引序列 $z = E(I) \in {1,\dots,K}^{n}$，解码器从中重建 $\hat{I} = D(z)$。训练目标通常包含重建损失与码本承诺损失（commitment loss）。一旦 tokenizer 训练完成，"生成图像"就等价于"自回归地生成 $z$，再交给 $D$ 解码"。音频侧则使用<strong>神经音频编解码器</strong>（neural audio codec，如 EnCodec、SoundStream 一脉）：用残差向量量化（residual VQ, RVQ）把波形压缩成多层离散 codebook token，码率约每秒数十帧，每层 $K$ 个码。</p>
+<p>图像的离散化依赖<strong>图像 tokenizer</strong>：先训练一个编码器-解码器对 <span class="arithmatex">\((E, D)\)</span>，编码器把图像 <span class="arithmatex">\(I\)</span> 压缩为离散码本索引序列 <span class="arithmatex">\(z = E(I) \in \{1,\dots,K\}^{n}\)</span>，解码器从中重建 <span class="arithmatex">\(\hat{I} = D(z)\)</span>。训练目标通常包含重建损失与码本承诺损失（commitment loss）。一旦 tokenizer 训练完成，"生成图像"就等价于"自回归地生成 <span class="arithmatex">\(z\)</span>，再交给 <span class="arithmatex">\(D\)</span> 解码"。音频侧则使用<strong>神经音频编解码器</strong>（neural audio codec，如 EnCodec、SoundStream 一脉）：用残差向量量化（residual VQ, RVQ）把波形压缩成多层离散 codebook token，码率约每秒数十帧，每层 <span class="arithmatex">\(K\)</span> 个码。</p>
 <p>这条路线的优雅之处在于：<strong>多模态建模被归约为数据预处理问题</strong>。AnyGPT 的概括最为直白——接入一种新模态如同教模型一门"新语言"，LLM 架构与训练范式完全不用改。代价同样直白：tokenizer 是有损压缩，重建质量构成生成质量的天花板；且离散化会丢失对理解任务重要的细粒度信息（如文字、纹理）。</p>
 <h3 id="22">2.2 连续表征路线：编码器 + 连接器</h3>
-<p>第二条路线沿用视觉-语言模型的成熟做法：每种模态配备一个预训练连续编码器（如 ViT、Whisper 式音频编码器），其输出经连接器（线性投影、cross-attention 或重采样器）映射到 LLM 的词嵌入空间，作为"软 token"参与注意力计算。形式化地，对模态 $m$ 的输入 $X_m$，LLM 看到的序列是</p>
-<p>$$[\,\dots, \phi_m(E_m(X_m)), \dots\,],$$</p>
-<p>其中 $E_m$ 为模态编码器，$\phi_m$ 为连接器。这条路线下，"输入侧"是连续的，"输出侧"则外挂专用生成器（扩散模型、flow-matching 解码器或 codec 自回归头）。GPT-4o 之外的多数工业与开源 omni 系统（Qwen2.5-Omni、MiniCPM-o、VITA）均属此类。</p>
+<p>第二条路线沿用视觉-语言模型的成熟做法：每种模态配备一个预训练连续编码器（如 ViT、Whisper 式音频编码器），其输出经连接器（线性投影、cross-attention 或重采样器）映射到 LLM 的词嵌入空间，作为"软 token"参与注意力计算。形式化地，对模态 <span class="arithmatex">\(m\)</span> 的输入 <span class="arithmatex">\(X_m\)</span>，LLM 看到的序列是</p>
+<div class="arithmatex">\[[\,\dots,\ \phi_m(E_m(X_m)),\ \dots\,],\]</div>
+<p>其中 <span class="arithmatex">\(E_m\)</span> 为模态编码器，<span class="arithmatex">\(\phi_m\)</span> 为连接器。这条路线下，"输入侧"是连续的，"输出侧"则外挂专用生成器（扩散模型、flow-matching 解码器或 codec 自回归头）。GPT-4o 之外的多数工业与开源 omni 系统（Qwen2.5-Omni、MiniCPM-o、VITA）均属此类。</p>
 <p><img alt="三种多模态架构范式对比：连接器式、cross-attention 式与早期融合式" src="/multimodal-atlas/assets/fig_vlm_arch_taxonomy.png" /></p>
 <h3 id="23-early-fusion-vs-late-fusion">2.3 融合时机：early fusion vs. late fusion</h3>
 <p><strong>融合策略</strong>回答"各模态在多早的层次开始共享计算"：</p>
@@ -245,7 +245,7 @@
 <h3 id="46-minicpm-o-45-202629">4.6 MiniCPM-o 4.5：把时间轴还给模型（面壁智能, 2026）[29]</h3>
 <p><strong>研究问题</strong>。到 2026 年，omni 模型的瓶颈已经不是模态覆盖或延迟数字，而是<strong>交互范式本身</strong>。MiniCPM-o 4.5 的技术报告把这一点说得极为直白：现有模型（包括自家前作）的感知与响应仍是交替进行的两个阶段——模型说话时听不见，听的时候说不出；而且绝大多数模型是"被动应答"的，不会基于对现场环境的持续理解主动开口。</p>
 <p><strong>关键洞察</strong>。回合制交互是一个<strong>数据组织的假象</strong>：只要把多模态输入输出沿同一条时间轴对齐排列，全双工就不再是外挂的状态机，而是普通序列建模的自然结果；主动行为也会在同一框架内自然涌现。</p>
-<p><strong>技术方法</strong>。核心技术是 <strong>Omni-Flow</strong>：一个统一的流式框架，把音频流、视频流（感知）与语音生成流（响应）沿共享时间轴交错排列。训练好的模型在每一时刻同时"看、听、说"：生成第 $t$ 个语音帧时，注意力可以覆盖到同一时刻的最新视听输入，从而做到被打断时即刻调整、或在持续理解现场后主动发出提醒与评论。模型总参 9B，视觉侧继承 MiniCPM-V 4.5 [28] 的高效 3D-Resampler 编码。依靠架构效率与推理优化，整机可在<strong>内存小于 12GB 的端侧设备</strong>上完成实时全双工交互。</p>
+<p><strong>技术方法</strong>。核心技术是 <strong>Omni-Flow</strong>：一个统一的流式框架，把音频流、视频流（感知）与语音生成流（响应）沿共享时间轴交错排列。训练好的模型在每一时刻同时"看、听、说"：生成第 <span class="arithmatex">\(t\)</span> 个语音帧时，注意力可以覆盖到同一时刻的最新视听输入，从而做到被打断时即刻调整、或在持续理解现场后主动发出提醒与评论。模型总参 9B，视觉侧继承 MiniCPM-V 4.5 [28] 的高效 3D-Resampler 编码。依靠架构效率与推理优化，整机可在<strong>内存小于 12GB 的端侧设备</strong>上完成实时全双工交互。</p>
 <p><strong>实验结果</strong>。在视觉-语言能力上逼近 Gemini 2.5 Flash，达到同规模开源 SOTA；在 omni 理解基准上超过参数规模大其三倍有余的 Qwen3-Omni-30B-A3B，且语音生成质量更好、计算效率显著更高。这是"小模型 + 好范式"战胜"大模型 + 旧范式"的一次标志性结果。</p>
 <p><strong>批判性分析</strong>。优点：Omni-Flow 把全双工从"系统技巧"提升为"建模范式"，理论上任何 AR omni 模型都可以按此重构数据而获得双工能力；端侧落地（&lt;12GB 内存）使实时 omni 第一次脱离云端 GPU 的假设，对隐私敏感与离线场景意义重大；主动交互的涌现说明时间轴对齐触及了某种本质。局限：全双工场景下的长期稳定性（连续交互数十分钟后的状态漂移、幻觉累积）缺乏公开评测；主动发言的"分寸感"（何时该说、何时沉默）目前主要靠数据分布隐式学习，可控性未解；9B 的端侧甜点是以牺牲复杂推理深度为代价的。可复现性：模型开源，技术报告对 Omni-Flow 的数据组织有较好披露，复现门槛中等。</p>
 <p><strong>一句话评价</strong>：2026 年最具范式意义的 omni 工作——它没有刷新"能力"，而是改写了"交互"的定义。<strong>评级：★★★★★（前沿方向必读）</strong></p>

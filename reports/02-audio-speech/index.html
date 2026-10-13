@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>听见与开口：音频语音多模态大模型 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -71,51 +71,51 @@ VQ-VAE                   →  RVQ、神经音频 codec             →  acoustic
 </ul>
 <h2 id="2">2. 基础知识</h2>
 <h3 id="21">2.1 音频信号的数字化：从波形到谱图</h3>
-<p>声音是空气压力随时间的变化，麦克风把它变成连续电压信号 $x(t)$。数字化需要两步：<strong>采样</strong>（sampling）以固定频率 $f_s$ 离散化时间轴（电话语音 8 kHz、宽带语音 16 kHz、音乐与高质量合成 24/44.1/48 kHz），<strong>量化</strong>把振幅离散为有限精度（16-bit PCM 可表示 65536 级）。根据 Nyquist 定理，采样率必须高于信号最高频率的两倍。</p>
+<p>声音是空气压力随时间的变化，麦克风把它变成连续电压信号 <span class="arithmatex">\(x(t)\)</span>。数字化需要两步：<strong>采样</strong>（sampling）以固定频率 <span class="arithmatex">\(f_s\)</span> 离散化时间轴（电话语音 8 kHz、宽带语音 16 kHz、音乐与高质量合成 24/44.1/48 kHz），<strong>量化</strong>把振幅离散为有限精度（16-bit PCM 可表示 65536 级）。根据 Nyquist 定理，采样率必须高于信号最高频率的两倍。</p>
 <p>原始波形对神经网络并不友好：16 kHz 采样意味着每秒 16000 个采样点，一分钟音频就是近百万维的序列。工程上的标准做法是短时傅里叶变换（STFT）：把波形切成 20–30 ms 的交叠帧，对每帧做傅里叶变换得到频谱，再按人耳感知的非线性频率刻度（mel 刻度）压缩为 80–128 个频带，得到 <strong>log-mel 谱图</strong>（log-mel spectrogram）。Whisper 的输入就是 80 维 log-mel 谱，帧移 10 ms，即每秒 100 帧。这个"谱图作为图像"的视角，使得为视觉设计的 CNN/Transformer 可以直接搬到音频上——这也是 2015 年后深度学习语音革命的入口。</p>
 <h3 id="22">2.2 传统语音管线：被深度化前后</h3>
 <p>经典 ASR 是一个复杂的多组件系统：声学模型（HMM-GMM，后为 DNN）给出音素后验、发音词典做音素到词的映射、语言模型约束词序列。深度学习把每个组件逐步替换为神经网络，最终端到端化：CTC、RNN-T、attention encoder-decoder。到 Whisper 出现前，端到端 ASR 在学术基准（如 LibriSpeech）上已很强，但<strong>换领域就崩</strong>——LibriSpeech 上 WER 2% 的模型面对真实会议、口音、噪声时性能暴跌。理解这一点，才能理解 Whisper 的 motivation：问题不在架构，在数据分布。</p>
 <p>TTS 的演化与之平行：拼接合成 → 统计参数合成 → 两阶段神经 TTS（Tacotron 类模型生成 mel 谱 + WaveNet/HiFi-GAN 类声码器合成波形）。两阶段范式在 2022 年前是主流，其痛点在于：mel 谱是手工设计的中间表示，声码器与声学模型误差累积，且模型容量被"逐帧回归连续谱图"的目标函数限制。codec-LM 范式正是对这一痛点的回应（见 §4.3）。</p>
 <h3 id="23">2.3 自监督语音表征：对比与掩码预测</h3>
 <p>语音标注昂贵（转写一分钟音频需熟练标注员数分钟），而无标注音频近乎无限——这是自监督学习的理想土壤。</p>
-<p><strong>wav2vec 2.0</strong>（Meta，2020）的思路是把 BERT 式预训练和对比学习结合起来。模型由三部分组成：卷积特征编码器把波形下采样为每 20 ms 一帧的隐表示 $z_t$；Transformer 上下文网络产出上下文化表示 $c_t$；一个量化模块把 $z_t$ 映射为离散编码 $q_t$（用 Gumbel-softmax 在多个码本组上选择条目并拼接）。训练时随机 mask 掉一部分时间步，让模型在 $c_t$ 上从 $K$ 个干扰项中挑出正确的量化目标 $q_t$，对比损失为：</p>
-<p>$$
-\mathcal{L}<em _tilde_q="\tilde{q">m = -\log \frac{\exp(\mathrm{sim}(c_t, q_t)/\kappa)}{\sum</em>_d
-$$} \sim Q_t} \exp(\mathrm{sim}(c_t, \tilde{q})/\kappa)} + \alpha \mathcal{L</p>
-<p>其中 $\mathcal{L}_d$ 是码本多样性正则，防止码本坍缩。效果惊人：在 53k 小时无标注 Libri-Light 上预训练后，<strong>仅用 10 分钟</strong>标注微调即可在 LibriSpeech 上取得 4.8/8.2 的 WER（clean/other），用全部 960h 标注微调达到 1.8/3.3——论文摘要直接宣称"10 分钟标注的语音识别是可行的"。</p>
+<p><strong>wav2vec 2.0</strong>（Meta，2020）的思路是把 BERT 式预训练和对比学习结合起来。模型由三部分组成：卷积特征编码器把波形下采样为每 20 ms 一帧的隐表示 <span class="arithmatex">\(z_t\)</span>；Transformer 上下文网络产出上下文化表示 <span class="arithmatex">\(c_t\)</span>；一个量化模块把 <span class="arithmatex">\(z_t\)</span> 映射为离散编码 <span class="arithmatex">\(q_t\)</span>（用 Gumbel-softmax 在多个码本组上选择条目并拼接）。训练时随机 mask 掉一部分时间步，让模型在 <span class="arithmatex">\(c_t\)</span> 上从 <span class="arithmatex">\(K\)</span> 个干扰项中挑出正确的量化目标 <span class="arithmatex">\(q_t\)</span>，对比损失为：</p>
+<div class="arithmatex">\[
+\mathcal{L}_m = -\log \frac{\exp(\mathrm{sim}(c_t, q_t)/\kappa)}{\sum_{\tilde{q} \sim Q_t} \exp(\mathrm{sim}(c_t, \tilde{q})/\kappa)} + \alpha \mathcal{L}_d
+\]</div>
+<p>其中 <span class="arithmatex">\(\mathcal{L}_d\)</span> 是码本多样性正则，防止码本坍缩。效果惊人：在 53k 小时无标注 Libri-Light 上预训练后，<strong>仅用 10 分钟</strong>标注微调即可在 LibriSpeech 上取得 4.8/8.2 的 WER（clean/other），用全部 960h 标注微调达到 1.8/3.3——论文摘要直接宣称"10 分钟标注的语音识别是可行的"。</p>
 <p><strong>HuBERT</strong>（Meta，2021）走了另一条路：不对比，而是<strong>预测离线聚类标签</strong>。先用 MFCC 特征做 k-means（100 类）得到伪标签，模型对 mask 区域做 BERT 式交叉熵预测；训练一轮后再用模型自身的中间层特征重新聚类、重新训练，迭代两到三轮。其关键设计是<strong>只对 mask 区域计算损失</strong>——这迫使模型同时学习声学模型与"语言模型"（对未 mask 上下文的利用）。HuBERT 证明了语音自监督不依赖对比目标也能达到甚至超过 wav2vec 2.0：1B 参数版本在 dev-other/test-other 上相对 WER 降低达 19%/13%。</p>
 <p>对初学者而言，两者的差异比相似更重要：wav2vec 2.0 的量化目标是<strong>与模型联合学习的</strong>（端到端，但有坍缩风险，需要多样性正则），HuBERT 的目标是<strong>外部、迭代改进的</strong>（训练更稳定，且目标天然是"语义化"的音素级单元）。后者为什么重要？因为 HuBERT 的 k-means 标签后来被发现近似对应音素/子词单元——<strong>这就是 semantic token（语义 token）的源头</strong>。AudioLM、SpeechTokenizer、VALL-E 之后的整个 codec-LM 世界，都建立在"语音可以被离散化成近似语言的符号序列"这一 HuBERT 式发现之上。</p>
 <h3 id="24-rvq-token">2.4 矢量量化与 RVQ：把声音变成 token（重点）</h3>
-<p><strong>VQ-VAE 回顾。</strong> 矢量量化（VQ）的思想：编码器输出连续向量 $z$，用码本 $C = {e_1, \dots, e_K}$ 中最近邻的码字替换它：</p>
-<p>$$
-q(z) = e_k, \quad k = \arg\min_j | z - e_j |_2
-$$</p>
-<p>量化不可导，训练时用 straight-through estimator（前向用 $q(z)$，反向把梯度原样拷贝给 $z$），并加 commitment loss $|z - \mathrm{sg}[q(z)]|^2$ 让编码器输出向码字靠拢。单一码本的问题：要无损刻画音频这种高信息密度信号，码本大小 $K$ 需指数增长——$K$ 个码字只能区分 $\log_2 K$ bit 信息。1024 大小的码本每帧只提供 10 bit，对高质量音频远远不够。</p>
+<p><strong>VQ-VAE 回顾。</strong> 矢量量化（VQ）的思想：编码器输出连续向量 <span class="arithmatex">\(z\)</span>，用码本 <span class="arithmatex">\(C = \{e_1, \dots, e_K\}\)</span> 中最近邻的码字替换它：</p>
+<div class="arithmatex">\[
+q(z) = e_k, \quad k = \arg\min_j \| z - e_j \|_2
+\]</div>
+<p>量化不可导，训练时用 straight-through estimator（前向用 <span class="arithmatex">\(q(z)\)</span>，反向把梯度原样拷贝给 <span class="arithmatex">\(z\)</span>），并加 commitment loss <span class="arithmatex">\(\|z - \mathrm{sg}[q(z)]\|^2\)</span> 让编码器输出向码字靠拢。单一码本的问题：要无损刻画音频这种高信息密度信号，码本大小 <span class="arithmatex">\(K\)</span> 需指数增长——<span class="arithmatex">\(K\)</span> 个码字只能区分 <span class="arithmatex">\(\log_2 K\)</span> bit 信息。1024 大小的码本每帧只提供 10 bit，对高质量音频远远不够。</p>
 <p><strong>RVQ：用"残差"换指数级容量。</strong> SoundStream（2021）把 RVQ 引入神经音频 codec，这是本方向最重要的工具之一，值得完整推导。思想类似矢量量化版的"梯度提升"：第一层量化器捕捉粗结构，后续每层只量化前一层的<strong>残差</strong>：</p>
-<p>$$
+<div class="arithmatex">\[
 \begin{aligned}
-r_0 &amp;= z \
-\hat{z}<em i="1">1 &amp;= Q_1(r_0), \quad r_1 = r_0 - \hat{z}_1 \
-\hat{z}_2 &amp;= Q_2(r_1), \quad r_2 = r_1 - \hat{z}_2 \
-&amp; \vdots \
-\hat{z} &amp;= \sum</em>}^{N_q} \hat{z<em i="1">i = \sum</em>)
+r_0 &amp;= z \\
+\hat{z}_1 &amp;= Q_1(r_0), \quad r_1 = r_0 - \hat{z}_1 \\
+\hat{z}_2 &amp;= Q_2(r_1), \quad r_2 = r_1 - \hat{z}_2 \\
+&amp;\ \vdots \\
+\hat{z} &amp;= \sum_{i=1}^{N_q} \hat{z}_i = \sum_{i=1}^{N_q} Q_i(r_{i-1})
 \end{aligned}
-$$}^{N_q} Q_i(r_{i-1</p>
-<p>每个时间步 $t$ 因此由 $N_q$ 个离散 code $(c_t^1, c_t^2, \dots, c_t^{N_q})$ 表示，$c_t^i \in {1, \dots, K}$。<strong>信息容量是乘法的</strong>：总码率</p>
-<p>$$
+\]</div>
+<p>每个时间步 <span class="arithmatex">\(t\)</span> 因此由 <span class="arithmatex">\(N_q\)</span> 个离散 code <span class="arithmatex">\((c_t^1, c_t^2, \dots, c_t^{N_q})\)</span> 表示，<span class="arithmatex">\(c_t^i \in \{1, \dots, K\}\)</span>。<strong>信息容量是乘法的</strong>：总码率</p>
+<div class="arithmatex">\[
 R = f_r \cdot N_q \cdot \log_2 K \quad \text{(bit/s)}
-$$</p>
-<p>其中 $f_r$ 是帧率。以 EnCodec 24 kHz 模型为例：编码器下采样 320 倍，$f_r = 75$ Hz；每个量化器码本 $K = 1024$（10 bit）；用 8 个量化器时 $R = 75 \times 8 \times 10 = 6$ kbps，而 32 个量化器对应 24 kbps。对比：原始 24 kHz/16-bit 音频是 384 kbps，压缩率 16–256 倍。SoundStream 用 3–18 kbps 可变码率训练（对量化器层做 structured dropout，随机只用前 $k$ 层），单模型覆盖全码率段；在 3 kbps 时主观质量超过 12 kbps 的 Opus、接近 9.6 kbps 的 EVS——而 Opus/EVS 是数十年手工信号处理的结晶。</p>
+\]</div>
+<p>其中 <span class="arithmatex">\(f_r\)</span> 是帧率。以 EnCodec 24 kHz 模型为例：编码器下采样 320 倍，<span class="arithmatex">\(f_r = 75\)</span> Hz；每个量化器码本 <span class="arithmatex">\(K = 1024\)</span>（10 bit）；用 8 个量化器时 <span class="arithmatex">\(R = 75 \times 8 \times 10 = 6\)</span> kbps，而 32 个量化器对应 24 kbps。对比：原始 24 kHz/16-bit 音频是 384 kbps，压缩率 16–256 倍。SoundStream 用 3–18 kbps 可变码率训练（对量化器层做 structured dropout，随机只用前 <span class="arithmatex">\(k\)</span> 层），单模型覆盖全码率段；在 3 kbps 时主观质量超过 12 kbps 的 Opus、接近 9.6 kbps 的 EVS——而 Opus/EVS 是数十年手工信号处理的结晶。</p>
 <p><strong>为什么 RVQ 对 LM 如此关键？</strong> 三点：其一，RVQ 把音频变成<strong>离散符号序列</strong>，天然适配 softmax 交叉熵训练的语言模型；其二，分层残差结构制造了<strong>重要性排序</strong>——第 1 层 code 承载大致内容（响度、基频、粗谱形），越往后越是细节（谐波纹理、相位近似），这为"先生成粗、后生成细"的层级生成（AudioLM）和"只建模第 1 层、其余 NAR 补全"（VALL-E）提供了结构基础；其三，码率可调意味着可以在"LM 可建模的序列长度"与"重建保真度"之间做显式权衡。</p>
 <p><strong>EnCodec</strong>（Meta，2022）是 SoundStream 的工业级改进版：流式卷积 encoder-decoder、单一多尺度谱图判别器（替代 SoundStream 的多判别器，简化训练且减少伪影）、以及一个 loss balancer（让各损失项按其权重占据总梯度的固定份额，解耦超参与损失尺度）。EnCodec 证明 24 kHz 单声道、乃至 48 kHz 立体声都能高保真压缩，且可用一个小型 Transformer 对已量化 token 再无损压缩约 40%。它随后成为 LLM 时代<strong>事实标准的 acoustic tokenizer</strong>：VALL-E、AudioGen、MusicGen 及大量后续工作直接冻结 EnCodec 作为音频的"分词器"。</p>
 <p><strong>Semantic vs acoustic token 的裂痕与弥合。</strong> RVQ codec 的 code 为保真而生，捕捉的是声学细节而非语言内容——实验表明其第 1 层与文本的对齐很弱。反过来，HuBERT/WavLM 特征 k-means 得到的 semantic token 与音素/文本强对齐，却丢失了音色与声学细节，无法直接重建高质量语音。<strong>SpeechTokenizer</strong>（2023）提出统一方案：在 RVQ codec 框架内，用语义教师（HuBERT）对第 1 个量化层的输出做蒸馏（如 cosine 相似度损失），使第 1 层承载语义、其余层补声学残差——"第一层即语义"的分层解耦。CosyVoice（2024）则给出更工程化的答案：直接在 ASR 编码器中插入矢量量化，用 ASR 监督信号训出"监督式 semantic token"，与文本对齐更好、内容一致性更强。Moshi 的 Mimi codec 同样在第 1 层蒸馏 WavLM 语义。到 2024 年，"RVQ 第 1 层语义化"已成为 codec 设计的共识。</p>
 <h3 id="25-token-flattening">2.5 离散 token 上的语言建模与 flattening 问题</h3>
-<p>有了 codec token，音频生成就变成了"对离散序列做语言建模"。但 RVQ 给每帧 $N_q$ 个 code，序列是二维的：时间维 $T$ × 层维 $N_q$。如何用自回归 LM 建模 $p(c_{1:T}^{1:N_q})$？这就是 <strong>flattening（展平）模式</strong>问题，本方向的核心设计空间之一。主要方案：</p>
+<p>有了 codec token，音频生成就变成了"对离散序列做语言建模"。但 RVQ 给每帧 <span class="arithmatex">\(N_q\)</span> 个 code，序列是二维的：时间维 <span class="arithmatex">\(T\)</span> × 层维 <span class="arithmatex">\(N_q\)</span>。如何用自回归 LM 建模 <span class="arithmatex">\(p(c_{1:T}^{1:N_q})\)</span>？这就是 <strong>flattening（展平）模式</strong>问题，本方向的核心设计空间之一。主要方案：</p>
 <ol>
 <li><strong>层级/两阶段（AudioLM）</strong>：先生成 semantic token（序列短、结构稳定），再以 semantic token 为条件生成 acoustic token。每个阶段是一维序列，简单但管线长、误差逐阶段传播。</li>
 <li><strong>逐帧内层间展平（VALL-E 的 NAR+AR，重点，见 §4.3）</strong>：时间上自回归，每帧内部第 1 层用 AR、其余层用并行的 NAR——牺牲一点层间依赖换 7 倍序列长度缩减。</li>
-<li><strong>分组并行（VALL-E 2 的 Grouped Code Modeling）</strong>：把 $N_q$ 层分为若干组，组内并行、组间自回归，进一步压缩序列。</li>
-<li><strong>多流/延迟交错（MusicGen、Moshi）</strong>：各层并行预测，但第 $i$ 层相对第 1 层延迟 $i-1$ 步（delay pattern），用浅层依赖换取完全并行的低延迟流式生成。</li>
+<li><strong>分组并行（VALL-E 2 的 Grouped Code Modeling）</strong>：把 <span class="arithmatex">\(N_q\)</span> 层分为若干组，组内并行、组间自回归，进一步压缩序列。</li>
+<li><strong>多流/延迟交错（MusicGen、Moshi）</strong>：各层并行预测，但第 <span class="arithmatex">\(i\)</span> 层相对第 1 层延迟 <span class="arithmatex">\(i-1\)</span> 步（delay pattern），用浅层依赖换取完全并行的低延迟流式生成。</li>
 <li><strong>放弃离散层，回归连续（CosyVoice 的 flow matching）</strong>：LM 只生成第 1 层 semantic token，声学细节交给条件流匹配（conditional flow matching）在连续空间生成 mel 谱，再由声码器出波形——把"难建模的高码率残差"外包给连续生成模型。</li>
 </ol>
 <p>这五种模式构成 §4–§6 反复出现的骨架。</p>
@@ -331,7 +331,7 @@ $$</p>
 <h3 id="42-soundstream-encodec-tokengoogle-2021-meta-2022">4.2 SoundStream 与 EnCodec：把声音压成 token（Google 2021 / Meta 2022）</h3>
 <p><strong>研究问题。</strong> 数字音频压缩是通信的老问题：Opus、EVS 等标准编解码器基于数十年手工信号处理，在低码率（&lt;10 kbps）下对通用音频（尤其音乐）质量骤降。更根本的动机在 2020 年后才显影：<strong>如果要把音频放进语言模型，必须先把它离散化成 token</strong>——传统 codec 的码流不是为"被 Transformer 建模"设计的。SoundStream 要回答：端到端学习的神经 codec 能否在 3–18 kbps 这种"语音专用码率"上压缩通用音频并打败手工标准？</p>
 <p><strong>关键洞察。</strong> 两个：(1) <strong>RVQ 是让 VQ 扩容的正确方式</strong>——单码本容量瓶颈用残差分层破解（推导见 §2.4），且残差结构自带"粗到细"的重要性排序；(2) <strong>感知质量应该由判别器保证而不是手工 loss</strong>——把 TTS/语音增强里成熟的"重建 loss + 对抗 loss"组合搬到 codec，让 GAN 判别器充当可学习的感知度量。</p>
-<p><strong>技术方法（SoundStream）。</strong> 全卷积 encoder-decoder：编码器把波形逐层下采样到帧率约 75 Hz 的隐表示，经 $N_q$ 层 RVQ 量化，解码器对称上采样回波形。训练目标三项：时频域重建损失（多分辨率 mel 距离）、对抗损失（波形域+谱域判别器）、码本 commitment loss。两个杀手级设计：<strong>quantizer dropout</strong>——训练时随机只保留前 $k$ 层量化器，使单模型支持 3–18 kbps 任意码率（低层先学粗结构，天然兼容残差语义）；<strong>可流式</strong>——全部因果卷积，可在手机 CPU 实时运行且支持低延迟流式推理。</p>
+<p><strong>技术方法（SoundStream）。</strong> 全卷积 encoder-decoder：编码器把波形逐层下采样到帧率约 75 Hz 的隐表示，经 <span class="arithmatex">\(N_q\)</span> 层 RVQ 量化，解码器对称上采样回波形。训练目标三项：时频域重建损失（多分辨率 mel 距离）、对抗损失（波形域+谱域判别器）、码本 commitment loss。两个杀手级设计：<strong>quantizer dropout</strong>——训练时随机只保留前 <span class="arithmatex">\(k\)</span> 层量化器，使单模型支持 3–18 kbps 任意码率（低层先学粗结构，天然兼容残差语义）；<strong>可流式</strong>——全部因果卷积，可在手机 CPU 实时运行且支持低延迟流式推理。</p>
 <p><strong>技术方法（EnCodec 的改进）。</strong> Meta 团队把 SoundStream 工程化：用<strong>单一多尺度 STFT 判别器</strong>（在多个 STFT 分辨率上各一个判别头）替代多判别器，简化训练并有效抑制伪影；提出 <strong>loss balancer</strong>——不再给每个 loss 一个固定权重，而是规定每个 loss 占总梯度的目标份额，用在线归一化实现，解耦了"loss 权重"与"loss 尺度"这对纠缠的超参；系统性研究了 24 kHz 单声道与 48 kHz 立体声、1.5–24 kbps 的全码率段，并演示了用小型 Transformer 对量化 token 做熵编码可再压缩约 40%（这已经预告了"codec token 天然适合 LM 建模"）。MUSHRA 主观评测显示其在所有评测设置下超过基线。</p>
 <p><strong>实验结果。</strong> SoundStream：24 kHz 音频上 3 kbps 主观质量超过 12 kbps Opus、接近 9.6 kbps EVS——4 倍码率优势；且同一权重覆盖全码率段。EnCodec：24 kHz/6 kbps 取得接近透明的语音重建，音乐与通用音频同样成立；后续成为 VALL-E、MusicGen、AudioGen 的官方 tokenizer。度量上需要注意：codec 质量的黄金标准是主观听测（MUSHRA/MOS），客观指标（PESQ、STOI、ViSQOL）只作参考——这是评估音频生成时初学者最易踩的坑。</p>
 <p><strong>批判性分析。</strong> 优点：方法论干净、工程完成度极高，EnCodec 开源后成为社区标准件，其"冻结 codec 当音频分词器"的用法定义了整个 codec-LM 子领域。局限：其一，RVQ code 为保真而非语义设计，token 序列长度长（6 kbps 下 75 帧/秒 × 8 层 = 每秒 600 个 code），直接全层 LM 建模代价高——这逼出了 VALL-E 的 NAR 折中；其二，GAN 训练不稳定、对伪影敏感，训练 codec 至今仍是"手艺活"；其三，codec 是压缩器而非理解器，其 token 空间对语义任务（如直接做语音翻译）并不友好。可复现性：EnCodec 完全开源可复现；SoundStream 未开源但原理被多方复现（如社区版 AudioCraft 中的实现）。</p>
@@ -339,16 +339,16 @@ $$</p>
 <h3 id="43-vall-etts-narar-flatteningmicrosoft-2023">4.3 VALL-E：TTS 的语言模型化与 NAR+AR flattening（Microsoft, 2023）</h3>
 <p><strong>研究问题。</strong> 2022 年前的零样本 TTS（给几秒钟参考音频克隆陌生说话人）被两阶段范式卡住：说话人编码器提取的嵌入向量对未见说话人泛化差，mel 回归目标限制了表现力上限。VALL-E 的问题：<strong>TTS 能否完全抛弃"声学模型+声码器"管线，改写成纯粹的条件语言建模？</strong></p>
 <p><strong>关键洞察。</strong> 一旦 EnCodec 把语音变成离散 token，TTS 就和机器翻译在形式上没有任何区别：源序列是文本（音素）token，目标序列是 codec token。于是 LLM 的两件武器——大规模语料预训练与 in-context learning——可以直接搬过来。VALL-E 把训练数据从此前系统的几百小时<strong>一举扩到 60,000 小时</strong>（LibriLight）英文语音，比当时最大 TTS 系统大两个数量级；"3 秒注册音频"不再是提取说话人嵌入，而是作为<strong>声学 prompt 前缀</strong>拼进解码上下文——声音克隆变成了 GPT 式的 in-context 续写。</p>
-<p><strong>技术方法（flattening 模式，本报告重点）。</strong> 设 EnCodec 8 层 RVQ 的 token 矩阵为 $C \in {1..K}^{T \times 8}$。VALL-E 的条件概率分解为：</p>
-<p>$$
-p(C \mid x) = \underbrace{\prod_{t=1}^{T} p(c_t^1 \mid c_{&lt;t}^1,\, x)}<em t="1">{\text{AR：第 1 层，逐帧自回归}} \;\times\; \underbrace{\prod</em>
-$$}^{T}\prod_{i=2}^{8} p(c_t^i \mid c_t^{&lt;i},\, C_{&lt;t}^{\cdot},\, x)}_{\text{NAR：第 2–8 层，帧内逐层、帧间并行}</p>
+<p><strong>技术方法（flattening 模式，本报告重点）。</strong> 设 EnCodec 8 层 RVQ 的 token 矩阵为 <span class="arithmatex">\(C \in \{1..K\}^{T \times 8}\)</span>。VALL-E 的条件概率分解为：</p>
+<div class="arithmatex">\[
+p(C \mid x) = \underbrace{\prod_{t=1}^{T} p(c_t^1 \mid c_{&lt;t}^1,\, x)}_{\text{AR：第 1 层，逐帧自回归}} \;\times\; \underbrace{\prod_{t=1}^{T}\prod_{i=2}^{8} p(c_t^i \mid c_t^{&lt;i},\, C_{&lt;t}^{\cdot},\, x)}_{\text{NAR：第 2–8 层，帧内逐层、帧间并行}}
+\]</div>
 <p>即两个模型的分工：</p>
 <ul>
-<li><strong>AR 模型</strong>：只建模第 1 层（每帧 1 个 code、75 token/秒），输入为音素序列 $x$ 与 prompt 音频的第 1 层 token，自回归生成目标语音的第 1 层序列。第 1 层承载内容与粗声学结构，是"最难也最关键"的序列——值得用完整自回归。</li>
+<li><strong>AR 模型</strong>：只建模第 1 层（每帧 1 个 code、75 token/秒），输入为音素序列 <span class="arithmatex">\(x\)</span> 与 prompt 音频的第 1 层 token，自回归生成目标语音的第 1 层序列。第 1 层承载内容与粗声学结构，是"最难也最关键"的序列——值得用完整自回归。</li>
 <li><strong>NAR 模型</strong>：条件于完整第 1 层 + 文本 + prompt，逐层（第 2 层条件于第 1 层，第 3 层条件于 1–2 层……）但<strong>层内所有时间步并行</strong>预测。因为第 2–8 层只是残差细节，层内的强条件（同帧第 1 层已知）使并行解码损失很小。</li>
 </ul>
-<p>这个设计的精妙在于<strong>精确匹配 RVQ 的信息结构</strong>：残差量化保证第 1 层信息量最大、后续层是条件易预测的细节，因此"AR 只负责一层"几乎不损失质量，却把自回归序列长度从 $8T$ 压到 $T$，推理延迟下降近一个数量级。这是"利用数据结构先验来设计生成模式"的教科书案例，与图像领域 MaskGIT 的 NAR 思路遥相呼应。</p>
+<p>这个设计的精妙在于<strong>精确匹配 RVQ 的信息结构</strong>：残差量化保证第 1 层信息量最大、后续层是条件易预测的细节，因此"AR 只负责一层"几乎不损失质量，却把自回归序列长度从 <span class="arithmatex">\(8T\)</span> 压到 <span class="arithmatex">\(T\)</span>，推理延迟下降近一个数量级。这是"利用数据结构先验来设计生成模式"的教科书案例，与图像领域 MaskGIT 的 NAR 思路遥相呼应。</p>
 <p><strong>实验结果。</strong> 在 LibriSpeech 与 VCTK 零样本设置下，VALL-E 的自然度（CMOS）与说话人相似度（SMOS）显著超过当时 SOTA 的零样本 TTS 系统（YourTTS）；论文还展示了 prompt 的情感与声学环境（如回声）被保留到合成语音中——这是说话人嵌入管线无法做到的。后续 VALL-E 2（2024）用 Grouped Code Modeling（把 8 层分组并行，进一步缩短序列）与 Repetition Aware Sampling（在 nucleus sampling 中惩罚解码历史里的重复，解决 AR 模型在长句/重复文本上的死循环）宣称在 LibriSpeech/VCTK 上首次达到人类水平零样本 TTS。</p>
 <p><strong>批判性分析。</strong> 优点：范式意义巨大——此后三年几乎所有 TTS（包括工业界）都转向 codec-LM 或其变体；in-context 克隆免去了说话人编码器训练，优雅且强大。局限：其一，<strong>模型与权重均未开源</strong>（仅 demo 页），60k 小时数据与完整训练配方不可复现，社区只能靠开源复现（如 lifeiteng/vall-e、各类 open VALL-E）逼近；其二，AR 解码存在 codec-LM 的通病：对长难句、重复短语会出现漏词、重复、陷入循环（VALL-E 2 的 Repetition Aware Sampling 正是打这个补丁，等于承认问题真实存在）；其三，NAR 层与 AR 层分离意味着非流式、两段推理，且对 codec 质量完全依赖——EnCodec 换成本文其他 codec，结论未必迁移；其四，零样本声音克隆的 deepfake 风险直接触发了后续 TTS 安全研究。可复现性：弱（闭源），但思想已被广泛复现验证。</p>
 <p><strong>一句话评价：</strong> 把 TTS 从信号处理问题改写成 NLP 问题的分水岭；NAR+AR flattening 是近五年音频生成最被低估的设计。评级：★★★★★（范式级，但闭源扣分）。</p>
@@ -365,7 +365,7 @@ $$}^{T}\prod_{i=2}^{8} p(c_t^i \mid c_t^{&lt;i},\, C_{&lt;t}^{\cdot},\, x)}_{\te
 <p><strong>技术方法。</strong> 系统由三层组成：</p>
 <ul>
 <li><strong>Mimi codec</strong>：为 Moshi 定制的流式 RVQ codec，12.5 Hz 帧率（比 EnCodec 的 75 Hz 低 6 倍，直接决定序列长度与延迟），1.1 kbps；蒸馏 WavLM 语义到第 1 层（semantic+acoustic 混合），纯因果卷积+Transformer，流式编解码。</li>
-<li><strong>双通道多流 LM（Depth Transformer）</strong>：每帧 12.5 Hz 上同时建模多路 token 流——机器的文本 token、机器的 8 层音频 token、用户的音频 token。层间用 delay pattern（第 $i$ 层延迟 $i-1$ 帧）实现完全并行预测；结构上一个小型时间维 Transformer（处理 12.5 Hz 的长程依赖）+ 一个帧内 depth Transformer（处理 8 层 + 文本的层间依赖），把二维序列分解为"时间 AR × 深度 AR"。</li>
+<li><strong>双通道多流 LM（Depth Transformer）</strong>：每帧 12.5 Hz 上同时建模多路 token 流——机器的文本 token、机器的 8 层音频 token、用户的音频 token。层间用 delay pattern（第 <span class="arithmatex">\(i\)</span> 层延迟 <span class="arithmatex">\(i-1\)</span> 帧）实现完全并行预测；结构上一个小型时间维 Transformer（处理 12.5 Hz 的长程依赖）+ 一个帧内 depth Transformer（处理 8 层 + 文本的层间依赖），把二维序列分解为"时间 AR × 深度 AR"。</li>
 <li><strong>Inner Monologue</strong>：文本 token 与音频 token 时间对齐（padding 补齐），生成时文本先行、音频随后，实验证明显著提升生成语音的语言质量（困惑度、可懂度），同时天然产出流式转写。</li>
 </ul>
 <p>训练用 700 万小时级无标注语音（Helium 文本 LM 初始化的 7B backbone），多阶段：音频-文本预训练 → 多流微调（含合成的双通道对话数据，用 TTS 把文本对话"说出声"再分离通道）→ 指令与偏好微调。全书式技术报告公开了全部配方、权重与推理代码。</p>
@@ -488,7 +488,7 @@ $$}^{T}\prod_{i=2}^{8} p(c_t^i \mid c_t^{&lt;i},\, C_{&lt;t}^{\cdot},\, x)}_{\te
 <tr>
 <td>层级两阶段</td>
 <td>AudioLM</td>
-<td>1（semantic）+ $N_q$（acoustic）</td>
+<td>1（semantic）+ <span class="arithmatex">\(N_q\)</span>（acoustic）</td>
 <td>阶段内 AR</td>
 <td>弱</td>
 <td>质量高、管线长</td>
@@ -499,12 +499,12 @@ $$}^{T}\prod_{i=2}^{8} p(c_t^i \mid c_t^{&lt;i},\, C_{&lt;t}^{\cdot},\, x)}_{\te
 <td>AR 1 + NAR 并行</td>
 <td>NAR 层帧内并行</td>
 <td>弱（两段）</td>
-<td>AR 短序列降延迟近 $N_q$ 倍</td>
+<td>AR 短序列降延迟近 <span class="arithmatex">\(N_q\)</span> 倍</td>
 </tr>
 <tr>
 <td>分组 codec</td>
 <td>VALL-E 2</td>
-<td>组数（&lt; $N_q$）</td>
+<td>组数（&lt; <span class="arithmatex">\(N_q\)</span>）</td>
 <td>组内并行</td>
 <td>中</td>
 <td>进一步压缩</td>
@@ -512,7 +512,7 @@ $$}^{T}\prod_{i=2}^{8} p(c_t^i \mid c_t^{&lt;i},\, C_{&lt;t}^{\cdot},\, x)}_{\te
 <tr>
 <td>延迟交错多流</td>
 <td>MusicGen、Moshi</td>
-<td>$N_q$ 并行（delay pattern）</td>
+<td><span class="arithmatex">\(N_q\)</span> 并行（delay pattern）</td>
 <td>全并行</td>
 <td><strong>强（天然流式）</strong></td>
 <td>浅层依赖换实时性</td>

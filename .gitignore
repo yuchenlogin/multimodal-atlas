@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+tex/*.tex
+!tex/report_preamble.tex
+tex/*.log
+tex/*.aux
+tex/*.out
+tex/*.toc
+test-results/
+assets/*.log
+assets/.pdf-build-*/
+node_modules/

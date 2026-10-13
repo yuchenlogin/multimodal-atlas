@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>时间的维度：视频理解与大模型 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -50,7 +50,7 @@
 <ol>
 <li><strong>时序建模（temporal modeling）</strong>：图像是空间的并列，视频是时间的相续。模型必须回答"先发生什么、后发生什么、两件事之间隔了多久、这个动作持续了多长时间"。这些问题的答案分布在帧与帧的关系中，而不在任何单独一帧里——这对以"单图思维"预训练出来的视觉编码器是根本性的错位。</li>
 <li><strong>帧冗余（frame redundancy）</strong>：相邻帧的像素相关性常常高达 99% 以上。直接逐帧处理等于用海量算力反复编码同一场景，而关键信息（一次传球、一个眼神变化）可能只存在于几帧之内。冗余既是负担，也是机会——几乎所有 token 压缩方法都在押注"冗余可以被安全地挤掉"。</li>
-<li><strong>长上下文爆炸（context explosion）</strong>：视频的 token 消耗是图像的 $N$ 倍（$N$ 为帧数），一小时视频按常规编码可产生几十万至上百万 token。注意力复杂度随序列长度平方增长，KV cache 显存随长度线性增长，两者叠加使"看完整部视频"成为 2023 年几乎所有开源模型无法企及的奢侈。</li>
+<li><strong>长上下文爆炸（context explosion）</strong>：视频的 token 消耗是图像的 <span class="arithmatex">\(N\)</span> 倍（<span class="arithmatex">\(N\)</span> 为帧数），一小时视频按常规编码可产生几十万至上百万 token。注意力复杂度随序列长度平方增长，KV cache 显存随长度线性增长，两者叠加使"看完整部视频"成为 2023 年几乎所有开源模型无法企及的奢侈。</li>
 </ol>
 <h3 id="12">1.2 学习地图</h3>
 <p>阅读本报告建议的先修概念：</p>
@@ -62,21 +62,21 @@
 </ul>
 <p><strong>视频理解在版图中的上下游位置。</strong> 向上，它承接视觉语言对齐的所有成果：LLaVA 系模型的 connector 设计（线性层、MLP、Q-Former、C-Abstractor）几乎原封不动地迁移到了 Video-LLM，区别只在于输入从单图变成了帧序列。向下，它是三个方向的天然前导：<strong>具身智能</strong>（机器人面对的是永不停止的视频流，理解视频是行动的前提）、<strong>视频生成</strong>（理解时序规律与生成时序一致的画面被越来越多证据表明是同一能力的两面）、<strong>全模态交互</strong>（真实世界的输入天然是"视频 + 音频 + 语音"的复合流）。</p>
 <p>本方向的核心问题可以浓缩为一个不等式：</p>
-<p>$$\text{视频信息量} \gg \text{LLM 上下文预算} \times \text{算力预算}$$</p>
+<div class="arithmatex">\[\text{视频信息量} \gg \text{LLM 上下文预算} \times \text{算力预算}\]</div>
 <p>所有方法本质上都在回答：<strong>丢掉什么、留下什么、以什么形式留下</strong>。与其他方向的关系：视频理解向上承接视觉语言对齐（图像 VLM 的 connector 设计几乎原样迁移），向下连接长上下文技术（长视频就是超长多模态上下文）、流式交互（streaming 是 online 设定的视频理解）与视频生成（生成模型的时序先验正在被反过来用作理解能力的探针）。</p>
 <h2 id="2">2. 基础知识</h2>
 <h3 id="21">2.1 视频的数字化与帧采样</h3>
-<p>一段视频是帧序列 $V = {I_1, I_2, \dots, I_T}$，每秒 24–30 帧。但相邻帧的像素相关性极高——一段 10 秒的采访视频里，可能只有说话者的嘴唇在动。这带来视频理解的第一个独特挑战：<strong>帧冗余</strong>。直接把原始帧率喂给模型，既浪费算力又稀释信息密度。因此所有 Video-LLM 的第一步都是采样：</p>
+<p>一段视频是帧序列 <span class="arithmatex">\(V = \{I_1, I_2, \dots, I_T\}\)</span>，每秒 24–30 帧。但相邻帧的像素相关性极高——一段 10 秒的采访视频里，可能只有说话者的嘴唇在动。这带来视频理解的第一个独特挑战：<strong>帧冗余</strong>。直接把原始帧率喂给模型，既浪费算力又稀释信息密度。因此所有 Video-LLM 的第一步都是采样：</p>
 <ul>
-<li><strong>均匀采样（uniform sampling）</strong>：不论视频长短，固定采 $N$ 帧（常见 8/16/32）。简单、与训练分布一致，但一小时视频采 16 帧意味着每 3.75 分钟才看一眼，长视频上必然"失明"；</li>
+<li><strong>均匀采样（uniform sampling）</strong>：不论视频长短，固定采 <span class="arithmatex">\(N\)</span> 帧（常见 8/16/32）。简单、与训练分布一致，但一小时视频采 16 帧意味着每 3.75 分钟才看一眼，长视频上必然"失明"；</li>
 <li><strong>fps 采样（fps-aware sampling）</strong>：按固定帧率采样（如 1 fps），帧数随视频长度变化。Apollo 的系统性消融表明，训练时采用 fps 采样显著优于均匀采样——因为模型得以在预训练阶段就学到"帧间隔=固定时长"这一物理对应关系，推理时长视频不会被错误地"压缩"到短视频的时间感里。</li>
 </ul>
 <h3 id="22-vit">2.2 视频编码器：从图像 ViT 到视频基础模型</h3>
 <p>Video-LLM 的"眼睛"有两类来源。第一类是<strong>图像编码器的直接复用</strong>：CLIP ViT 或 SigLIP ViT 逐帧编码，时序关系完全交给后续模块。优点是零成本、与图像 VLM 生态完全兼容；缺点是帧间冗余被原样放大——相邻两帧各自产生数百个几乎相同的 token。第二类是<strong>视频基础模型（video foundation model）</strong>：以 InternVideo2 为代表，通过掩码视频建模（masked video modeling）、跨模态对比学习与下一 token 预测的多阶段统一训练，把视频编码器本身做到 60 亿参数规模，在视频识别、视频-文本检索与视频对话上同时达到 SOTA。这类编码器在特征层面就内化了时空联合建模，作为 Video-LLM 的上游能显著减轻 LLM 侧的时序负担，代价是编码器本身也需要海量视频数据训练。2025 年之后的一个共识是：通用 Video-LLM 选图像 ViT（灵活、可复用图像预训练红利），专用视频分析系统选视频基础模型（性能上限更高）。</p>
 <h3 id="23-token">2.3 视觉 token 的数学：上下文爆炸</h3>
-<p>设每帧经 ViT 编码、connector 投影后得到 $n$ 个视觉 token（典型值：CLIP ViT-L/14 对 $336\times336$ 输入输出 576 个 patch token；Qwen2-VL 动态分辨率下约 4 个 patch 合并为 1 token）。采样 $N$ 帧后视觉 token 总数为</p>
-<p>$$L_{\text{vis}} = N \cdot n$$</p>
-<p>以 $N=64, n=196$ 为例已超 1.2 万 token；若以 1 fps 处理一小时视频（$N=3600$）且 $n=196$，则 $L_{\text{vis}} \approx 70$ 万 token。注意力计算量为 $O(L^2)$，KV cache 显存为 $O(L)$，两者都迅速超出单卡能力。这就是<strong>长上下文爆炸</strong>问题，也是第 4 章中 LLaMA-VID、Video-XL、LongVU 等工作存在的根本原因。</p>
+<p>设每帧经 ViT 编码、connector 投影后得到 <span class="arithmatex">\(n\)</span> 个视觉 token（典型值：CLIP ViT-L/14 对 <span class="arithmatex">\(336\times336\)</span> 输入输出 576 个 patch token；Qwen2-VL 动态分辨率下约 4 个 patch 合并为 1 token）。采样 <span class="arithmatex">\(N\)</span> 帧后视觉 token 总数为</p>
+<div class="arithmatex">\[L_{\text{vis}} = N \cdot n\]</div>
+<p>以 <span class="arithmatex">\(N=64, n=196\)</span> 为例已超 1.2 万 token；若以 1 fps 处理一小时视频（<span class="arithmatex">\(N=3600\)</span>）且 <span class="arithmatex">\(n=196\)</span>，则 <span class="arithmatex">\(L_{\text{vis}} \approx 70\)</span> 万 token。注意力计算量为 <span class="arithmatex">\(O(L^2)\)</span>，KV cache 显存为 <span class="arithmatex">\(O(L)\)</span>，两者都迅速超出单卡能力。这就是<strong>长上下文爆炸</strong>问题，也是第 4 章中 LLaMA-VID、Video-XL、LongVU 等工作存在的根本原因。</p>
 <h3 id="24">2.4 时序建模的基本手段</h3>
 <p>图像 ViT 天然没有时间概念，给 Video-LLM 注入时序感知的主流手段有四类：</p>
 <ol>
@@ -87,7 +87,7 @@
 </ol>
 <h3 id="25-video-llm">2.5 Video-LLM 的标准骨架</h3>
 <p>综述 [1] 将该领域归纳为两条路线。占绝对主流的是<strong>模块化路线</strong>：</p>
-<p>$$\text{Video Encoder} \rightarrow \text{Connector/Projector} \rightarrow \text{LLM}$$</p>
+<div class="arithmatex">\[\text{Video Encoder} \rightarrow \text{Connector/Projector} \rightarrow \text{LLM}\]</div>
 <p>video encoder 多为 CLIP/SigLIP ViT 或视频基础模型（InternVideo2）；connector 从线性层、MLP 到 Q-Former 不等；LLM 为 Vicuna/Qwen 等。另一条<strong>agent 路线</strong>以 LLM 为调度核心，调用视频基础模型作为工具：LLM 负责理解问题、规划调用（如"先用目标检测定位人物出现的时段，再对该时段做动作识别"）、整合结果作答。这条路线的优势是无需端到端训练、可随时替换更强的工具模型；劣势是推理链条长、错误会级联、且"看视频"的能力完全依赖被调用工具的能力上限。在 2023–2024 年开源 Video-LLM 较弱时，agent 路线是实用的折中；随着端到端模型能力暴涨，agent 路线逐渐退守到需要<strong>可解释中间步骤</strong>或<strong>超长视频按需检索</strong>的特定场景。训练范式几乎一律沿用 LLaVA 的两/三阶段：先冻结 encoder 与 LLM、只训 connector 做特征对齐，再做视频指令微调；部分工作（Video-LLaVA、VideoLLaMA 3）加入图像-视频混合训练。这解释了为什么该领域在 2023 年爆发——它不是从零造轮子，而是把 LLaVA 的配方平移到时间维度，再逐一解决时间维度独有的问题。</p>
 <p>具体而言，一次典型的 Video-LLM 训练包含三个可开可关的阶段：（1）<strong>视觉-语言对齐预训练</strong>：冻结视觉编码器与 LLM，只用大规模视频-文本对训练 connector，让视觉特征落进 LLM 的词嵌入空间——这一步回答"LLM 如何看懂视觉特征"；（2）<strong>指令微调</strong>：用"视频 + 指令 + 回答"三元组微调（通常解冻 LLM），让模型学会围绕视频进行对话——这一步回答"模型如何谈论视频"；（3）<strong>可选的长视频/专项微调</strong>：针对长视频、时间定位等专项能力做增量训练。Video-LLaVA 的革命性在于证明第（1）步可以被上游编码器（LanguageBind）的预对齐完全省掉；而 VideoLLaMA 3 与 Qwen2.5-VL 的工业化在于把三步整合成一条数据驱动的连续管线。</p>
 <h2 id="3">3. 经典方法谱系</h2>
@@ -305,8 +305,8 @@
 <p><strong>关键洞察。</strong> 视频帧与文本 token 的本质区别是：文本 token 的位置就是它的序号，而视频帧的"位置"应该有两个维度——它在序列里的序号，和它在物理时间里的时刻。均匀采样时两者成正比，但动态 fps 采样下两者脱钩。把<strong>绝对时间</strong>直接编入位置编码，模型就能对任意采样策略保持一致的物理时间感。</p>
 <p><strong>技术方法。</strong> Qwen2.5-VL 的视觉侧采用<strong>原生动态分辨率 ViT</strong>（从头训练，配合窗口注意力降低计算量）：图像/帧按原始宽高比切 patch，不做强制 resize，空间信息零失真。时序侧沿用并强化 Qwen2-VL 的 <strong>M-RoPE</strong>：将旋转位置编码分解为 (t, h, w) 三个分量，其中时间分量的位置 ID 不再按帧序号均匀递增，而是与帧的<strong>绝对时间戳对齐</strong>——采样间隔 1 秒的两帧与间隔 0.5 秒的两帧，其时间位置差不同，精确反映物理时长。配合<strong>动态 fps 采样</strong>（训练时按帧率采样并告知模型每帧时刻），模型获得了秒级的时间定位能力。</p>
 <p>形式化地，对视频 token 的位置编码可写为</p>
-<p>$$\text{pos}(v) = (t_v, h_v, w_v), \quad t_v = \lfloor \text{timestamp}(v) / \Delta \rfloor$$</p>
-<p>其中 $\Delta$ 为时间分辨率单位。注意力计算时三个分量分别参与对应维度的旋转。</p>
+<div class="arithmatex">\[\text{pos}(v) = (t_v, h_v, w_v), \quad t_v = \lfloor \text{timestamp}(v) / \Delta \rfloor\]</div>
+<p>其中 <span class="arithmatex">\(\Delta\)</span> 为时间分辨率单位。注意力计算时三个分量分别参与对应维度的旋转。</p>
 <p>与 LLaMA-VID 类方法对比可以更清楚地看到 Qwen2.5-VL 的定位：它不做激进的 token 压缩，而是<strong>让每帧该占多少 token 由分辨率与内容决定</strong>（动态分辨率），再用绝对时间编码保证帧间的时间关系不因采样率变化而失真。这是一种"不做有损压缩，而是精确计费"的思路——把省 token 的责任交给更聪明的资源分配，而非更狠的丢弃。</p>
 <p><strong>实验结果。</strong> Qwen2.5-VL 支持长达数小时的视频理解与秒级事件定位，在 Video-MME 等基准上位居开源模型榜首；同时在文档解析、目标定位、agent 操作等任务上全面开花，证明了统一图像-视频模型不必牺牲单项能力。其 7B/72B 等规格覆盖不同算力预算。</p>
 <p>从谱系视角看，Qwen2.5-VL 是 Video-LLaVA"统一表示"思想的工业级实现：Video-LLaVA 证明了图像视频共享表示的可行性，Qwen2.5-VL 则进一步证明共享表示可以做到比任何专用模型都强——统一不再是一种"省成本的妥协"，而是"多任务互相增益的正和游戏"。</p>

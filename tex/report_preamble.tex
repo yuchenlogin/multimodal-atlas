@@ -1,0 +1,144 @@
+% ============================================================
+% report_preamble.tex — 中文学术报告模板 preamble
+% 编译器: Tectonic (XeLaTeX 语法) + ctexart + fandol 字体
+% ============================================================
+\documentclass[11pt,a4paper]{ctexart}
+
+% ---------- 页面几何 ----------
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=2.8cm, bottom=2.8cm,
+  left=2.6cm, right=2.6cm,
+  headheight=14pt, headsep=0.6cm, footskip=1.0cm
+}
+
+% ---------- 数学 ----------
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ---------- 图形 / 表格 ----------
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{caption}
+\captionsetup{
+  font={small},
+  labelfont={bf},
+  labelsep=quad,
+  skip=6pt
+}
+% L 列: 等宽 raggedright, 实际宽度由 md2tex.py 按列数生成 p{...}
+\newcolumntype{Y}[1]{>{\raggedright\arraybackslash}p{#1}}
+% booktabs 线条稍重, 配合学术风格
+\renewcommand{\arraystretch}{1.25}
+
+% ---------- 颜色 ----------
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1F4E79}   % 深蓝: 章节标题 / 链接
+\definecolor{accent2}{HTML}{2E75B6}  % 中蓝: 子标题
+\definecolor{softgray}{HTML}{595959} % 页眉 / caption 灰
+\definecolor{quotebg}{HTML}{F4F6F8}  % 摘要 / 引文底色
+\definecolor{codebg}{HTML}{F6F6F2}   % 代码底色
+
+% ---------- 引文 / 摘要框 (framed 比 tcolorbox 轻量稳定) ----------
+\usepackage{framed}
+\colorlet{shadecolor}{quotebg}
+% 摘要样式
+\renewenvironment{abstract}{%
+  \begin{snugshade}\small
+  \noindent\textbf{\textcolor{accent}{摘要}}\quad\ignorespaces
+}{\end{snugshade}\medskip}
+
+% ---------- 章节标题样式 ----------
+\usepackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries\color{accent}}
+  {\thesection}{0.8em}{}
+  [{\color{accent!45}\titlerule[0.6pt]}]
+\titleformat{\subsection}
+  {\large\bfseries\color{accent2}}
+  {\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{softgray}}
+  {\thesubsubsection}{0.8em}{}
+\titlespacing*{\section}{0pt}{1.6em plus .3em}{0.9em}
+\titlespacing*{\subsection}{0pt}{1.2em plus .2em}{0.6em}
+\titlespacing*{\subsubsection}{0pt}{1.0em plus .2em}{0.4em}
+
+% ---------- 页眉页脚 ----------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{softgray}\nouppercase{\leftmark}}
+\fancyhead[R]{\small\color{softgray} 多模态大模型系列报告}
+\fancyfoot[C]{\small\color{softgray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{accent!40}\hrule width\headwidth height 0.4pt}
+% section 标记只显示标题文字
+\renewcommand{\sectionmark}[1]{\markboth{\thesection\ #1}{}}
+
+% ---------- 列表 ----------
+\usepackage{enumitem}
+\setlist{
+  itemsep=2pt, parsep=2pt, topsep=6pt,
+  leftmargin=1.8em
+}
+\setlist[itemize,1]{label=\textcolor{accent2}{$\bullet$}}
+\setlist[enumerate,1]{label=\textcolor{accent2}{\arabic*.}}
+
+% ---------- 超链接 ----------
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accent,
+  urlcolor=accent2,
+  citecolor=accent2,
+  pdfencoding=auto,
+  bookmarksnumbered=true
+}
+\usepackage{url}
+\urlstyle{same}
+
+% ---------- 杂项排版 ----------
+\usepackage{microtype}
+\setlength{\parskip}{4pt plus 1pt}
+\setlength{\parindent}{2em}
+\linespread{1.18}
+% 宽表格防溢出
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+
+% ---------- 标题页样式 ----------
+\makeatletter
+\renewcommand{\maketitle}{%
+  \begin{titlepage}
+    \thispagestyle{empty}
+    \vspace*{2.2cm}
+    \begin{center}
+      {\color{accent!40}\rule{0.28\textwidth}{1.2pt}}\\[1.6em]
+      {\small\color{softgray}\kaishu 多模态大模型系列报告}\\[1.8em]
+      {\Huge\bfseries\color{accent}\@title\par}
+      \vspace{1.2em}
+      \ifx\@subtitle\@empty\else
+        {\large\color{accent2}\kaishu\@subtitle\par}
+        \vspace{1.0em}
+      \fi
+      {\color{accent!40}\rule{0.28\textwidth}{1.2pt}}\\[2.2em]
+      {\normalsize\color{softgray}\@author\par}
+      \vspace{0.8em}
+      {\normalsize\color{softgray}\@date\par}
+    \end{center}
+    \vfill
+    \begin{center}
+      {\small\color{softgray!80}\kaishu
+        本报告为系列技术综述，内容基于公开论文整理，仅供学习研究使用。}
+    \end{center}
+    \vspace*{1.2cm}
+  \end{titlepage}
+  \setcounter{page}{2}
+}
+\newcommand{\subtitle}[1]{\def\@subtitle{#1}}
+\def\@subtitle{}
+\makeatother

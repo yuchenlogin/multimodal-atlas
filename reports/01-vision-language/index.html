@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>视觉-语言模型：从 CLIP 到原生多模态 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -54,20 +54,20 @@
 <p>从图可见，2021 年 CLIP/ALIGN 奠基，2022 年 Flamingo 首次把冻结 LLM 接入视觉，2023 年 LLaVA 引发开源视觉指令微调热潮，2024 年高分辨率与 scaling 成为主题，2025 年 Qwen2.5-VL、InternVL3、DeepSeek-VL2 等开源旗舰把竞争推向"原生多模态"——视觉编码器不再现成拿来，而是为语言模型从零定制。</p>
 <h2 id="2">2. 基础知识</h2>
 <h3 id="21-vlm">2.1 双塔对比学习：VLM 的地基</h3>
-<p>对比学习的思想很朴素：把配对的图文在向量空间里拉近，不配对的推远。形式上，给定 batch 内 $N$ 对图文 ${(v_i, t_i)}$，图像编码器 $f$ 与文本编码器 $g$ 各自产出归一化向量，CLIP 采用对称的 InfoNCE 损失：</p>
-<p>$$
-\mathcal{L}<em i="1">{\text{CLIP}} = -\frac{1}{2N}\sum</em>\right]
-$$}^{N}\left[\log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}} + \log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ji}/\tau}</p>
-<p>其中 $s_{ij} = f(v_i)^\top g(t_j)$，$\tau$ 为可学习温度。<strong>motivation</strong>：传统视觉模型（如 ImageNet 分类）的监督信号是封闭的类别集合，学不到开放世界的概念；而自然语言天然携带开放语义。CLIP 的关键洞察是——"预测哪段文字配哪张图"这个任务本身就是可扩展的监督。它的 zero-shot 用法也极优雅：把类别名填进模板 <code>"a photo of a {label}"</code>，与图像算余弦相似度即可分类，不需要任何下游训练数据。</p>
+<p>对比学习的思想很朴素：把配对的图文在向量空间里拉近，不配对的推远。形式上，给定 batch 内 <span class="arithmatex">\(N\)</span> 对图文 <span class="arithmatex">\(\{(v_i, t_i)\}\)</span>，图像编码器 <span class="arithmatex">\(f\)</span> 与文本编码器 <span class="arithmatex">\(g\)</span> 各自产出归一化向量，CLIP 采用对称的 InfoNCE 损失：</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\text{CLIP}} = -\frac{1}{2N}\sum_{i=1}^{N}\left[\log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}} + \log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ji}/\tau}}\right]
+\]</div>
+<p>其中 <span class="arithmatex">\(s_{ij} = f(v_i)^\top g(t_j)\)</span>，<span class="arithmatex">\(\tau\)</span> 为可学习温度。<strong>motivation</strong>：传统视觉模型（如 ImageNet 分类）的监督信号是封闭的类别集合，学不到开放世界的概念；而自然语言天然携带开放语义。CLIP 的关键洞察是——"预测哪段文字配哪张图"这个任务本身就是可扩展的监督。它的 zero-shot 用法也极优雅：把类别名填进模板 <code>"a photo of a {label}"</code>，与图像算余弦相似度即可分类，不需要任何下游训练数据。</p>
 <p>注意这个 softmax 损失的工程含义：分母需要对<strong>全 batch</strong> 归一化，因此负样本数量随 batch size 增长，大 batch 几乎成了性能前提（CLIP 用了 32768 的 batch）。这正是 SigLIP 要解决的问题（见 §3）。</p>
 <h3 id="22-vit-patch">2.2 视觉编码器：ViT 与 patch 化</h3>
-<p>VLM 的视觉侧几乎清一色是 ViT：图像被切成 $P\times P$ 的 patch，线性投影后加位置编码，过 Transformer。两个对后文至关重要的量：</p>
+<p>VLM 的视觉侧几乎清一色是 ViT：图像被切成 <span class="arithmatex">\(P\times P\)</span> 的 patch，线性投影后加位置编码，过 Transformer。两个对后文至关重要的量：</p>
 <ul>
-<li><strong>视觉 token 数</strong>：分辨率为 $H\times W$、patch 大小 $P$ 时，token 数 $\approx HW/P^2$。448²、patch 14 的图就是 1024 个 token——相当于一篇长文。这就是为什么"视觉 token 压缩"贯穿整个方向。</li>
+<li><strong>视觉 token 数</strong>：分辨率为 <span class="arithmatex">\(H\times W\)</span>、patch 大小 <span class="arithmatex">\(P\)</span> 时，token 数 <span class="arithmatex">\(\approx HW/P^2\)</span>。448²、patch 14 的图就是 1024 个 token——相当于一篇长文。这就是为什么"视觉 token 压缩"贯穿整个方向。</li>
 <li><strong>位置编码与分辨率外推</strong>：ViT 的位置编码通常按固定分辨率训练，换分辨率需要插值。输入 224² 训练、推理用 896²，位置编码插值会带来失真——这是"高分辨率策略"一章（§5）所有技术的动机。</li>
 </ul>
 <h3 id="23-token">2.3 自回归语言模型与"视觉 token 即外语"</h3>
-<p>语言模型按 $\prod_t p(x_t \mid x_{&lt;t})$ 建模文本。把视觉特征交给 LLM 的最简单想法是：把视觉 token 当成一种"外语 token"，拼在文本 token 前面，让 LLM 照常自回归。这个类比在概念上成立，但工程上有三个硬问题：</p>
+<p>语言模型按 <span class="arithmatex">\(\prod_t p(x_t \mid x_{&lt;t})\)</span> 建模文本。把视觉特征交给 LLM 的最简单想法是：把视觉 token 当成一种"外语 token"，拼在文本 token 前面，让 LLM 照常自回归。这个类比在概念上成立，但工程上有三个硬问题：</p>
 <ol>
 <li><strong>维度与分布不匹配</strong>：视觉编码器输出维度（如 1024）≠ LLM 词嵌入维度（如 4096），且两者表征分布差异巨大——这就是 connector 存在的理由。</li>
 <li><strong>token 预算</strong>：LLM 上下文有限，一张高分辨率图动辄上千 token，多图/视频输入下必须压缩。</li>
@@ -90,10 +90,10 @@ $$}^{N}\left[\log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}} + \log\frac{e^{s
 <p><strong>CLIP（2021）</strong> 的历史地位无需赘言：4 亿图文对、batch 32768 的对比预训练，zero-shot 即可在不使用 ImageNet 训练集的情况下匹配原版 ResNet-50 的 ImageNet 精度，并在 30 余个下游数据集上展现非平凡迁移。但真正让它成为"地基"的，是后来所有 VLM 都发现：<strong>CLIP 系编码器抽出的特征天然与语言对齐，接到 LLM 上几乎即插即用</strong>。CLIP 于是从"一个模型"变成了"一类基础设施"。</p>
 <p><strong>ALIGN（2021）</strong> 同期独立地走通了同一条路，并补充了一个重要论点：用 18 亿未经精细清洗的 alt-text 图文对，简单双塔对比也能达到 SOTA 检索与分类性能——<strong>数据规模可以替代数据清洗</strong>。这个结论塑造了此后五年的数据哲学：先求多，再求净（BLIP 的 caption-filter、SigLIP 2 的在线数据筛选都是"净"这一半的回归）。</p>
 <p><strong>SigLIP（2023）</strong> 针对的是 CLIP 损失的一个结构性缺陷：softmax 归一化需要全局 batch 视图，把性能和工程（跨设备同步、显存）耦合在一起。SigLIP 把每个图文对看作独立的二分类问题，用逐对 sigmoid 损失：</p>
-<p>$$
-\mathcal{L}<em i_j="i,j">{\text{SigLIP}} = -\frac{1}{N^2}\sum</em>/\tau + b)\big)
-$$}\log \sigma\big(z_{ij}\,(s_{ij</p>
-<p>其中 $z_{ij}=1$ 当 $i=j$ 否则 $-1$，$\sigma$ 为 sigmoid。损失只依赖单对样本，天然支持任意切分并行。论文报告了两个有说服力的结果：结合 Locked-image Tuning（LiT，冻结预训练图像塔只训文本塔），4 块 TPUv4 两天即可训出 84.5% ImageNet zero-shot 的模型；batch 推到一百万时收益迅速饱和，<strong>32k 已足够</strong>——这直接降低了对比预训练的算力门槛。</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\text{SigLIP}} = -\frac{1}{N^2}\sum_{i,j}\log \sigma\big(z_{ij}\,(s_{ij}/\tau + b)\big)
+\]</div>
+<p>其中 <span class="arithmatex">\(z_{ij}=1\)</span> 当 <span class="arithmatex">\(i=j\)</span> 否则 <span class="arithmatex">\(-1\)</span>，<span class="arithmatex">\(\sigma\)</span> 为 sigmoid。损失只依赖单对样本，天然支持任意切分并行。论文报告了两个有说服力的结果：结合 Locked-image Tuning（LiT，冻结预训练图像塔只训文本塔），4 块 TPUv4 两天即可训出 84.5% ImageNet zero-shot 的模型；batch 推到一百万时收益迅速饱和，<strong>32k 已足够</strong>——这直接降低了对比预训练的算力门槛。</p>
 <p><strong>SigLIP 2（2025）</strong> 是一次"集大成"：在 sigmoid 对比之外，叠加 captioning 预训练、自蒸馏、masked prediction 等自监督损失与在线数据筛选，统一成一个训练配方。收益是全方面的：同尺度下全面超过 SigLIP 一代，且显著改善了对比学习历来薄弱的定位与 dense 预测能力；还提供支持多分辨率、保留原生宽高比的变体，以及多语言与去偏训练。它发布 B/L/So400m/g 四个尺寸（86M–1B），迅速成为 2025 年新 VLM（含 Gemma 3 等）的默认视觉基座。</p>
 <h3 id="32-20222023blipflamingoblip-2">3.2 桥接范式（2022–2023）：BLIP、Flamingo、BLIP-2</h3>
 <p><strong>BLIP（2022）</strong> 的贡献有两点：其一，用 captioner + filter 的"自举"机制净化网络噪声数据——生成合成 caption、再用过滤器筛掉不匹配的，把 ALIGN 式"以量取胜"修正为"量净兼得"；其二，用统一的 MED（Multimodal mixture of Encoder-Decoder）架构同时支持理解类与生成类任务，检索、captioning、VQA 全线提升（论文报告检索 recall@1 平均 +2.7%、captioning CIDEr +2.8%、VQA +1.6%）。</p>
@@ -374,7 +374,7 @@ $$}\log \sigma\big(z_{ij}\,(s_{ij</p>
 <ol>
 <li><strong>动态切片（dynamic tiling）</strong>：把大图切成多块（每块缩放到视觉塔原生分辨率）加一张全局缩略图，token 拼接送入 LLM。LLaVA-NeXT 的 AnyRes、InternVL 系列的动态切片、DeepSeek-VL2 [34] 的 dynamic tiling、NVLM [30] 的 tile 系均属此类。优点是与任意 CLIP 系编码器兼容；代价是 token 数成倍增长、切块边界破坏物体完整性，且位置语义需要额外标记。NVLM [30] 的系统比较显示 tile 路线在 OCR/文档任务上优势明显，是 2024–2025 开源旗舰的主流选择。</li>
 <li><strong>NaViT 式原生分辨率</strong>：视觉塔直接吃任意分辨率/宽高比的 patch 序列（Patch n' Pack 思想），配合 2D 位置编码。Qwen2-VL [29] 的 Naive Dynamic Resolution 与 Qwen2.5-VL [37] 的原生 ViT 是代表；SigLIP 2 [36] 也提供保留原生宽高比的 NaFlex 变体。优点是语义完整、无切缝；代价是序列长度不均带来的训练工程复杂度（packing、变长 batch）。</li>
-<li><strong>token 压缩与高分辨率降本</strong>：<strong>pixel shuffle</strong>（把空间上相邻的 $2\times2$ 特征折叠进通道维，token 数降为 1/4）经 InternVL 系列与 Idefics2 [28] 推广后成为事实标准——几乎零信息损失换取 4 倍 token 节省。查询式压缩（MiniCPM-V [26] 用 perceiver resampler 把每块压到几十 token）则走向更激进的压缩比，面向端侧。CogAgent [22] 的"低分辨率主干 + 小高分辨率支路"双编码器是另一种取舍：用轻量高分辨率塔补细节。</li>
+<li><strong>token 压缩与高分辨率降本</strong>：<strong>pixel shuffle</strong>（把空间上相邻的 <span class="arithmatex">\(2\times2\)</span> 特征折叠进通道维，token 数降为 1/4）经 InternVL 系列与 Idefics2 [28] 推广后成为事实标准——几乎零信息损失换取 4 倍 token 节省。查询式压缩（MiniCPM-V [26] 用 perceiver resampler 把每块压到几十 token）则走向更激进的压缩比，面向端侧。CogAgent [22] 的"低分辨率主干 + 小高分辨率支路"双编码器是另一种取舍：用轻量高分辨率塔补细节。</li>
 </ol>
 <h3 id="52-clip-vs-siglip-vs">5.2 视觉编码器之争：CLIP vs SigLIP vs 原生训练</h3>
 <p>2025 年的共识可以概括为三层：</p>
@@ -536,7 +536,7 @@ $$}\log \sigma\big(z_{ij}\,(s_{ij</p>
 <li><strong>Interleaved 数据</strong>：图文任意交错的网页式语料，对 in-context 能力与语言能力保持关键。</li>
 <li><strong>Dynamic tiling / AnyRes</strong>：把高分辨率图切块 + 全局缩略图的高分辨率输入策略。</li>
 <li><strong>NaViT</strong>：Native Resolution ViT，直接处理任意分辨率/宽高比 patch 序列的 ViT 训练法。</li>
-<li><strong>Pixel shuffle（空间-通道折叠）</strong>：把相邻 $2\times2$ 特征折入通道维，token 数降为 1/4。</li>
+<li><strong>Pixel shuffle（空间-通道折叠）</strong>：把相邻 <span class="arithmatex">\(2\times2\)</span> 特征折入通道维，token 数降为 1/4。</li>
 <li><strong>M-RoPE</strong>：Qwen2-VL 的多模态旋转位置编码，分解为时间/高/宽三分量。</li>
 <li><strong>窗口注意力（Window Attention）</strong>：把自注意力限制在局部窗口内以降低高分辨率计算。</li>
 <li><strong>Grounding</strong>：把语言指称对应到图像区域（框/点/掩码）的能力。</li>

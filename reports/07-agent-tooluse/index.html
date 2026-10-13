@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>会用工具的眼睛：多模态智能体 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -55,15 +55,15 @@
 <p><strong>为什么这个方向在 2023–2025 年爆发？</strong> 三个条件恰好在此时成熟：其一，LLM 的推理能力越过阈值，思维链提示让"用语言做规划"成为可能；其二，GPT-4V 级别的多模态模型让模型第一次能直接"看懂"屏幕截图，不再依赖 DOM、a11y tree 等内部表示；其三，开源社区积累了足够的微调与强化学习基础设施（PEFT、GRPO、vLLM 等），使学术团队也能训练原生 agent 模型。三条线索的汇合，构成了本报告的全部内容。</p>
 <h2 id="2">2. 基础知识</h2>
 <h3 id="21-agent">2.1 从一次性映射到决策循环：agent 的形式化</h3>
-<p>传统 LLM 应用是一个函数 $f: \mathcal{X} \to \mathcal{Y}$，把输入文本映射到输出文本。Agent 则是一个在环境中的序贯决策过程。借用强化学习的语言，可以把 agent 与环境的交互形式化为一个（部分可观测的）马尔可夫决策过程：</p>
+<p>传统 LLM 应用是一个函数 <span class="arithmatex">\(f: \mathcal{X} \to \mathcal{Y}\)</span>，把输入文本映射到输出文本。Agent 则是一个在环境中的序贯决策过程。借用强化学习的语言，可以把 agent 与环境的交互形式化为一个（部分可观测的）马尔可夫决策过程：</p>
 <ul>
-<li><strong>状态</strong> $s_t$：环境的真实状态（如整个操作系统的内存状态），agent 通常无法直接观测；</li>
-<li><strong>观测</strong> $o_t$：agent 实际看到的东西——一段文本、一张屏幕截图、一棵 DOM 树；</li>
-<li><strong>动作</strong> $a_t$：agent 输出的操作——调用一个 API、点击坐标 $(x, y)$、输入一段文字；</li>
-<li><strong>转移</strong> $s_{t+1} \sim P(\cdot \mid s_t, a_t)$：环境对动作的响应，agent 不可控；</li>
-<li><strong>奖励/任务判据</strong> $R$：任务是否完成，通常由规则脚本或另一个模型判定。</li>
+<li><strong>状态</strong> <span class="arithmatex">\(s_t\)</span>：环境的真实状态（如整个操作系统的内存状态），agent 通常无法直接观测；</li>
+<li><strong>观测</strong> <span class="arithmatex">\(o_t\)</span>：agent 实际看到的东西——一段文本、一张屏幕截图、一棵 DOM 树；</li>
+<li><strong>动作</strong> <span class="arithmatex">\(a_t\)</span>：agent 输出的操作——调用一个 API、点击坐标 <span class="arithmatex">\((x, y)\)</span>、输入一段文字；</li>
+<li><strong>转移</strong> <span class="arithmatex">\(s_{t+1} \sim P(\cdot \mid s_t, a_t)\)</span>：环境对动作的响应，agent 不可控；</li>
+<li><strong>奖励/任务判据</strong> <span class="arithmatex">\(R\)</span>：任务是否完成，通常由规则脚本或另一个模型判定。</li>
 </ul>
-<p>Agent 的策略 $\pi_\theta(a_t \mid h_t)$ 以<strong>历史轨迹</strong> $h_t = (o_1, a_1, \dots, o_t)$ 为条件。LLM-based agent 的特殊之处在于：$h_t$ 被直接编码进语言模型的上下文窗口，策略就是"给定全部历史，生成下一步"。这带来两个直接推论：第一，<strong>上下文窗口就是 agent 的工作记忆</strong>，窗口长度与信息组织方式直接决定 agent 能处理的任务跨度——当轨迹超出窗口，早期信息被丢弃，agent 实际上患上了"失忆症"，这正是各类记忆压缩与外部记忆模块的动机；第二，<strong>误差会沿轨迹累积</strong>——第 $t$ 步的错误动作会污染第 $t+1$ 步的观测与历史，$T$ 步任务的成功率随步数大致呈几何衰减：若单步成功率为 $p$，全程成功率约 $p^T$，$p=0.95$ 时 50 步任务只剩约 8%。理解这两点，就理解了为什么"记忆管理"与"反思纠错"会成为本方向的核心技术主题。</p>
+<p>Agent 的策略 <span class="arithmatex">\(\pi_\theta(a_t \mid h_t)\)</span> 以<strong>历史轨迹</strong> <span class="arithmatex">\(h_t = (o_1, a_1, \dots, o_t)\)</span> 为条件。LLM-based agent 的特殊之处在于：<span class="arithmatex">\(h_t\)</span> 被直接编码进语言模型的上下文窗口，策略就是"给定全部历史，生成下一步"。这带来两个直接推论：第一，<strong>上下文窗口就是 agent 的工作记忆</strong>，窗口长度与信息组织方式直接决定 agent 能处理的任务跨度——当轨迹超出窗口，早期信息被丢弃，agent 实际上患上了"失忆症"，这正是各类记忆压缩与外部记忆模块的动机；第二，<strong>误差会沿轨迹累积</strong>——第 <span class="arithmatex">\(t\)</span> 步的错误动作会污染第 <span class="arithmatex">\(t+1\)</span> 步的观测与历史，<span class="arithmatex">\(T\)</span> 步任务的成功率随步数大致呈几何衰减：若单步成功率为 <span class="arithmatex">\(p\)</span>，全程成功率约 <span class="arithmatex">\(p^T\)</span>，<span class="arithmatex">\(p=0.95\)</span> 时 50 步任务只剩约 8%。理解这两点，就理解了为什么"记忆管理"与"反思纠错"会成为本方向的核心技术主题。</p>
 <p>还值得注意的是与经典 RL 的两点差异。其一，经典 RL 的策略通常从零训练，而 LLM-based agent 的策略<strong>预载了海量的世界知识与程序性常识</strong>——它"天生"知道浏览器有地址栏、表单要按提交键，这是零样本泛化的来源，也是这个领域能在三年内爆发的前提。其二，经典 RL 的观测-动作接口是数值化的（状态向量、动作向量），而这里是<strong>语言化的</strong>：观测被序列化为文本/图像 token，动作以文本生成——语言既是推理的媒介也是控制的接口，这一统一是 LLM agent 区别于一切前深度学习时代 agent 架构（BDI、层次任务网络等）的本质特征。</p>
 <h3 id="22">2.2 思维链与"用语言表达中间状态"</h3>
 <p>思维链（chain-of-thought, CoT）提示的发现在于：让 LLM 在给出答案前先写出中间推理步骤，可以大幅提升数学与逻辑任务的正确率。对 agent 而言，CoT 的价值不止于正确率——<strong>推理轨迹是 agent 状态的可读外化</strong>。当模型写下"我已经搜过了甲，结果不相关，接下来应该换关键词搜乙"时，它实际上在执行三件对 agent 至关重要的事：归纳历史（诱导）、跟踪当前计划（追踪）、并据新信息修正计划（更新）。</p>
@@ -72,9 +72,9 @@
 <h3 id="23-agent">2.3 动作空间设计：agent 的"手"长什么样</h3>
 <p>Agent 的能力上限很大程度上由动作空间决定。本方向常见的动作空间按抽象层级从低到高排列：</p>
 <ol>
-<li><strong>坐标级动作</strong>：$\texttt{click}(x, y)$、$\texttt{type}(\text{text})$、$\texttt{scroll}(\text{dir})$。最通用——任何 GUI 都能点，但需要模型具备精确的视觉 grounding 能力。</li>
-<li><strong>元素级动作</strong>：$\texttt{click}(\text{element_id})$，其中 element 来自 DOM 节点列表或视觉检测结果。把 grounding 问题部分外包给感知模块，动作更准确，但依赖界面结构信息的质量。</li>
-<li><strong>API 级动作</strong>：$\texttt{search_product}(\text{query})$ 这样的语义化函数调用。最稳定、最高效，但要求环境预先提供 API——对任意真实网站/软件不成立。</li>
+<li><strong>坐标级动作</strong>：<span class="arithmatex">\(\texttt{click}(x, y)\)</span>、<span class="arithmatex">\(\texttt{type}(\text{text})\)</span>、<span class="arithmatex">\(\texttt{scroll}(\text{dir})\)</span>。最通用——任何 GUI 都能点，但需要模型具备精确的视觉 grounding 能力。</li>
+<li><strong>元素级动作</strong>：<span class="arithmatex">\(\texttt{click}(\text{element\_id})\)</span>，其中 element 来自 DOM 节点列表或视觉检测结果。把 grounding 问题部分外包给感知模块，动作更准确，但依赖界面结构信息的质量。</li>
+<li><strong>API 级动作</strong>：<span class="arithmatex">\(\texttt{search\_product}(\text{query})\)</span> 这样的语义化函数调用。最稳定、最高效，但要求环境预先提供 API——对任意真实网站/软件不成立。</li>
 <li><strong>代码级动作</strong>：直接生成一段可执行代码（Python、JavaScript）作为动作。表达能力最强，Voyager（Minecraft）与许多自动化框架采用此路线，代价是执行错误难以恢复。</li>
 </ol>
 <p>一个贯穿全报告的张力是：<strong>动作空间越底层越通用，越高层越可靠</strong>。computer-use 的终极目标——像人一样操作任意软件——迫使主流研究走向坐标级动作 + 视觉 grounding 的"纯视觉"路线，这也是 GUI grounding 成为兵家必争之地的原因。</p>
@@ -91,7 +91,7 @@
 <ul>
 <li><strong>Set-of-Mark（SoM）</strong>：先用检测器（或可解析 DOM 时直接用布局信息）找出截图中所有可交互元素，在图上为每个元素绘制编号边框，然后把标注后的图喂给 VLM，模型只需回答"点击 17 号"。这把最难的坐标回归问题转化为选择题，大幅降低了 VLM 的负担，是 WebVoyager 等系统的核心组件。代价是：检测器成为新的误差源，密集界面上编号相互遮挡，且每次观测都要付出一次检测推理的延迟。</li>
 <li><strong>结构化表示选择</strong>：解析 DOM（网页）或无障碍树（桌面/移动应用），把界面序列化为文本元素列表，让模型在列表中选择目标，再由框架把选中元素映射回坐标。精度最高，但依赖应用对无障碍标准的实现质量——大量真实软件的无障碍树残缺或语义混乱，这也是纯文本观测在桌面端表现远逊于网页端的原因。</li>
-<li><strong>端到端坐标预测</strong>：模型直接输出 $(x, y)$ 坐标。这需要大规模"截图→点击位置"数据训练（CogAgent、UI-TARS 的路线），一旦学成则最为通用——不依赖任何界面内部表示，与人类的操作方式同构。其难点在于高分辨率下的像素级精度：在 1080p 屏幕上点中一个 20×20 像素的按钮，等效于千分之二级的定位精度。</li>
+<li><strong>端到端坐标预测</strong>：模型直接输出 <span class="arithmatex">\((x, y)\)</span> 坐标。这需要大规模"截图→点击位置"数据训练（CogAgent、UI-TARS 的路线），一旦学成则最为通用——不依赖任何界面内部表示，与人类的操作方式同构。其难点在于高分辨率下的像素级精度：在 1080p 屏幕上点中一个 20×20 像素的按钮，等效于千分之二级的定位精度。</li>
 </ul>
 <p>§6 将系统对比三者的工程权衡。这里先记住一个经验结论：<strong>grounding 精度是 computer-use agent 的"乘性瓶颈"</strong>——规划再好，点不中按钮一切都是零；反过来，SeeAct 的人工 grounding 对照实验也表明，把 grounding 补满，当时的 GPT-4V 规划能力已经能撑起过半的在线任务成功率。</p>
 <h3 id="26-agent">2.6 Agent 的评测：为什么"打分"本身是个研究问题</h3>
@@ -297,7 +297,7 @@
 <h3 id="41-react2022">4.1 ReAct：推理与行动的联姻（2022）</h3>
 <p><strong>研究问题</strong>。2022 年的 LLM 研究存在一个割裂：思维链提示证明 LLM 擅长推理，但推理完全发生在参数记忆的封闭世界里，无法获取新信息，幻觉沿推理链传播；另一边，用 LLM 生成动作计划在具身与游戏环境也有尝试，但这些方法缺乏显式的推理与纠错机制，规划脆弱。两条线各自有致命短板，能否让二者协同？</p>
 <p><strong>关键洞察</strong>。推理轨迹与行动不是串行两阶段（先想完再做），而应该<strong>逐步交织</strong>：推理帮助模型归纳观察、跟踪并修正计划，行动让模型从外部世界（知识库、环境）取回推理所需的信息。语言和动作是同一个生成过程的两个"声道"——这一把"规划"还原为"语言建模"的视角，是 ReAct 最深远的贡献。</p>
-<p><strong>技术方法</strong>。方法本身简单到可以用一句话说完：在 few-shot 提示中，把任务轨迹写成 $\text{Thought}_1, \text{Act}_1, \text{Obs}_1, \text{Thought}_2, \text{Act}_2, \text{Obs}_2, \dots$ 的交错序列，模型照此格式续写。其中 Thought 是自由文本推理，Act 是预定义动作空间中的动作（如 Wikipedia 环境的 <code>search[entity]</code>、<code>lookup[keyword]</code>），Obs 是环境返回结果。整个系统就是一个提示模板加一个能执行动作的薄壳——没有训练、没有新架构。作者还探索了 ReAct + CoT 的混合策略（让模型在两种模式间切换）以及对 HotpotQA 的小规模微调。</p>
+<p><strong>技术方法</strong>。方法本身简单到可以用一句话说完：在 few-shot 提示中，把任务轨迹写成 <span class="arithmatex">\(\text{Thought}_1, \text{Act}_1, \text{Obs}_1, \text{Thought}_2, \text{Act}_2, \text{Obs}_2, \dots\)</span> 的交错序列，模型照此格式续写。其中 Thought 是自由文本推理，Act 是预定义动作空间中的动作（如 Wikipedia 环境的 <code>search[entity]</code>、<code>lookup[keyword]</code>），Obs 是环境返回结果。整个系统就是一个提示模板加一个能执行动作的薄壳——没有训练、没有新架构。作者还探索了 ReAct + CoT 的混合策略（让模型在两种模式间切换）以及对 HotpotQA 的小规模微调。</p>
 <p><strong>实验结果</strong>。在知识密集型任务（HotpotQA 问答、FEVER 事实核查）上，ReAct 通过与 Wikipedia API 交互克服了纯 CoT 的幻觉与错误传播问题；在交互式决策任务上优势更为显著：ALFWorld（文字版家庭任务）与 WebShop（模拟网购）两个 benchmark 上，ReAct 分别以<strong>绝对 34% 与 10%</strong> 的成功率优势超过当时的模仿学习与强化学习方法（论文报告数字），而 ReAct 只用了一到六个 few-shot 示例。人类评估还显示其轨迹比无推理基线更具可解释性。</p>
 <p><strong>批判性分析</strong>。优点：范式级贡献，实现成本几乎为零，至今仍是 LangChain 等所有 agent 框架的默认循环；轨迹天然可读，为调试与对齐研究提供便利——当 agent 失败时，你可以直接阅读它的 Thought 序列定位"它哪一步想错了"，这种可解释性是 RL 策略无法提供的。局限：（1）能力上限被 few-shot 提示锁住——模型只是"模仿"轨迹格式，长程任务中推理质量随上下文增长而退化；（2）动作空间需人工设计，不具备迁移性——换一个环境就要重写提示与动作解析器；（3）每步一次 LLM 调用，成本与延迟随步数线性增长，百步任务的账单相当可观；（4）从今天的视角看，ReAct 的 Thought 是"事后合理化"还是"真实规划"始终存疑——模型完全可能先决定动作再编造与之相符的思考，这一质疑后来部分被推理模型的训练式思维链回应（思考成为被奖励强化的对象，而非自由文本）。可复现性极佳：纯提示方法，代码与提示模板公开。</p>
 <p><strong>一句话评价</strong>：<strong>★★★★★</strong>——以最小的技术改动完成范式革命，本方向一切工作的共同祖先。</p>

@@ -1,0 +1,2 @@
+Markdown==3.10.2
+pymdown-extensions==10.21.3

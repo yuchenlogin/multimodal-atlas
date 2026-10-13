@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>潮水的方向：2025–2026 前沿专题 · 多模态图谱</title>
 <link rel="stylesheet" href="../../css/site.css">
-<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
 <body class="report-body">
 <nav class="topnav"><a class="brand" href="../../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../../index.html#reports">报告</a><a href="../../paper/index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
@@ -53,24 +53,24 @@
 <p>在进入趋势之前，我们需要建立四个贯穿全篇的基础概念。它们分别对应理解、生成、训练与模拟这四个维度，是阅读 2025–2026 前沿文献的共同语言。</p>
 <h3 id="21-token">2.1 表示之争：离散 token 还是连续嵌入</h3>
 <p>一切多模态架构争论的源头，是"如何把非文本模态变成 Transformer 能吃的东西"。答案有两大家族。</p>
-<p><strong>离散 token 路线</strong>：用一个向量量化器（如 VQ-VAE 的 codebook）把图像或视频压缩为离散码本索引序列 $z = (z_1, \dots, z_N), z_i \in {1, \dots, K}$，其中 $K$ 是码本大小。此后图像与文本在形式上完全同构——都是离散的符号序列——可以直接拼接进语言模型的词表，用标准的下一 token 预测损失训练：</p>
-<p>$$\mathcal{L}<em t="1">{\text{AR}} = -\sum</em>)$$}^{T} \log p_\theta(x_t \mid x_{&lt;t</p>
+<p><strong>离散 token 路线</strong>：用一个向量量化器（如 VQ-VAE 的 codebook）把图像或视频压缩为离散码本索引序列 <span class="arithmatex">\(z = (z_1, \dots, z_N),\ z_i \in \{1, \dots, K\}\)</span>，其中 <span class="arithmatex">\(K\)</span> 是码本大小。此后图像与文本在形式上完全同构——都是离散的符号序列——可以直接拼接进语言模型的词表，用标准的下一 token 预测损失训练：</p>
+<div class="arithmatex">\[\mathcal{L}_{\text{AR}} = -\sum_{t=1}^{T} \log p_\theta(x_t \mid x_{&lt;t})\]</div>
 <p>这条路线优雅、统一，与 LLM 生态无缝衔接（Emu3、Chameleon 均取此道），但代价是量化损失：连续像素被硬塞进有限码本，细节与生成的可控性都会受损。</p>
 <p><strong>连续嵌入路线</strong>：保留连续表示，理解侧用预训练视觉编码器（CLIP/SigLIP）产生特征向量，生成侧用扩散模型在连续潜空间中操作。扩散损失写为：</p>
-<p>$$\mathcal{L}<em _epsilon_="\epsilon," t="t" x_0_="x_0,">{\text{diff}} = \mathbb{E}</em>\left[|\epsilon - \epsilon_\theta(x_t, t, c)|^2\right]$$</p>
-<p>其中 $c$ 是条件（如文本嵌入）。这条路线生成质量高，但意味着模型内部同时存在两种"语法"——自回归的与扩散的——统一性受损。</p>
+<div class="arithmatex">\[\mathcal{L}_{\text{diff}} = \mathbb{E}_{x_0, \epsilon, t}\left[\|\epsilon - \epsilon_\theta(x_t, t, c)\|^2\right]\]</div>
+<p>其中 <span class="arithmatex">\(c\)</span> 是条件（如文本嵌入）。这条路线生成质量高，但意味着模型内部同时存在两种"语法"——自回归的与扩散的——统一性受损。</p>
 <p>2025–2026 年的统一架构之争，本质上就是这两条路线之争的高级形态：是"一切皆 token"（Emu3），还是"同一主干、双损失"（Transfusion），抑或"折中的解耦"（Janus）？</p>
 <p>理解这两条路线的一个有用类比是文字与绘画的关系：离散 token 化相当于要求画家用文字描述每一笔画，连续嵌入则允许画家直接调色。前者的损失在"翻译"环节，后者的损失在"统一"环节。值得注意的是，2025 年的实证并未给出终局答案：Transfusion 的 scaling 实验表明连续路线在图像生成的样本效率上占优，而 Emu3 与 BAGEL 表明离散/混合路线的统一性红利真实存在。这个僵局本身就是第 5.1 节与第 7 节开放问题的来源。</p>
 <h3 id="22-rlhf-rlvr-grpo">2.2 后训练新范式：从 RLHF 到 RLVR 与 GRPO</h3>
-<p>推理革命的技术底座是可验证奖励强化学习（Reinforcement Learning with Verifiable Rewards, RLVR）。经典 RLHF 依赖一个学习出来的奖励模型 $r_\phi(x, y)$，它容易过拟合人类标注偏好、容易被 reward hacking；而 RLVR 的奖励是程序化的：数学题答案对不对、代码能不能跑通，都可以用规则直接判定。奖励信号因此变得廉价、准确且难以作弊。</p>
-<p>GRPO（Group Relative Policy Optimization，组相对策略优化）是 RLVR 最常用的优化算法。其核心思想是：对同一个问题 $q$ 采样一组 $G$ 个回答 ${o_1, \dots, o_G}$，以组内平均奖励为基线计算优势：</p>
-<p>$$A_i = \frac{r_i - \mathrm{mean}({r_1, \dots, r_G})}{\mathrm{std}({r_1, \dots, r_G})}$$</p>
+<p>推理革命的技术底座是可验证奖励强化学习（Reinforcement Learning with Verifiable Rewards, RLVR）。经典 RLHF 依赖一个学习出来的奖励模型 <span class="arithmatex">\(r_\phi(x, y)\)</span>，它容易过拟合人类标注偏好、容易被 reward hacking；而 RLVR 的奖励是程序化的：数学题答案对不对、代码能不能跑通，都可以用规则直接判定。奖励信号因此变得廉价、准确且难以作弊。</p>
+<p>GRPO（Group Relative Policy Optimization，组相对策略优化）是 RLVR 最常用的优化算法。其核心思想是：对同一个问题 <span class="arithmatex">\(q\)</span> 采样一组 <span class="arithmatex">\(G\)</span> 个回答 <span class="arithmatex">\(\{o_1, \dots, o_G\}\)</span>，以组内平均奖励为基线计算优势：</p>
+<div class="arithmatex">\[A_i = \frac{r_i - \mathrm{mean}(\{r_1, \dots, r_G\})}{\mathrm{std}(\{r_1, \dots, r_G\})}\]</div>
 <p>然后最大化带有 KL 正则的策略目标：</p>
-<p>$$\mathcal{J}<em i="1">{\text{GRPO}}(\theta) = \mathbb{E}\left[\frac{1}{G}\sum</em>)\right]$$}^{G}\min\left(\frac{\pi_\theta(o_i|q)}{\pi_{\theta_{\text{old}}}(o_i|q)}A_i, \text{clip}(\cdot, 1\pm\varepsilon)A_i\right) - \beta\, D_{\text{KL}}(\pi_\theta | \pi_{\text{ref}</p>
+<div class="arithmatex">\[\mathcal{J}_{\text{GRPO}}(\theta) = \mathbb{E}\left[\frac{1}{G}\sum_{i=1}^{G}\min\left(\frac{\pi_\theta(o_i|q)}{\pi_{\theta_{\text{old}}}(o_i|q)}A_i,\ \text{clip}(\cdot, 1\pm\varepsilon)A_i\right) - \beta\, D_{\text{KL}}(\pi_\theta \| \pi_{\text{ref}})\right]\]</div>
 <p>与 PPO 相比，GRPO 去掉了 value network，用组内基线替代，实现更简单、显存更省——这一点对显存本就紧张的多模态模型尤为关键。当我们谈论"R1 式推理迁移到视觉"，实质上就是在谈论：哪些视觉任务存在可程序化验证的奖励（数学、计数、检测、OCR），以及如何设计奖励使得长思维链真正扎根于视觉证据而非语言先验。</p>
 <p>一个常被忽略的要点是：RLVR 的"可验证性"在多模态语境下有微妙的变化。文本数学题的验证器只需比对符号答案；视觉任务的验证器往往需要先把模型的输出解析为结构（坐标、计数、选项），再与图像标注比对——这意味着奖励的可靠性上限由<strong>标注质量</strong>而非<strong>验证程序</strong>决定。Visual-RFT 之所以选择检测、分类这类标注成本低的任务作为突破口，正是看中这一点。反过来说，凡是标注本身模糊或主观的视觉任务（美学评价、开放式描述），RLVR 都不适用，必须退回奖励模型或人类偏好——这条边界划定了推理革命的势力范围。</p>
 <h3 id="23">2.3 世界模型：一个被反复定义的词</h3>
-<p>"世界模型"（World Model）是 2025–2026 年最时髦也最混乱的术语。在强化学习传统中，世界模型是一个学习环境动态 $p(s_{t+1} \mid s_t, a_t)$ 的模型，智能体可以在其中"做梦"以规划动作；在 2024 年后的视频生成语境中，它被重新定义为"能预测世界如何演化的生成模型"——给一段视频开头和一个动作（或文本指令），模型生成后续帧。两种定义共享一个核心：<strong>模型内化了某种世界运转的因果结构，可以回答"如果我这样做，会发生什么"</strong>。</p>
+<p>"世界模型"（World Model）是 2025–2026 年最时髦也最混乱的术语。在强化学习传统中，世界模型是一个学习环境动态 <span class="arithmatex">\(p(s_{t+1} \mid s_t, a_t)\)</span> 的模型，智能体可以在其中"做梦"以规划动作；在 2024 年后的视频生成语境中，它被重新定义为"能预测世界如何演化的生成模型"——给一段视频开头和一个动作（或文本指令），模型生成后续帧。两种定义共享一个核心：<strong>模型内化了某种世界运转的因果结构，可以回答"如果我这样做，会发生什么"</strong>。</p>
 <p>需要建立的关键区分是<strong>生成式</strong>与<strong>预测式</strong>世界模型：前者（Genie、Sora 谱系）在像素空间生成未来帧，保真度高但计算昂贵；后者（V-JEPA 谱系）在抽象表征空间预测未来的嵌入，放弃像素级重建换取效率与语义性。评估世界模型的根本困难在于：生成一段"看起来合理"的视频不等于理解了物理——模型可能学到的是视觉统计规律而非因果规律。这个张力将贯穿第 5 节的讨论。</p>
 <p>还应指出"世界模型"与"视频生成模型"在评估逻辑上的根本差异：视频生成的成功标准是感知质量（人眼觉得真实、流畅、美观），世界模型的成功标准是<strong>决策质量</strong>（基于模型预测做出的动作是否在真实世界奏效）。一个视觉上惊艳但物理上错误的模型可以是优秀的视频生成器，却是糟糕的世界模型；反过来，一个视觉粗糙但动态正确的模型（比如简笔画级别的模拟器）可能对规划更有价值。当前领域的混乱很大程度上源于用前一把尺子量后一类对象。第 5.3 节的"炒作 vs 实质"将反复回到这把尺子上。</p>
 <h3 id="24-vs">2.4 拼装 vs 原生：多模态训练的两条道路</h3>
@@ -342,7 +342,7 @@
 <p><strong>一句话评价</strong>：世界模型从论文走向平台的标志性事件；它回答的是工程问题，回避的是科学问题。评级：★★★★☆</p>
 <h3 id="45-v-jepa-22025">4.5 V-JEPA 2：不在像素里做梦（2025）</h3>
 <p><strong>研究问题</strong>。理解世界、预测未来、规划动作，能否全部在抽象表征空间完成，而完全不生成像素？</p>
-<p><strong>关键洞察</strong>。V-JEPA 2 代表世界模型的"预测派"哲学，与生成派针锋相对：像素级生成是对算力的浪费——要预测"球会滚向哪里"，你不需要渲染球的纹理。联合嵌入预测架构（JEPA）在表征空间中预测未来的编码 $s_{t+1}$ 而非像素 $x_{t+1}$，把容量集中在语义与动态上。这条路线继承了 LeCun 长期以来对"生成式 AI 并非通向世界模型的正道"的论战立场，因此它的成败具有超出单个模型的意义。</p>
+<p><strong>关键洞察</strong>。V-JEPA 2 代表世界模型的"预测派"哲学，与生成派针锋相对：像素级生成是对算力的浪费——要预测"球会滚向哪里"，你不需要渲染球的纹理。联合嵌入预测架构（JEPA）在表征空间中预测未来的编码 <span class="arithmatex">\(s_{t+1}\)</span> 而非像素 <span class="arithmatex">\(x_{t+1}\)</span>，把容量集中在语义与动态上。这条路线继承了 LeCun 长期以来对"生成式 AI 并非通向世界模型的正道"的论战立场，因此它的成败具有超出单个模型的意义。</p>
 <p><strong>技术方法</strong>。三阶段：（1）无动作预训练——在超过 100 万小时的互联网视频与图像上训练 joint-embedding-predictive 架构；（2）与 LLM 对齐——得到视频问答能力；（3）动作条件化——仅用不到 62 小时的无标注机器人轨迹，后训练出潜在动作条件的世界模型 V-JEPA 2-AC，用于规划。</p>
 <p><strong>实验结果</strong>。论文报告了多项硬指标：运动理解 Something-Something v2 上 77.3 top-1 准确率；人类动作预期 Epic-Kitchens-100 上 39.7 recall-at-5（超过此前任务专用模型）；与 LLM 对齐后在 8B 规模取得视频问答 SOTA（PerceptionTest 84.0、TempCompass 76.9）；机器人规划任务上，V-JEPA 2-AC 展示了零样本的规划能力。</p>
 <p><strong>批判性分析</strong>。优点：（1）数据效率惊人——62 小时机器人数据赋予百万小时视频预训练模型以规划能力，是"互联网视频是机器人训练的免费午餐"这一假说迄今最有力的证据之一；（2）在"理解"类基准上同时拿高分，反驳了"表征学习牺牲细粒度感知"的疑虑；（3）不生成像素意味着评估更诚实——你无法被漂亮画面蒙蔽，规划成功率是硬指标。局限：（1）规划展示限于相对简单的抓取/到达任务，与"通用世界模拟器"的愿景之间还有数量级的任务复杂度差距；（2）表征空间的预测是不可视化的，模型的"世界理解"对调试与审计更不透明；（3）与生成派的对比并不公平——两者目标函数不同，一个是规划工具一个是内容引擎，所谓"路线之争"在应用层面可能根本不是零和。</p>
