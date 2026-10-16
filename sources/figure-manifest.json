@@ -1,0 +1,330 @@
+[
+  {
+    "figure": "assets/technical/00-evidence.png",
+    "topic": "00",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "09875dc95e5c7dca85f90364e503994eb868a586adfea98b92ff2600fa22211b"
+  },
+  {
+    "figure": "assets/technical/00-method.png",
+    "topic": "00",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "28b0cde5d0b4f42111ad4be4e4ab86789254a201316679127b9798b91a1e999e"
+  },
+  {
+    "figure": "assets/technical/00-probe.png",
+    "topic": "00",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "b4e7d20b3c61bbe74e81622c2df87e473da9b55f44c917f532309f98ce84e771"
+  },
+  {
+    "figure": "assets/technical/01-evidence.png",
+    "topic": "01",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "14024b35ed0ad41e2fae82e5da0a52b355cf09ba34ed97094c88ab7a8b371683"
+  },
+  {
+    "figure": "assets/technical/01-method.png",
+    "topic": "01",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "3cd7d2ddbe7560b611b2b38b8ad2f289612450b4898d63d230440d08cb836e0c"
+  },
+  {
+    "figure": "assets/technical/01-probe.png",
+    "topic": "01",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "5c786c70f21ac33560e5f70e26993eab3789f5dca2c44b22b5b3ce47e27e8367"
+  },
+  {
+    "figure": "assets/technical/02-evidence.png",
+    "topic": "02",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "5704fbbd35c53b6070b37b8f6914aa0602f9d665d928f5b00c519b20cbcc4dd3"
+  },
+  {
+    "figure": "assets/technical/02-method.png",
+    "topic": "02",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "acf76132f6bbd6071aa27fd8ff50da7c1df7bf9ac00901b53e52a0dd0c16c856"
+  },
+  {
+    "figure": "assets/technical/02-probe.png",
+    "topic": "02",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "faefa6cf11918decc4caa82e5a5b55f5170b32bfd857f7cad5eb895e6df83a72"
+  },
+  {
+    "figure": "assets/technical/03-evidence.png",
+    "topic": "03",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "d4df009498cd9033c0dcfc92d18c12d39a991aac4c32b4c6efeec889b870500c"
+  },
+  {
+    "figure": "assets/technical/03-method.png",
+    "topic": "03",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "6107f31efe23c52ce14e6fb04aa8f5dc63a73e853001298b70c46f2bee7ea941"
+  },
+  {
+    "figure": "assets/technical/03-probe.png",
+    "topic": "03",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "740c2dfd7e4aed7203da8dde56e7484d2428cf91d96c6f9c96734098727347d5"
+  },
+  {
+    "figure": "assets/technical/04-evidence.png",
+    "topic": "04",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "db1f8eb325d675c8e1a615b24fbe1e05b236556a2c51bc7805ba375541743d4a"
+  },
+  {
+    "figure": "assets/technical/04-method.png",
+    "topic": "04",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "623e6c604c9e077ef62a45f8012023490201074d819709ca79a598afba82d7e4"
+  },
+  {
+    "figure": "assets/technical/04-probe.png",
+    "topic": "04",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "1d7f0df406dd5598176ac6e2da52d5b9add493bc256692f05b9bc89a6e4ea405"
+  },
+  {
+    "figure": "assets/technical/05-evidence.png",
+    "topic": "05",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "4b84e2e2fbb604d2cc93e5c423fa00b47c785f81fa9cc260d298ac719f396ae5"
+  },
+  {
+    "figure": "assets/technical/05-method.png",
+    "topic": "05",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "358c53f13893bca12032adffb86fae4d66572a75dc0f88c6a4962d870de9c5f0"
+  },
+  {
+    "figure": "assets/technical/05-probe.png",
+    "topic": "05",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "6c96f100a812703e77e5563fa9e2aecc1ba78fc29284ae849308b8eef9756a83"
+  },
+  {
+    "figure": "assets/technical/06-evidence.png",
+    "topic": "06",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "ce59d30da1354d900dc3057ba7f161e408648e2be07b2b788ab13ecf9e174950"
+  },
+  {
+    "figure": "assets/technical/06-method.png",
+    "topic": "06",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "655793f01bf43c9a6b81073a875cdb2f7627a3f67d0fe90b7b2c5eaa954a8090"
+  },
+  {
+    "figure": "assets/technical/06-probe.png",
+    "topic": "06",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "b3f254e5992bcaa23101a0bfd7eea13101ce42d3c137d736a47186d710b7d12c"
+  },
+  {
+    "figure": "assets/technical/07-evidence.png",
+    "topic": "07",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "2821ecac90e06531a9fe9851a0e9b5bfd2bab7e8c9a7507ec0f9c0060112b68e"
+  },
+  {
+    "figure": "assets/technical/07-method.png",
+    "topic": "07",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "9f82b9beede7ccf5c31565f5f454ab2fb9b80ccc4cb8fe19921c5455cf925c6f"
+  },
+  {
+    "figure": "assets/technical/07-probe.png",
+    "topic": "07",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "981926e3917e6c02b824855781cea40af0f5aa9363b6ed28df17c221961cdf01"
+  },
+  {
+    "figure": "assets/technical/08-evidence.png",
+    "topic": "08",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "c9baeb386ed5f4dfeb441407ef246325361c445192879680849802d0fd2252ed"
+  },
+  {
+    "figure": "assets/technical/08-method.png",
+    "topic": "08",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "4016cb6747b1324eccff958c4f74daa2f781aff42a3482d03220ab7aef2a3102"
+  },
+  {
+    "figure": "assets/technical/08-probe.png",
+    "topic": "08",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "eb183c1cd098496b90a7edaa9acb0d27f9e52ac68932a5add2fa738be5930880"
+  },
+  {
+    "figure": "assets/technical/09-evidence.png",
+    "topic": "09",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "8fa227486e25ea86731cab1053242440451e7815cc30d5084c02c52de00a8111"
+  },
+  {
+    "figure": "assets/technical/09-method.png",
+    "topic": "09",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "c7976218685c1bf916f3850801a091d119554297dc3d44173449f7b1696bed16"
+  },
+  {
+    "figure": "assets/technical/09-probe.png",
+    "topic": "09",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "38166212a3d548ce14af013713bdada3c21330b28b294ca47271b7d0b55fe55c"
+  },
+  {
+    "figure": "assets/technical/10-cluster.png",
+    "topic": "10",
+    "kind": "cluster",
+    "data": "sources/mechanism-checks.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "98540ff729f9e3b6049eaef12feff2c33e73e2a12e2619942a56d6fc17a0213f"
+  },
+  {
+    "figure": "assets/technical/10-evidence.png",
+    "topic": "10",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "1a420a855525a58050a18058c20aef0cd512545631063aaea52f47664a4b482f"
+  },
+  {
+    "figure": "assets/technical/10-method.png",
+    "topic": "10",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "8c6dd033e1cde1e86e53974474c52e0eea6800203e0777627ff0de7f463be0de"
+  },
+  {
+    "figure": "assets/technical/10-probe.png",
+    "topic": "10",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "ece4bfba229eddcf80ca29eb038e9abcff973a7f1c326b63d0edb47c24dc592f"
+  },
+  {
+    "figure": "assets/technical/11-evidence.png",
+    "topic": "11",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "bc2bd5f279af1ac3c37047ad1d14d4dcaa70ba9830ec7feb3cdb2a81afb29e73"
+  },
+  {
+    "figure": "assets/technical/11-method.png",
+    "topic": "11",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "17bf34673243242d1f5f5c32785e605f2d2169c39b8d4e7f6097b432ede61fce"
+  },
+  {
+    "figure": "assets/technical/11-probe.png",
+    "topic": "11",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "7d0c0f614d3125e0c9beef68ac2e53a0a4c5533648013e2296308866ca6fb1ea"
+  },
+  {
+    "figure": "assets/technical/12-evidence.png",
+    "topic": "12",
+    "kind": "evidence",
+    "data": "sources/evidence.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "cff3ef814dcfd61da8df06ac1abb7815569a4956785b12d347d745aeb5870be4"
+  },
+  {
+    "figure": "assets/technical/12-method.png",
+    "topic": "12",
+    "kind": "method",
+    "data": null,
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "4c8da0e6794e0efe548ae97901b9f74bcee15aa3af99a5122039bd581176ce01"
+  },
+  {
+    "figure": "assets/technical/12-planning.png",
+    "topic": "12",
+    "kind": "planning",
+    "data": "sources/planning-probe.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "e049b49ebf3a6d31701498cb33a1079783b9ce77f80732890c5ec120b81f7fb8"
+  },
+  {
+    "figure": "assets/technical/12-probe.png",
+    "topic": "12",
+    "kind": "probe",
+    "data": "sources/probes.json",
+    "generator": "scripts/make_technical_figures.py",
+    "sha256": "fba110e9e3923f85dc96c0891495c74956a178f08c31af42c6b4d7c3576b8cd5"
+  }
+]

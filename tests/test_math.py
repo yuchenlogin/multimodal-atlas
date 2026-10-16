@@ -60,6 +60,12 @@ class MathRenderingTests(unittest.TestCase):
         self.assertIn("<strong>正文</strong>", html)
         self.assertIn("<code>$x_i$</code>", html)
 
+    def test_pdf_link_label_can_include_inline_code(self):
+        output = protect_and_format("[`run()`](https://example.com)")
+        self.assertEqual(output, r"\href{https://example.com}{\texttt{run()}}")
+        literal = protect_and_format("`[label](https://example.com)`")
+        self.assertNotIn(r"\href", literal)
+
     def test_inline_math_in_table(self):
         html = render_markdown("| 公式 |\n| --- |\n| $R_{\\Theta,n-m}$ |")
         self.assertEqual(MathHTML(html).formulas, [r"R_{\Theta,n-m}"])
@@ -68,7 +74,7 @@ class MathRenderingTests(unittest.TestCase):
     def test_source_images_are_in_repository(self):
         for slug in META:
             path = ROOT / "reports" / slug / "report.md"
-            for image in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", path.read_text(encoding="utf-8")):
+            for image in re.findall(r"^!\[.*\]\(([^)]+)\)\s*$", path.read_text(encoding="utf-8"), re.M):
                 with self.subTest(slug=slug, image=image):
                     self.assertTrue((path.parent / image).is_file())
 
@@ -110,6 +116,15 @@ class MathRenderingTests(unittest.TestCase):
             self.assertIn(r"\begin{figure}", output)
             self.assertIn(str(Path(temp) / "figure.png"), output)
             self.assertNotIn("![图]", output)
+
+    def test_figure_caption_can_contain_interval_brackets(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "report.md"
+            path.write_text("![图 1：95% interval [0,10.5] pp](figure.png)\n", encoding="utf-8")
+            output = Converter(path).convert()
+            self.assertIn(r"\includegraphics", output)
+            self.assertIn("interval [0,10.5]", output)
+            self.assertNotIn("![", output)
 
     def test_all_tex_display_counts_match_sources(self):
         for slug in META:

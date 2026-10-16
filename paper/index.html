@@ -3,27 +3,147 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>顶会风格论文 · 多模态图谱</title>
+<title>视觉证据门控解码：待验证的实验方案 · 多模态图谱</title>
 <link rel="stylesheet" href="../css/site.css">
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'},options:{ignoreHtmlClass:'.*',processHtmlClass:'arithmatex',skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 </head>
-<body>
-<nav class="topnav"><a class="brand" href="../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../index.html#reports">报告</a><a href="index.html">论文</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
-<div class="paper-hero">
-  <div class="report-kicker">PAPER · NEURIPS-STYLE</div>
-  <h1 style="font-family:var(--serif);font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.35;margin:.4rem 0 .8rem">When Seeing Is Believing Less:<br>Verifier-Gated Visual Decoding for Hallucination-Suppressed Multimodal Generation</h1>
-  <p class="report-sub">在 13 篇报告调研基础上选定的"最有研究价值且算力可达"方向——解码侧多模态幻觉缓解。提出免训练的 Verifier-Gated Decoding（VGD）框架：三信号验证器在片段边界审计视觉证据支撑度，低分段触发回溯与注意力再平衡。在 POPE / CHAIR / MME 上与 VCD、OPERA 互补叠加。</p>
-  <div class="report-actions">
-    <a class="btn" href="/multimodal-atlas/assets/paper-verifier-gated-visual-decoding.pdf" target="_blank" rel="noopener">⬇ 下载 PDF（8 页双栏）</a>
-    <a class="btn ghost" href="https://github.com/yuchenlogin/multimodal-atlas/tree/main/paper" target="_blank" rel="noopener">LaTeX 源码 ↗</a>
-  </div>
-  <div class="about-box" style="margin-top:1.6rem;font-size:.9rem;color:var(--ink-soft)">
-    <strong>选题论证</strong>（详见报告 <a href="../reports/09-alignment-safety/index.html">09 · 对齐与安全</a> 与 <a href="../reports/12-frontier/index.html">12 · 前沿专题</a>）：① 幻觉是 2023–2026 持续未解的核心问题，2025–26 推理模型"思考越多、看见越少"现象使其回归焦点；② 解码侧方案算力门槛极低、评测协议成熟（POPE/CHAIR），适合学术团队；③ 已有工作只做输入扰动或注意力惩罚的单一维度，"验证器门控 + 回溯 + 注意力再平衡"的闭环组合是自然的下一步。<em>诚实声明：文中实验数字为内部评估协议下的方法学设计稿，已在 Limitations 节如实声明。</em>
-  </div>
+<body class="report-body" id="top">
+<nav class="topnav"><a class="brand" href="../index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="../index.html#reports">报告</a><a href="../paper/index.html">研究方案</a><a href="https://github.com/yuchenlogin/multimodal-atlas" target="_blank" rel="noopener">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<div class="layout">
+<aside class="sidenav" id="sidenav">
+<div class="sidenav-title">系列报告</div>
+<a class="sidenav-link" href="../reports/00-foundations/index.html"><span class="sidenav-icon">🏛️</span><span>00 · 基础架构</span></a>
+<a class="sidenav-link" href="../reports/01-vision-language/index.html"><span class="sidenav-icon">👁️</span><span>01 · 视觉与语言</span></a>
+<a class="sidenav-link" href="../reports/02-audio-speech/index.html"><span class="sidenav-icon">🎧</span><span>02 · 音频与语音</span></a>
+<a class="sidenav-link" href="../reports/03-video/index.html"><span class="sidenav-icon">🎬</span><span>03 · 视频理解</span></a>
+<a class="sidenav-link" href="../reports/04-omni/index.html"><span class="sidenav-icon">🌐</span><span>04 · 全模态系统</span></a>
+<a class="sidenav-link" href="../reports/05-generation/index.html"><span class="sidenav-icon">🎨</span><span>05 · 多模态生成</span></a>
+<a class="sidenav-link" href="../reports/06-embodied/index.html"><span class="sidenav-icon">🤖</span><span>06 · 具身与动作</span></a>
+<a class="sidenav-link" href="../reports/07-agent-tooluse/index.html"><span class="sidenav-icon">🧭</span><span>07 · 工具与智能体</span></a>
+<a class="sidenav-link" href="../reports/08-efficiency/index.html"><span class="sidenav-icon">⚡</span><span>08 · 效率与部署</span></a>
+<a class="sidenav-link" href="../reports/09-alignment-safety/index.html"><span class="sidenav-icon">🛡️</span><span>09 · 对齐与安全</span></a>
+<a class="sidenav-link" href="../reports/10-benchmarks-eval/index.html"><span class="sidenav-icon">📏</span><span>10 · 评测方法</span></a>
+<a class="sidenav-link" href="../reports/11-data-training/index.html"><span class="sidenav-icon">🧪</span><span>11 · 数据与训练</span></a>
+<a class="sidenav-link" href="../reports/12-frontier/index.html"><span class="sidenav-icon">🔭</span><span>12 · 研究问题</span></a>
+<div class="sidenav-title" style="margin-top:1.2rem">更多</div>
+<a class="sidenav-link" href="../paper/index.html">研究方案 · 尚待实验验证</a>
+<a class="sidenav-link" href="../index.html#about">ℹ️ 关于本站</a>
+</aside>
+<main class="content">
+<header class="report-header"><div class="report-kicker">研究方案 · 尚待实验验证</div><h1>视觉证据门控解码：待验证的实验方案</h1><div class="report-sub">算法、对照与证伪标准；旧版未经实验支持的数字已撤回。</div>
+<div class="report-actions"><a class="btn" href="../assets/paper-verifier-gated-visual-decoding.pdf" target="_blank" rel="noopener">⬇ 下载 PDF 版</a><button class="btn ghost" id="reading-progress-btn" title="阅读进度">0%</button></div>
+</header>
+<article class="report-content" id="article">
+<div class="toc">
+<ul>
+<li><a href="#_1">摘要</a></li>
+<li><a href="#1">1. 将目标限制在可以核验的视觉主张</a></li>
+<li><a href="#2">2. 一个最小而明确的算法</a></li>
+<li><a href="#3">3. 核验器何时才可能提供额外信息</a></li>
+<li><a href="#4">4. 先登记对照，再运行实验</a></li>
+<li><a href="#5">5. 指标不能奖励空回答</a></li>
+<li><a href="#6">6. 三个能推翻方案的结果</a></li>
+<li><a href="#7">7. 当前交付与执行顺序</a></li>
+<li><a href="#_2">参考文献与证据</a></li>
+</ul>
 </div>
-<div class="paper-frame" style="margin-bottom:3rem">
-  <iframe src="/multimodal-atlas/assets/paper-verifier-gated-visual-decoding.pdf" title="VGD paper PDF"></iframe>
+<blockquote>
+<p>副标题：从可疑主张检测、局部证据到预算匹配的对照实验
+版本日期：2026-10-16 | 状态：研究设计，尚无模型实验结果</p>
+</blockquote>
+<h2 id="_1">摘要</h2>
+<p>视觉语言模型可能把语言先验当成当前图像中的事实。这里提出一个可检验的解码方案：先识别需要视觉支持的原子主张，再用独立的局部证据检查决定是否保留、重采样或拒答。本方案没有训练 verifier、没有运行大模型对照，也没有建立性能或新颖性结论。价值取决于三个尚待验证的问题：核验器是否提供独立信息、纠错收益能否抵消额外计算、门控是否只通过缩短回答获得较低幻觉率。</p>
+<p>旧版页面与 PDF 曾把没有真实实验支持的提升幅度写入摘要和结果；这些数字已撤回。本修订删除相应结果和优越性宣称，保留下面可实际执行、也可能得到负结果的研究方案。原 PDF 链接指向此修订，避免旧下载入口继续提供错误结论。</p>
+<h2 id="1">1. 将目标限制在可以核验的视觉主张</h2>
+<p>考虑输入图像 <span class="arithmatex">\(I\)</span>、问题 <span class="arithmatex">\(x\)</span> 和生成前缀 <span class="arithmatex">\(y_{&lt;t}\)</span>。基础模型给出 <span class="arithmatex">\(p_\theta(y_t\mid I,x,y_{&lt;t})\)</span>。某个续写概率很高，只说明它符合模型分布；是否得到图像支持仍是另一个问题。</p>
+<p>首个实验只研究可定位物体、属性与二元空间关系，不同时声称解决文字识别、计数、时序因果与常识推理。对每个候选主张 <span class="arithmatex">\(c_j\)</span>，保存文本 span、证据区域、核验分数、决策和最终输出。抽取失败、定位失败和无法判断应保留为独立状态，避免被并入“事实正确”。</p>
+<p>例如“桌上有两个蓝杯子”至少含存在、数量、颜色和位置几项主张。一个检测器发现一个杯子，不能支持整句；核验器必须按主张类型定义所需证据。图像分辨率不足以读清标签时，系统应承认不可判定，不能让语言模型自行补全。</p>
+<h2 id="2">2. 一个最小而明确的算法</h2>
+<p>先在句子或短 span 边界产生候选 <span class="arithmatex">\(u\)</span>，抽取主张集合 <span class="arithmatex">\(C(u)\)</span>。对局部证据 <span class="arithmatex">\(E_j\)</span>，核验器输出分数 <span class="arithmatex">\(v_\phi(c_j,E_j)\)</span>。该分数在经过校准前只是排序信号，不当作真实正确概率。</p>
+<p>候选分数可以写成：</p>
+<div class="arithmatex">\[
+S(u)=\frac{1}{|u|^\gamma}\log p_\theta(u\mid I,x,y_{&lt;t})
++\lambda\frac{1}{|C(u)|}\sum_{c_j\in C(u)}v_\phi(c_j,E_j),
+\]</div>
+<p>其中无主张时的第二项单独定义为零。<span class="arithmatex">\(\gamma\)</span> 是长度惩罚指数，<span class="arithmatex">\(\lambda\)</span> 控制核验分数权重。两项尺度不同，需要在训练/开发划分上设定并冻结；不能用最终测试结果选择权重。</p>
+<pre><code class="language-text">observe image and question
+repeat until stop or total budget exhausted:
+  propose at most K short continuations from the same prefix
+  extract typed visual claims from each continuation
+  gather local evidence; mark missing or ambiguous evidence
+  score candidates using frozen verifier and fixed rule
+  accept, resample, or abstain under a bounded retry budget
+  commit accepted text; log every decision and tool call
+</code></pre>
+<p>这段伪代码没有被当作已实现系统。实际实现必须处理三个边界：前文已经承诺错误实体时，后文局部修正可能不够；没有被抽取的主张不会受到检查；所有候选都不可靠时，重采样并不保证正确。第一版宜允许撤回最近一个尚未展示的句子，并设置明确的最大重试次数。</p>
+<p>门控也可以采用硬阈值，但阈值会改变覆盖率。若只有非常简单的主张通过，低幻觉率可能伴随信息量骤降。最终目标应是保留有用、正确的信息，而不是最大限度减少可被判错的文本。</p>
+<h2 id="3">3. 核验器何时才可能提供额外信息</h2>
+<p>把基础模型同一前缀再问一遍“是否正确”，可能产生相关错误。独立性不是由“额外调用一次”保证的，需要通过错误相关性实验检查。</p>
+<p>候选实现可以从冻结的检测/区域表征与关系分类器开始，或使用不同训练来源的视觉模型；两种实现都需要真实 checkpoint、版本、输入尺寸、许可与输出日志。本方案没有预先指定未经接通的服务端点，也不声称已经获得其输出。</p>
+<p>训练核验器时，应按图像来源与近重复族划分。对存在性、属性与关系分别建立 positive/negative 配对，并保留困难负例：同类近邻物体、颜色接近、遮挡、关系方向交换。所有负例标签需要图像证据或人工核对，不能把文本替换自动视为错误。</p>
+<p>如果用 CLIP 相似度作初始信号，只能把它当全局匹配基线。其对比目标 [1] 不直接估计一个局部主张的真假。应测同物体属性交换、关系交换和无关背景变化；若分数主要响应背景，就不适合担当该主张类型的 verifier。</p>
+<h2 id="4">4. 先登记对照，再运行实验</h2>
+<p>冻结基础 checkpoint、图像预处理、问题集、prompt、解码温度、最大长度及随机种子。比较以下几组，所有组使用相同逐题输入：</p>
+<table>
+<thead>
+<tr>
+<th>组别</th>
+<th>目的</th>
+<th>必须记录的预算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基础解码</td>
+<td>测量原始错误与覆盖</td>
+<td>模型调用、输出 token、延迟</td>
+</tr>
+<tr>
+<td>等预算多候选，不用 verifier</td>
+<td>分离多采样本身的收益</td>
+<td>相同候选数与生成计算</td>
+</tr>
+<tr>
+<td>随机门控或打乱证据</td>
+<td>检查收益是否来自选择/缩短</td>
+<td>相同拒答率或输出长度分布</td>
+</tr>
+<tr>
+<td>真实局部证据门控</td>
+<td>待验证方法</td>
+<td>verifier、裁剪与定位全部成本</td>
+</tr>
+<tr>
+<td>人工主张/证据标注的诊断上界</td>
+<td>定位抽取和核验瓶颈</td>
+<td>人工参与，独立列出</td>
+</tr>
+</tbody>
+</table>
+<p>时间预算与调用数预算不完全等价，因此至少给出两种比较：固定生成/核验计算的质量比较，以及固定服务延迟约束下的质量比较。裁剪、数据传输、候选缓存和失败重试都应计入端到端开销。</p>
+<p>开发集用于调阈值和检验流程，最终测试集只在协议冻结后运行。基础系统和门控系统要回答同一题目；同一图像的多个问题按图像 cluster 处理，不把它们当完全独立样本。</p>
+<h2 id="5">5. 指标不能奖励空回答</h2>
+<p>POPE [2] 将物体存在性问题转成判别评测，适合检查一类幻觉，但不能代表开放描述中的所有主张。首轮应同时保留判别题与开放描述，并报告拒答、解析失败和超时。</p>
+<p>开放描述采用盲审的原子主张标签，至少记录正确、错误、图像无法判断、非视觉主张四类。报告受支持主张精确率、每图受支持信息量、覆盖率、任务正确率，以及长度。先以双人标注的一部分样本检查标注一致性和争议类型，再扩大规模。</p>
+<p>对系统差值使用逐题配对估计，并按图像重采样区间。不要只给平均分；保留细小目标、遮挡、关系、密集文字等切片及其样本数。任何“显著”宣称都要对应预先定义的比较与误差处理。</p>
+<p>效率报告给出相同机器或相同服务条件下的 p50/p95 延迟、首 token 延迟、总调用数、GPU 时间或可核验账单。尚未运行时这些单元格保持未测量，不填写预测提升。</p>
+<h2 id="6">6. 三个能推翻方案的结果</h2>
+<p>若打乱证据仍得到相同收益，应优先解释为重采样或输出控制，而非视觉核验。若控制回答长度与拒答率后收益消失，方法可能只是减少了可被判错的主张。若人工主张与证据条件下仍没有收益，就应重新考虑核验信号是否足以纠正生成，而非继续堆叠抽取模块。</p>
+<p>还需检查分布变化：开发集上校准的阈值在新图像来源上可能失效；检测器漏掉小物体会把真实主张错误拒绝；门控选择后的样本分布与核验器校准集不同。风险—覆盖曲线及错误明细比单个阈值分数更能解释这些问题。</p>
+<p>这里没有“预期提升两点”或“固定增加某个倍数延迟”的结果。只有真实实现、逐项日志、冻结的评测与独立复查完成后，才能把研究方案改写成实验报告。</p>
+<h2 id="7">7. 当前交付与执行顺序</h2>
+<p>当前交付是算法定义、数据划分、对照与判定标准。下一步先实现一个物体存在性子问题，连通真实模型与视觉核验器，保存 checkpoint 标识和一次端到端 trace；随后完成标签质量检查，再运行小规模配对测试。只有这些检查说明信号确有信息量，才扩大到属性和关系。</p>
+<p>没有模型结果不妨碍判断设计是否清楚，但不能据此主张方法有效或具有首创性。发表前还需专门检索解码对照、视觉反事实、局部 grounding、selective prediction 与 verifier 方法的相关工作，逐项比较；本站当前没有完成这项穷尽性新颖性审查。</p>
+<h2 id="_2">参考文献与证据</h2>
+<p>[1] Radford et al. Learning Transferable Visual Models From Natural Language Supervision. 2021. 对比训练目标，而非局部事实验证器。<a href="https://arxiv.org/html/2103.00020v1">原文</a><br />
+[2] Li et al. Evaluating Object Hallucination in Large Vision-Language Models. 2023. POPE 与开放描述指标的边界。<a href="https://arxiv.org/html/2305.10355v3">原文</a><br />
+[3] Rafailov et al. Direct Preference Optimization: Your Language Model is Secretly a Reward Model. 2023. 偏好目标与视觉证据的区别见本系列第 09 章。<a href="https://arxiv.org/html/2305.18290">原文</a>  </p>
+</article>
+<footer class="footer"><span>多模态图谱 · 技术报告修订 2026-10-16</span><a href="#top">回到顶部 ↑</a></footer>
+</main>
 </div>
-<footer class="footer" style="max-width:1000px"><span>多模态图谱 · 2026-09</span><a href="../index.html">← 返回首页</a></footer>
+<div class="reading-bar" id="reading-bar"></div>
 <script src="../js/site.js"></script>
 </body>
 </html>

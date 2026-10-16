@@ -1,0 +1,203 @@
+{
+  "attention": {
+    "arxiv": "1706.03762",
+    "title": "Attention Is All You Need",
+    "url": "https://arxiv.org/html/1706.03762",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "siglip": {
+    "arxiv": "2303.15343",
+    "title": "Sigmoid Loss for Language Image Pre-Training",
+    "url": "https://arxiv.org/pdf/2303.15343",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "blip2": {
+    "arxiv": "2301.12597",
+    "title": "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models",
+    "url": "https://arxiv.org/html/2301.12597",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "encodec": {
+    "arxiv": "2210.13438",
+    "title": "High Fidelity Neural Audio Compression",
+    "url": "https://arxiv.org/html/2210.13438",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "ddpm": {
+    "arxiv": "2006.11239",
+    "title": "Denoising Diffusion Probabilistic Models",
+    "url": "https://arxiv.org/html/2006.11239",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "dpo": {
+    "arxiv": "2305.18290",
+    "title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
+    "url": "https://arxiv.org/html/2305.18290",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "openvla": {
+    "arxiv": "2406.09246",
+    "title": "OpenVLA: An Open-Source Vision-Language-Action Model",
+    "url": "https://arxiv.org/html/2406.09246",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "transfusion": {
+    "arxiv": "2408.11039",
+    "title": "Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model",
+    "url": "https://arxiv.org/html/2408.11039",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "r1": {
+    "arxiv": "2501.12948v1",
+    "title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+    "url": "https://arxiv.org/html/2501.12948v1",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16",
+    "version": "v1"
+  },
+  "vjepa2": {
+    "arxiv": "2506.09985",
+    "title": "V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning",
+    "url": "https://arxiv.org/html/2506.09985",
+    "checked_via": "official full text",
+    "accessed": "2026-10-16"
+  },
+  "rope": {
+    "arxiv": "2104.09864v5",
+    "title": "RoFormer: Enhanced Transformer with Rotary Position Embedding",
+    "url": "https://arxiv.org/html/2104.09864v5",
+    "version": "v5",
+    "purpose": "00: paired-channel rotation of query/key and relative-position inner product; cache uses already rotated keys",
+    "locator": "Section 3.2, rotary position embedding, two-dimensional and high-dimensional construction",
+    "checked_via": "official full text; resolved version verified from official abstract and PDF header links",
+    "accessed": "2026-10-16"
+  },
+  "switch": {
+    "arxiv": "2101.03961v3",
+    "title": "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity",
+    "url": "https://arxiv.org/html/2101.03961v3",
+    "version": "v3",
+    "purpose": "00: distinguish total expert parameters, active compute, dispatch traffic and capacity overflow bypass through residual connection",
+    "locator": "Section 2.2, expert capacity and auxiliary load balancing; Figure 3; Appendix B overflow experiments",
+    "checked_via": "official full text; resolved version verified from official abstract and PDF header links",
+    "accessed": "2026-10-16"
+  },
+  "rnnt": {
+    "arxiv": "1211.3711v1",
+    "title": "Sequence Transduction with Recurrent Neural Networks",
+    "url": "https://arxiv.org/html/1211.3711v1",
+    "version": "v1",
+    "purpose": "02: sum monotone transducer paths over acoustic/output axes; alpha(1,0)=1 and final blank; distinguish streaming-capable loss from causal encoder",
+    "locator": "Sections 2.3-2.5, Equations 16-17; Section 2.2 bidirectional original transcription encoder",
+    "checked_via": "official full text; resolved version verified from official abstract and PDF header links",
+    "accessed": "2026-10-16"
+  },
+  "qwen25vl": {
+    "arxiv": "2502.13923v1",
+    "title": "Qwen2.5-VL Technical Report",
+    "url": "https://arxiv.org/html/2502.13923v1",
+    "version": "v1",
+    "purpose": "03: separate physical frame timestamps from flattened frame indices; three-axis rotary coordinates; processor-specific actual positions",
+    "locator": "Sections 2.1.1-2.1.3, native dynamic frame rate and MRoPE aligned to absolute time",
+    "checked_via": "official full text; resolved version verified from official abstract and PDF header links",
+    "accessed": "2026-10-16"
+  },
+  "qwen25omni": {
+    "arxiv": "2503.20215v1",
+    "title": "Qwen2.5-Omni Technical Report",
+    "url": "https://arxiv.org/html/2503.20215v1",
+    "version": "v1",
+    "purpose": "03/04: audio-video absolute-time alignment, visual-before-audio interleaving, block attention and streaming waveform receptive field",
+    "locator": "Sections 2.2-2.4, Figure 3-4; 40ms temporal IDs, 2-second video/audio chunks, 2-block lookback and 1-block lookahead",
+    "checked_via": "official full text; resolved version verified from official abstract and PDF header links",
+    "accessed": "2026-10-16"
+  },
+  "flow_matching": {
+    "arxiv": "2210.02747v2",
+    "title": "Flow Matching for Generative Modeling",
+    "url": "https://arxiv.org/html/2210.02747v2",
+    "version": "v2",
+    "purpose": "05/06: conditional velocity regression and marginal vector field; zero-terminal-noise linear path is a teaching specialization/limit, not a claim about the paper experimental sigma_min",
+    "locator": "Sections 3.1-3.2, Theorems 1-2; Section 4, Equations 20-23 for linear conditional paths",
+    "checked_via": "official full text; resolved version verified from official abstract and PDF header links",
+    "accessed": "2026-10-16"
+  },
+  "ddim": {
+    "arxiv": "2010.02502v4",
+    "title": "Denoising Diffusion Implicit Models",
+    "url": "https://arxiv.org/html/2010.02502v4",
+    "version": "v4",
+    "purpose": "05: convert predicted noise to x0 and deterministic skipped-time sampling; distinguish cumulative alpha_bar from one-step alpha",
+    "locator": "Section 4, deterministic sampling update with stochastic coefficient eta=0",
+    "checked_via": "official full text; resolved version verified from official abstract and PDF header links",
+    "accessed": "2026-10-16"
+  },
+  "diffusion_policy": {
+    "arxiv": "2303.04137v5",
+    "title": "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion",
+    "url": "https://arxiv.org/html/2303.04137v5",
+    "version": "v5",
+    "purpose": "06: model multimodal action distributions and execute a prefix before replanning; separate action horizon from feedback/update frequency",
+    "locator": "Sections 2.2-2.3, conditional action-sequence generation and receding-horizon control; Sections 4.1 and 4.3 multimodality and action horizon",
+    "checked_via": "official full text; resolved version verified from official abstract and PDF header links",
+    "accessed": "2026-10-16"
+  },
+  "gptq": {
+    "arxiv": "2210.17323v2",
+    "title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
+    "url": "https://arxiv.org/html/2210.17323v2",
+    "version": "v2",
+    "purpose": "08: layer reconstruction objective and second-order error compensation; distinguish full-precision and progressively quantized calibration inputs",
+    "locator": "Section 3, Equation 1 and Hessian 2XX^T; Section 4, Algorithm 1",
+    "checked_via": "official full text; actual version checked from arXiv abstract and full-text header/PDF identifier",
+    "accessed": "2026-10-16"
+  },
+  "awq": {
+    "arxiv": "2306.00978v6",
+    "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+    "url": "https://arxiv.org/html/2306.00978v6",
+    "version": "v6",
+    "purpose": "08: equivalent diagonal channel scaling and output-error objective; salient and non-salient channel tradeoff",
+    "locator": "Section 3.2, Equations 4-5, activation-aware scaling search",
+    "checked_via": "official full text; actual version checked from arXiv abstract and full-text header/PDF identifier",
+    "accessed": "2026-10-16"
+  },
+  "megatron": {
+    "arxiv": "1909.08053v4",
+    "title": "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism",
+    "url": "https://arxiv.org/html/1909.08053v4",
+    "version": "v4",
+    "purpose": "08: first MLP projection column split, second row split and summed output; one forward all-reduce for this MLP",
+    "locator": "Section 3, Equations 1-3 and Figure 3(a), MLP column/row partition",
+    "checked_via": "official full text; actual version checked from arXiv abstract and full-text header/PDF identifier",
+    "accessed": "2026-10-16"
+  },
+  "paged_attention": {
+    "arxiv": "2309.06180v1",
+    "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+    "url": "https://arxiv.org/pdf/2309.06180v1",
+    "version": "v1",
+    "purpose": "08: distinguish request scheduling from paged KV memory layout; partial last block is residual internal fragmentation",
+    "locator": "Section 2.3 iteration-level scheduling; Section 4, PagedAttention and block table",
+    "checked_via": "official full text; actual version checked from arXiv abstract and full-text header/PDF identifier",
+    "accessed": "2026-10-16"
+  },
+  "deepseekmath": {
+    "arxiv": "2402.03300v3",
+    "title": "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models",
+    "url": "https://arxiv.org/html/2402.03300v3",
+    "version": "v3",
+    "purpose": "09: token-level clipped policy surrogate, per-response length reduction, group advantage, direct reference KL and rollout reuse",
+    "locator": "Section 4.1, Equations 3-5 and Algorithm 1",
+    "checked_via": "official full text; actual version checked from arXiv abstract and full-text header/PDF identifier",
+    "accessed": "2026-10-16"
+  }
+}

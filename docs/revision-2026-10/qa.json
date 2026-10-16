@@ -1,0 +1,334 @@
+{
+  "status": "passed",
+  "date": "2026-10-16",
+  "environment": {
+    "python": "3.12.14",
+    "numpy": "2.3.4",
+    "matplotlib": "3.10.7",
+    "pypdf": "6.1.1",
+    "Markdown": "3.10.2",
+    "pymdown-extensions": "10.21.3"
+  },
+  "unit_tests_passed": 11,
+  "browser": {
+    "status": "passed",
+    "startedAt": "2026-10-16T14:16:28.603Z",
+    "inputs": {
+      "index.html": "5a5054bfda11b6348ddf47cab9670b5911cc3b4ce338cb2b1d43a567baac4e5f",
+      "paper/index.html": "6b2e43b36120d671d022cfe8b7f50e7ec386572a731f9317116ccbe46c550487",
+      "css/site.css": "ea88ca8e4b8fa9aa45e3681556e9f39b39d417c7c062e8006b326e9ff5c71719",
+      "js/site.js": "5dcf3e8cce063a5b826381a2805ebea6032193e35e14f686e51cc417d77292fb",
+      "tests/browser_math.cjs": "37524e43222406edc3e829bee255e33c74bd617c6264b46ce638eb91275d52f1",
+      "reports/00-foundations/index.html": "37b42f184db53c36091866bde273e8b83cc7f58ef7a81dd9516a6f86ba286963",
+      "reports/00-foundations/report.md": "ad0ff7e1c0bee9df9f04b237fc94a6f5ff4d62e4db5227248f4b3f7046ccd105",
+      "reports/01-vision-language/index.html": "13f1eb8b17d6a369194c8ad367585cfa02462570038e24036ef6b27a9ab4c29a",
+      "reports/01-vision-language/report.md": "f8080255db03edd55c8fe13ec6030622a1d4b1e8dfe6a5a6af29189fef2bfa1e",
+      "reports/02-audio-speech/index.html": "1cee82065fc259b3b143eba564f7f9da594fc1d1934ebc30da9cbef03c20263a",
+      "reports/02-audio-speech/report.md": "bcf8a9b44fe10440ce2ee941242fbfcb80c3b3adf0a64b19db4b6ebf133c01d5",
+      "reports/03-video/index.html": "fea58103eaaaf53ddb2a7ba38e70b1462bdb385e44c95ffdb516f3c417f748d1",
+      "reports/03-video/report.md": "0b5f241da383ae582394c21634dc4eb04570d9ff90851ac76f5bb25986a0ed04",
+      "reports/04-omni/index.html": "455ddc13b482f44d6e80c02a370ffaeeea767fc790d4d7a00161571ccde27c85",
+      "reports/04-omni/report.md": "fd3b8ff4c4e0a43a7a6f2b9e8d37824e8ae19c7fbf30cf69328b04f5673e6f66",
+      "reports/05-generation/index.html": "13267c2d54c530861dff93ef2a3fe2db98bfababf8ab93545c7f92f69431be41",
+      "reports/05-generation/report.md": "12a80b02cbb9ff047636679229fcd168b382c4745e1a90c87df977e4a0092745",
+      "reports/06-embodied/index.html": "54207336e588f547cdb4dfccf607387511f5cfe640403b5a5af2f7238a2564e3",
+      "reports/06-embodied/report.md": "99f50273b37fd9b461c1ca2f6b847e7927cf2c7f66fe132b5c493524e7095147",
+      "reports/07-agent-tooluse/index.html": "dc8a19140cdc5a3668396ccc2810d170728326f5db700cff483ad8f9e53e76fa",
+      "reports/07-agent-tooluse/report.md": "efa35cc3e3dc35aef6dbfd24d543ce9812d2b535539f12e0cda50a8a24641f03",
+      "reports/08-efficiency/index.html": "6048049576b34ab19f7d59267c47834d3842b9ab320bcb8bd499d0d2c164e79e",
+      "reports/08-efficiency/report.md": "9778a03ee2b2a8cc11a2b081f5ba16586140b533dd7ebb08ea12b87252cfb162",
+      "reports/09-alignment-safety/index.html": "386a5d82cc816ef9589492bad513ebac6793356c848b83566be0dc5962b62d76",
+      "reports/09-alignment-safety/report.md": "644212eb20c26f0c91751e2f34a0ab938b915984d0c5ea769f904a2be5d3079d",
+      "reports/10-benchmarks-eval/index.html": "6a999616e771fc9fe548b2e84b02eaec8ff791ed60f173602631a3be88f9663f",
+      "reports/10-benchmarks-eval/report.md": "79004c1168a31b2fee93cff24f697e9083a64514cca61994ad42a9b1bb52592c",
+      "reports/11-data-training/index.html": "b3d09c082fbfac320706edd760bb3b70dad5fec73336508b87a24f736f40d076",
+      "reports/11-data-training/report.md": "2d6313c8e1204e28a710564c385c39d5947faf25eed1b1d11a519eb83fde88c5",
+      "reports/12-frontier/index.html": "d923277ffe6b235a71eec756da7da5b8781d31c2e5a7419ba7205aa5f3e7e4f6",
+      "reports/12-frontier/report.md": "d139c8f7a15f2d8e2e21f851e388d9c012ecf7623ed363ecd6dbfdbfba2e08eb",
+      "paper/proposal.md": "61fb7a397303f533aa3a2c5c61444222e0c46da2ca1d385e8c0984338228285c",
+      "assets/technical/00-evidence.png": "09875dc95e5c7dca85f90364e503994eb868a586adfea98b92ff2600fa22211b",
+      "assets/technical/00-method.png": "28b0cde5d0b4f42111ad4be4e4ab86789254a201316679127b9798b91a1e999e",
+      "assets/technical/00-probe.png": "b4e7d20b3c61bbe74e81622c2df87e473da9b55f44c917f532309f98ce84e771",
+      "assets/technical/01-evidence.png": "14024b35ed0ad41e2fae82e5da0a52b355cf09ba34ed97094c88ab7a8b371683",
+      "assets/technical/01-method.png": "3cd7d2ddbe7560b611b2b38b8ad2f289612450b4898d63d230440d08cb836e0c",
+      "assets/technical/01-probe.png": "5c786c70f21ac33560e5f70e26993eab3789f5dca2c44b22b5b3ce47e27e8367",
+      "assets/technical/02-evidence.png": "5704fbbd35c53b6070b37b8f6914aa0602f9d665d928f5b00c519b20cbcc4dd3",
+      "assets/technical/02-method.png": "acf76132f6bbd6071aa27fd8ff50da7c1df7bf9ac00901b53e52a0dd0c16c856",
+      "assets/technical/02-probe.png": "faefa6cf11918decc4caa82e5a5b55f5170b32bfd857f7cad5eb895e6df83a72",
+      "assets/technical/03-evidence.png": "d4df009498cd9033c0dcfc92d18c12d39a991aac4c32b4c6efeec889b870500c",
+      "assets/technical/03-method.png": "6107f31efe23c52ce14e6fb04aa8f5dc63a73e853001298b70c46f2bee7ea941",
+      "assets/technical/03-probe.png": "740c2dfd7e4aed7203da8dde56e7484d2428cf91d96c6f9c96734098727347d5",
+      "assets/technical/04-evidence.png": "db1f8eb325d675c8e1a615b24fbe1e05b236556a2c51bc7805ba375541743d4a",
+      "assets/technical/04-method.png": "623e6c604c9e077ef62a45f8012023490201074d819709ca79a598afba82d7e4",
+      "assets/technical/04-probe.png": "1d7f0df406dd5598176ac6e2da52d5b9add493bc256692f05b9bc89a6e4ea405",
+      "assets/technical/05-evidence.png": "4b84e2e2fbb604d2cc93e5c423fa00b47c785f81fa9cc260d298ac719f396ae5",
+      "assets/technical/05-method.png": "358c53f13893bca12032adffb86fae4d66572a75dc0f88c6a4962d870de9c5f0",
+      "assets/technical/05-probe.png": "6c96f100a812703e77e5563fa9e2aecc1ba78fc29284ae849308b8eef9756a83",
+      "assets/technical/06-evidence.png": "ce59d30da1354d900dc3057ba7f161e408648e2be07b2b788ab13ecf9e174950",
+      "assets/technical/06-method.png": "655793f01bf43c9a6b81073a875cdb2f7627a3f67d0fe90b7b2c5eaa954a8090",
+      "assets/technical/06-probe.png": "b3f254e5992bcaa23101a0bfd7eea13101ce42d3c137d736a47186d710b7d12c",
+      "assets/technical/07-evidence.png": "2821ecac90e06531a9fe9851a0e9b5bfd2bab7e8c9a7507ec0f9c0060112b68e",
+      "assets/technical/07-method.png": "9f82b9beede7ccf5c31565f5f454ab2fb9b80ccc4cb8fe19921c5455cf925c6f",
+      "assets/technical/07-probe.png": "981926e3917e6c02b824855781cea40af0f5aa9363b6ed28df17c221961cdf01",
+      "assets/technical/08-evidence.png": "c9baeb386ed5f4dfeb441407ef246325361c445192879680849802d0fd2252ed",
+      "assets/technical/08-method.png": "4016cb6747b1324eccff958c4f74daa2f781aff42a3482d03220ab7aef2a3102",
+      "assets/technical/08-probe.png": "eb183c1cd098496b90a7edaa9acb0d27f9e52ac68932a5add2fa738be5930880",
+      "assets/technical/09-evidence.png": "8fa227486e25ea86731cab1053242440451e7815cc30d5084c02c52de00a8111",
+      "assets/technical/09-method.png": "c7976218685c1bf916f3850801a091d119554297dc3d44173449f7b1696bed16",
+      "assets/technical/09-probe.png": "38166212a3d548ce14af013713bdada3c21330b28b294ca47271b7d0b55fe55c",
+      "assets/technical/10-cluster.png": "98540ff729f9e3b6049eaef12feff2c33e73e2a12e2619942a56d6fc17a0213f",
+      "assets/technical/10-evidence.png": "1a420a855525a58050a18058c20aef0cd512545631063aaea52f47664a4b482f",
+      "assets/technical/10-method.png": "8c6dd033e1cde1e86e53974474c52e0eea6800203e0777627ff0de7f463be0de",
+      "assets/technical/10-probe.png": "ece4bfba229eddcf80ca29eb038e9abcff973a7f1c326b63d0edb47c24dc592f",
+      "assets/technical/11-evidence.png": "bc2bd5f279af1ac3c37047ad1d14d4dcaa70ba9830ec7feb3cdb2a81afb29e73",
+      "assets/technical/11-method.png": "17bf34673243242d1f5f5c32785e605f2d2169c39b8d4e7f6097b432ede61fce",
+      "assets/technical/11-probe.png": "7d0c0f614d3125e0c9beef68ac2e53a0a4c5533648013e2296308866ca6fb1ea",
+      "assets/technical/12-evidence.png": "cff3ef814dcfd61da8df06ac1abb7815569a4956785b12d347d745aeb5870be4",
+      "assets/technical/12-method.png": "4c8da0e6794e0efe548ae97901b9f74bcee15aa3af99a5122039bd581176ce01",
+      "assets/technical/12-planning.png": "e049b49ebf3a6d31701498cb33a1079783b9ce77f80732890c5ec120b81f7fb8",
+      "assets/technical/12-probe.png": "fba110e9e3923f85dc96c0891495c74956a178f08c31af42c6b4d7c3576b8cd5"
+    },
+    "results": [
+      {
+        "slug": "00-foundations",
+        "formulas": 75,
+        "rendered": 75,
+        "errors": []
+      },
+      {
+        "slug": "01-vision-language",
+        "formulas": 42,
+        "rendered": 42,
+        "errors": []
+      },
+      {
+        "slug": "02-audio-speech",
+        "formulas": 59,
+        "rendered": 59,
+        "errors": []
+      },
+      {
+        "slug": "03-video",
+        "formulas": 23,
+        "rendered": 23,
+        "errors": []
+      },
+      {
+        "slug": "04-omni",
+        "formulas": 12,
+        "rendered": 12,
+        "errors": []
+      },
+      {
+        "slug": "05-generation",
+        "formulas": 59,
+        "rendered": 59,
+        "errors": []
+      },
+      {
+        "slug": "06-embodied",
+        "formulas": 31,
+        "rendered": 31,
+        "errors": []
+      },
+      {
+        "slug": "07-agent-tooluse",
+        "formulas": 24,
+        "rendered": 24,
+        "errors": []
+      },
+      {
+        "slug": "08-efficiency",
+        "formulas": 58,
+        "rendered": 58,
+        "errors": []
+      },
+      {
+        "slug": "09-alignment-safety",
+        "formulas": 35,
+        "rendered": 35,
+        "errors": []
+      },
+      {
+        "slug": "10-benchmarks-eval",
+        "formulas": 19,
+        "rendered": 19,
+        "errors": []
+      },
+      {
+        "slug": "11-data-training",
+        "formulas": 28,
+        "rendered": 28,
+        "errors": []
+      },
+      {
+        "slug": "12-frontier",
+        "formulas": 23,
+        "rendered": 23,
+        "errors": []
+      },
+      {
+        "slug": "proposal",
+        "formulas": 12,
+        "rendered": 12,
+        "errors": []
+      }
+    ],
+    "finishedAt": "2026-10-16T14:16:34.601Z"
+  },
+  "rendered_formulas": 500,
+  "pdfs": [
+    {
+      "slug": "00-foundations",
+      "pages": 8,
+      "figures": 3,
+      "pdf_sha256": "08abc3e4adf7a389f135a2970baeba12a7cea991a7edd81b0cabc7d82e772f0c",
+      "source_sha256": "ad0ff7e1c0bee9df9f04b237fc94a6f5ff4d62e4db5227248f4b3f7046ccd105",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "01-vision-language",
+      "pages": 8,
+      "figures": 3,
+      "pdf_sha256": "5d656d3dab44b161c900a663a120908f41a0a264e329b7410810ec50047ad117",
+      "source_sha256": "f8080255db03edd55c8fe13ec6030622a1d4b1e8dfe6a5a6af29189fef2bfa1e",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "02-audio-speech",
+      "pages": 8,
+      "figures": 3,
+      "pdf_sha256": "82c2cd66e5e8141a6154390fb797b5a0c1523612372fcad9e9ea258c957ad8d5",
+      "source_sha256": "bcf8a9b44fe10440ce2ee941242fbfcb80c3b3adf0a64b19db4b6ebf133c01d5",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "03-video",
+      "pages": 7,
+      "figures": 3,
+      "pdf_sha256": "a7d899d03908c99f93cfb9e7e9d6aa0a96d8183a7a252adddfe35f7c5295598f",
+      "source_sha256": "0b5f241da383ae582394c21634dc4eb04570d9ff90851ac76f5bb25986a0ed04",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "04-omni",
+      "pages": 8,
+      "figures": 3,
+      "pdf_sha256": "d4800fedbbda2a46ffbc64b6b76e5d53d5f71ca4f1641f354529387a44b619cb",
+      "source_sha256": "fd3b8ff4c4e0a43a7a6f2b9e8d37824e8ae19c7fbf30cf69328b04f5673e6f66",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "05-generation",
+      "pages": 8,
+      "figures": 3,
+      "pdf_sha256": "805e8bd371d5dc0158b3d45ea2769af83f161307cad5736774c7a58b332e029d",
+      "source_sha256": "12a80b02cbb9ff047636679229fcd168b382c4745e1a90c87df977e4a0092745",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "06-embodied",
+      "pages": 8,
+      "figures": 3,
+      "pdf_sha256": "a6c2d2911c99cc6c11ca008bd1221e41929c68a25e70e6e213e22b3af58856b0",
+      "source_sha256": "99f50273b37fd9b461c1ca2f6b847e7927cf2c7f66fe132b5c493524e7095147",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "07-agent-tooluse",
+      "pages": 8,
+      "figures": 3,
+      "pdf_sha256": "2c083c739b2d3f90821c2fca2b2dbf74db3f5d7cf037dbaeb3f053196b132953",
+      "source_sha256": "efa35cc3e3dc35aef6dbfd24d543ce9812d2b535539f12e0cda50a8a24641f03",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "08-efficiency",
+      "pages": 9,
+      "figures": 3,
+      "pdf_sha256": "a95e5c717198bb2b459c1dd8425e3211daa009a457ce5d216e8e619a45c7ca7a",
+      "source_sha256": "9778a03ee2b2a8cc11a2b081f5ba16586140b533dd7ebb08ea12b87252cfb162",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "09-alignment-safety",
+      "pages": 9,
+      "figures": 3,
+      "pdf_sha256": "9783e2acbb2373bc3db476fe2ee25acf9f6bceb30aed80e9cece0d158fc702ef",
+      "source_sha256": "644212eb20c26f0c91751e2f34a0ab938b915984d0c5ea769f904a2be5d3079d",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "10-benchmarks-eval",
+      "pages": 8,
+      "figures": 4,
+      "pdf_sha256": "8d554fa6183560eb3c2027e8a102b86df81b3b34ff9bec0d6fb4cf3f57c0e316",
+      "source_sha256": "79004c1168a31b2fee93cff24f697e9083a64514cca61994ad42a9b1bb52592c",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "11-data-training",
+      "pages": 8,
+      "figures": 3,
+      "pdf_sha256": "fe37965cc483443b42dbace042ce8338b62230203ee7f5b1ce3bf64e513be7ae",
+      "source_sha256": "2d6313c8e1204e28a710564c385c39d5947faf25eed1b1d11a519eb83fde88c5",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "12-frontier",
+      "pages": 9,
+      "figures": 4,
+      "pdf_sha256": "0eb87851a8031b6f641d1d82154944a47de380290de99e2c631971f334be42e9",
+      "source_sha256": "d139c8f7a15f2d8e2e21f851e388d9c012ecf7623ed363ecd6dbfdbfba2e08eb",
+      "text_outside_35pt_horizontal_margin": 0
+    },
+    {
+      "slug": "paper-verifier-gated-visual-decoding",
+      "pages": 6,
+      "figures": 0,
+      "pdf_sha256": "445e5751b7d2943f11e8d58959df94d7354b0b6be170fcce097b0ffd003d9378",
+      "source_sha256": "61fb7a397303f533aa3a2c5c61444222e0c46da2ca1d385e8c0984338228285c",
+      "text_outside_35pt_horizontal_margin": 0
+    }
+  ],
+  "pdf_pages": 112,
+  "embedded_figures": 41,
+  "tex_log_missing_characters": 0,
+  "tex_log_overfull_boxes": 0,
+  "cited_arxiv_identities_verified_via_live_datacite": 35,
+  "version_locked_quantitative_source_groups": 13,
+  "cpu_base_probes": 13,
+  "cpu_mechanism_checks": 8,
+  "raw_csv_files": 19,
+  "planning_probe_summary": {
+    "PD": {
+      "successes": 24,
+      "trials": 24,
+      "mean_cost": 11.891695430880544,
+      "out_of_bounds": 0
+    },
+    "fitted MPC": {
+      "successes": 24,
+      "trials": 24,
+      "mean_cost": 11.810523206745165,
+      "out_of_bounds": 0
+    },
+    "shuffled-action MPC": {
+      "successes": 0,
+      "trials": 24,
+      "mean_cost": 11518.513707475102,
+      "out_of_bounds": 24
+    }
+  },
+  "fault_injection": {
+    "pdf_lock": "Second build exits before input/publication mutation",
+    "browser_cleanup": "Real browser closes, then injected exception produces exit1 and failed report with input hashes"
+  },
+  "review_scope": {
+    "content": "evidence, technical depth, reproducibility; two rounds",
+    "depth_acceptance_items": 38,
+    "code": "three actual codex exec lenses; focused fixes re-reviewed",
+    "final_cli_verdict": "PASS",
+    "pdf_visual": "primary agent; 14 contact sheets, rerendered changed chapters and enlarged key pages; final auxiliary reviewer hit usage limit"
+  }
+}

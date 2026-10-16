@@ -1,0 +1,119 @@
+[
+  {
+    "slug": "00-foundations",
+    "characters": 40100,
+    "headings": 38,
+    "images": 1,
+    "code_blocks": 1,
+    "broad_phrases": 34,
+    "characters_before_references": 35222
+  },
+  {
+    "slug": "01-vision-language",
+    "characters": 31412,
+    "headings": 31,
+    "images": 2,
+    "code_blocks": 0,
+    "broad_phrases": 37,
+    "characters_before_references": 21900
+  },
+  {
+    "slug": "02-audio-speech",
+    "characters": 31784,
+    "headings": 32,
+    "images": 0,
+    "code_blocks": 1,
+    "broad_phrases": 21,
+    "characters_before_references": 27195
+  },
+  {
+    "slug": "03-video",
+    "characters": 33754,
+    "headings": 40,
+    "images": 0,
+    "code_blocks": 0,
+    "broad_phrases": 20,
+    "characters_before_references": 28598
+  },
+  {
+    "slug": "04-omni",
+    "characters": 31578,
+    "headings": 37,
+    "images": 2,
+    "code_blocks": 0,
+    "broad_phrases": 51,
+    "characters_before_references": 27210
+  },
+  {
+    "slug": "05-generation",
+    "characters": 46134,
+    "headings": 33,
+    "images": 1,
+    "code_blocks": 0,
+    "broad_phrases": 45,
+    "characters_before_references": 35682
+  },
+  {
+    "slug": "06-embodied",
+    "characters": 30962,
+    "headings": 32,
+    "images": 1,
+    "code_blocks": 0,
+    "broad_phrases": 39,
+    "characters_before_references": 26242
+  },
+  {
+    "slug": "07-agent-tooluse",
+    "characters": 37516,
+    "headings": 38,
+    "images": 1,
+    "code_blocks": 0,
+    "broad_phrases": 39,
+    "characters_before_references": 31364
+  },
+  {
+    "slug": "08-efficiency",
+    "characters": 35373,
+    "headings": 32,
+    "images": 0,
+    "code_blocks": 0,
+    "broad_phrases": 24,
+    "characters_before_references": 28537
+  },
+  {
+    "slug": "09-alignment-safety",
+    "characters": 34495,
+    "headings": 36,
+    "images": 1,
+    "code_blocks": 0,
+    "broad_phrases": 18,
+    "characters_before_references": 26502
+  },
+  {
+    "slug": "10-benchmarks-eval",
+    "characters": 34218,
+    "headings": 37,
+    "images": 2,
+    "code_blocks": 0,
+    "broad_phrases": 28,
+    "characters_before_references": 27013
+  },
+  {
+    "slug": "11-data-training",
+    "characters": 25941,
+    "headings": 36,
+    "images": 1,
+    "code_blocks": 0,
+    "broad_phrases": 19,
+    "characters_before_references": 20379
+  },
+  {
+    "slug": "12-frontier",
+    "characters": 34800,
+    "headings": 27,
+    "images": 2,
+    "code_blocks": 0,
+    "broad_phrases": 73,
+    "characters_before_references": 27758
+  }
+]
