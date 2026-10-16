@@ -1,0 +1,10 @@
+frame,symbol,probability
+0,blank,0.1
+0,A,0.6
+0,B,0.3
+1,blank,0.2
+1,A,0.5
+1,B,0.3
+2,blank,0.45
+2,A,0.35
+2,B,0.2

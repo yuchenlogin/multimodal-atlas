@@ -1,0 +1,5 @@
+symbol,reference_probability,policy_probability
+chosen_token,0.2,0.20404026800535116
+rejected_token,0.2,0.2020100334168336
+other,0.5,0.49394969857781523
+EOS,0.1,0.1

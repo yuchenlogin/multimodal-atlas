@@ -1,0 +1,380 @@
+[
+  {
+    "topic": "00",
+    "arxiv": "2203.15556v1",
+    "title": "Training Compute-Optimal Large Language Models",
+    "url": "https://arxiv.org/html/2203.15556v1",
+    "locator": "Section 4.2.2, Table 6, MMLU average 5-shot accuracy over 57 tasks",
+    "metric": "MMLU accuracy (%)",
+    "labels": [
+      "Gopher 280B",
+      "Chinchilla 70B"
+    ],
+    "values": [
+      [
+        60,
+        67.6
+      ]
+    ],
+    "series": [
+      "5-shot"
+    ],
+    "caveat": "Training allocation differs; the abstract says 67.5 while the table says 67.6. Plot uses table.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v1"
+  },
+  {
+    "topic": "01",
+    "arxiv": "2103.00020v1",
+    "title": "Learning Transferable Visual Models From Natural Language Supervision",
+    "url": "https://arxiv.org/html/2103.00020v1",
+    "locator": "Table 11, ImageNet zero-shot column; input resolution in Appendix A.2 and Table 20",
+    "metric": "ImageNet zero-shot accuracy (%)",
+    "labels": [
+      "ViT-B/32",
+      "ViT-B/16",
+      "ViT-L/14"
+    ],
+    "values": [
+      [
+        63.2,
+        68.6,
+        75.3
+      ]
+    ],
+    "series": [
+      "Table 11"
+    ],
+    "caveat": "All three input resolutions are 224 pixels; architecture, patch size and training compute differ. Not an isolated patch-size ablation. Do not substitute DataComp Table 1 (75.5).",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v1"
+  },
+  {
+    "topic": "02",
+    "arxiv": "2212.04356v1",
+    "title": "Robust Speech Recognition via Large-Scale Weak Supervision",
+    "url": "https://arxiv.org/html/2212.04356v1",
+    "locator": "Appendix D.1.2, Table 9, LibriSpeech test-clean/test-other; beam search and temperature fallback",
+    "metric": "Word error rate (%)",
+    "labels": [
+      "small",
+      "medium",
+      "large",
+      "large-v2"
+    ],
+    "values": [
+      [
+        3.3,
+        2.7,
+        2.8,
+        2.5
+      ],
+      [
+        7.2,
+        5.6,
+        5.7,
+        4.9
+      ]
+    ],
+    "series": [
+      "test-clean",
+      "test-other"
+    ],
+    "caveat": "Multilingual Whisper; beam search with temperature fallback. These are not greedy or English-only checkpoints.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v1"
+  },
+  {
+    "topic": "03",
+    "arxiv": "2405.21075v3",
+    "title": "Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis",
+    "url": "https://arxiv.org/html/2405.21075v3",
+    "locator": "Table 4, GPT-4o row, Short/Medium/Long columns, with and without subtitles; subtitles selected to correspond to sampled frames",
+    "metric": "Video-MME accuracy (%)",
+    "labels": [
+      "Short",
+      "Medium",
+      "Long"
+    ],
+    "values": [
+      [
+        80,
+        70.3,
+        65.3
+      ],
+      [
+        82.8,
+        76.6,
+        72.1
+      ]
+    ],
+    "series": [
+      "without subtitles",
+      "with subtitles"
+    ],
+    "caveat": "Historical paper snapshot; subtitles add information, so the gain is not evidence of better visual temporal reasoning.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v3"
+  },
+  {
+    "topic": "04",
+    "arxiv": "2503.20215v1",
+    "title": "Qwen2.5-Omni Technical Report",
+    "url": "https://arxiv.org/html/2503.20215v1",
+    "locator": "Table 7, Video-MME without/with subtitles rows, Qwen2.5-VL-7B and Omni-7B columns",
+    "metric": "Video-MME accuracy (%)",
+    "labels": [
+      "Qwen2.5-VL-7B",
+      "Qwen2.5-Omni-7B"
+    ],
+    "values": [
+      [
+        65.1,
+        64.3
+      ],
+      [
+        71.6,
+        72.4
+      ]
+    ],
+    "series": [
+      "without subtitles",
+      "with subtitles"
+    ],
+    "caveat": "Different model training; not a controlled intervention that isolates Omni sharing or Talker.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v1"
+  },
+  {
+    "topic": "05",
+    "arxiv": "2212.09748v2",
+    "title": "Scalable Diffusion Models with Transformers",
+    "url": "https://arxiv.org/html/2212.09748v2",
+    "locator": "Table 3, class-conditional ImageNet 512x512, DiT-XL/2 and guided rows",
+    "metric": "FID (lower is better)",
+    "labels": [
+      "no CFG",
+      "CFG 1.25",
+      "CFG 1.50"
+    ],
+    "values": [
+      [
+        12.03,
+        4.64,
+        3.04
+      ]
+    ],
+    "series": [
+      "DiT-XL/2"
+    ],
+    "caveat": "Recall is 0.64, 0.57, 0.54 respectively. Guidance improves FID while reducing recall. Do not mix with 256x256 results.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v2"
+  },
+  {
+    "topic": "06",
+    "arxiv": "2307.15818v1",
+    "title": "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control",
+    "url": "https://arxiv.org/html/2307.15818v1",
+    "locator": "Appendix H.3, Table 8, Average column over unseen objects/backgrounds/environments, easy/hard conditions",
+    "metric": "Generalization success (%)",
+    "labels": [
+      "5B scratch",
+      "5B FT",
+      "5B co-FT",
+      "55B FT",
+      "55B co-FT"
+    ],
+    "values": [
+      [
+        9,
+        42,
+        44,
+        52,
+        63
+      ]
+    ],
+    "series": [
+      "RT-2-PaLI-X"
+    ],
+    "caveat": "Average across unseen object, background and environment conditions in Table 8; not a novel-task score. Trial-level outcomes and uncertainty are not supplied in this table.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v1"
+  },
+  {
+    "topic": "07",
+    "arxiv": "2404.07972v2",
+    "title": "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments",
+    "url": "https://arxiv.org/html/2404.07972v2",
+    "locator": "Table 5 and Section 4.2, original GPT-4 + a11y tree baseline and human results",
+    "metric": "Task success (%)",
+    "labels": [
+      "GPT-4 + a11y tree",
+      "Human"
+    ],
+    "values": [
+      [
+        12.24,
+        72.36
+      ]
+    ],
+    "series": [
+      "Original paper"
+    ],
+    "caveat": "Original 2024 benchmark setup, not a live leaderboard or a controlled human/model comparison with equal time budgets.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v2"
+  },
+  {
+    "topic": "08",
+    "arxiv": "2205.14135v2",
+    "title": "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+    "url": "https://arxiv.org/html/2205.14135v2",
+    "locator": "Table 1, BERT-large to target MLM accuracy 72.0%; 8 x A100, 10 runs",
+    "metric": "Training time (minutes)",
+    "labels": [
+      "MLPerf 1.1",
+      "FlashAttention"
+    ],
+    "values": [
+      [
+        20,
+        17.4
+      ]
+    ],
+    "series": [
+      "8 x A100, 10 runs"
+    ],
+    "caveat": "Original reported plus/minus are 1.5 and 1.4; do not reinterpret them as 95% confidence intervals. Hardware/recipe-specific.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v2"
+  },
+  {
+    "topic": "09",
+    "arxiv": "2305.10355v3",
+    "title": "Evaluating Object Hallucination in Large Vision-Language Models",
+    "url": "https://arxiv.org/html/2305.10355v3",
+    "locator": "Table 1, LLaVA I1/I2 rows, CHAIR-S and average generated-caption length",
+    "metric": "CHAIR-S (%)",
+    "labels": [
+      "Short caption I1",
+      "Brief description I2"
+    ],
+    "values": [
+      [
+        32.7,
+        62.7
+      ]
+    ],
+    "series": [
+      "LLaVA"
+    ],
+    "caveat": "Average lengths 64.3 and 90.7. Prompt and output length both change, so this is not an estimate of a length-only causal effect.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v3"
+  },
+  {
+    "topic": "10",
+    "arxiv": "2311.16502v4",
+    "title": "MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI",
+    "url": "https://arxiv.org/html/2311.16502v4",
+    "locator": "Appendix B.1, Table 4, Validation Overall column (900 questions)",
+    "metric": "Validation accuracy (%)",
+    "labels": [
+      "BLIP-2 T5-XL",
+      "LLaVA-1.5-13B",
+      "GPT-4V Playground"
+    ],
+    "values": [
+      [
+        34.4,
+        36.4,
+        56.8
+      ]
+    ],
+    "series": [
+      "Paper validation results"
+    ],
+    "caveat": "Overall validation, not Table 5 Art & Design (120 items: 44.2/51.7/65.8), not test or current leaderboard. Systems differ in training and access conditions.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v4"
+  },
+  {
+    "topic": "11",
+    "arxiv": "2304.14108v5",
+    "title": "DataComp: In search of the next generation of multimodal datasets",
+    "url": "https://arxiv.org/html/2304.14108v5",
+    "locator": "Table 1, ViT-L/14, 13B samples seen, 1.1e21 MACs rows",
+    "metric": "ImageNet zero-shot accuracy (%)",
+    "labels": [
+      "WIT",
+      "LAION-400M",
+      "LAION-2B",
+      "DataComp-1B"
+    ],
+    "values": [
+      [
+        75.5,
+        72.8,
+        73.1,
+        79.2
+      ]
+    ],
+    "series": [
+      "ViT-L/14, fixed seen-sample budget"
+    ],
+    "caveat": "Data sources and curation differ. Pool size is not equal to samples seen; MACs are not FLOPs. WIT is private, limiting independent replication.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v5"
+  },
+  {
+    "topic": "12",
+    "arxiv": "2405.09818v2",
+    "title": "Chameleon: Mixed-Modal Early-Fusion Foundation Models",
+    "url": "https://arxiv.org/html/2405.09818v2",
+    "locator": "Appendix Tables 11-12, Overall rows (1048 prompts); Section 4 baselines and tie-adjusted scoring",
+    "metric": "Tie-adjusted preference (%)",
+    "labels": [
+      "vs Gemini+",
+      "vs GPT-4V+"
+    ],
+    "values": [
+      [
+        58.8,
+        51.6
+      ]
+    ],
+    "series": [
+      "(wins + 0.5 ties) / n"
+    ],
+    "caveat": "All 1048 prompts; + means augmented with DALL-E 3. Score counts half a tie. Do not mix mixed-input subset (n=441: 60.4/47.3) with overall. Paper abstract and Table 11 differ; use the complete table row.",
+    "provenance": "author-reported; manually checked in official full text",
+    "accessed": "2026-10-16",
+    "verification": "Independently checked against official full table, including headers and split; 2026-10-16",
+    "version": "v2"
+  }
+]

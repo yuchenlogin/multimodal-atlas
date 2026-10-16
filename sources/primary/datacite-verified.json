@@ -1,0 +1,5236 @@
+[
+  {
+    "arxiv": "2203.15556",
+    "expected_title": "Training Compute-Optimal Large Language Models",
+    "api_title": "Training Compute-Optimal Large Language Models",
+    "doi": "10.48550/arxiv.2203.15556",
+    "publication_year": 2022,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2203.15556",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Hoffmann, Jordan",
+        "nameType": "Personal",
+        "givenName": "Jordan",
+        "familyName": "Hoffmann",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Borgeaud, Sebastian",
+        "nameType": "Personal",
+        "givenName": "Sebastian",
+        "familyName": "Borgeaud",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Mensch, Arthur",
+        "nameType": "Personal",
+        "givenName": "Arthur",
+        "familyName": "Mensch",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Buchatskaya, Elena",
+        "nameType": "Personal",
+        "givenName": "Elena",
+        "familyName": "Buchatskaya",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Cai, Trevor",
+        "nameType": "Personal",
+        "givenName": "Trevor",
+        "familyName": "Cai",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Rutherford, Eliza",
+        "nameType": "Personal",
+        "givenName": "Eliza",
+        "familyName": "Rutherford",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Casas, Diego de Las",
+        "nameType": "Personal",
+        "givenName": "Diego de Las",
+        "familyName": "Casas",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hendricks, Lisa Anne",
+        "nameType": "Personal",
+        "givenName": "Lisa Anne",
+        "familyName": "Hendricks",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Welbl, Johannes",
+        "nameType": "Personal",
+        "givenName": "Johannes",
+        "familyName": "Welbl",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Clark, Aidan",
+        "nameType": "Personal",
+        "givenName": "Aidan",
+        "familyName": "Clark",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hennigan, Tom",
+        "nameType": "Personal",
+        "givenName": "Tom",
+        "familyName": "Hennigan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Noland, Eric",
+        "nameType": "Personal",
+        "givenName": "Eric",
+        "familyName": "Noland",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Millican, Katie",
+        "nameType": "Personal",
+        "givenName": "Katie",
+        "familyName": "Millican",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Driessche, George van den",
+        "nameType": "Personal",
+        "givenName": "George van den",
+        "familyName": "Driessche",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Damoc, Bogdan",
+        "nameType": "Personal",
+        "givenName": "Bogdan",
+        "familyName": "Damoc",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Guy, Aurelia",
+        "nameType": "Personal",
+        "givenName": "Aurelia",
+        "familyName": "Guy",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Osindero, Simon",
+        "nameType": "Personal",
+        "givenName": "Simon",
+        "familyName": "Osindero",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Simonyan, Karen",
+        "nameType": "Personal",
+        "givenName": "Karen",
+        "familyName": "Simonyan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Elsen, Erich",
+        "nameType": "Personal",
+        "givenName": "Erich",
+        "familyName": "Elsen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Rae, Jack W.",
+        "nameType": "Personal",
+        "givenName": "Jack W.",
+        "familyName": "Rae",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Vinyals, Oriol",
+        "nameType": "Personal",
+        "givenName": "Oriol",
+        "familyName": "Vinyals",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sifre, Laurent",
+        "nameType": "Personal",
+        "givenName": "Laurent",
+        "familyName": "Sifre",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2103.00020",
+    "expected_title": "Learning Transferable Visual Models From Natural Language Supervision",
+    "api_title": "Learning Transferable Visual Models From Natural Language Supervision",
+    "doi": "10.48550/arxiv.2103.00020",
+    "publication_year": 2021,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2103.00020",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Radford, Alec",
+        "nameType": "Personal",
+        "givenName": "Alec",
+        "familyName": "Radford",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Kim, Jong Wook",
+        "nameType": "Personal",
+        "givenName": "Jong Wook",
+        "familyName": "Kim",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hallacy, Chris",
+        "nameType": "Personal",
+        "givenName": "Chris",
+        "familyName": "Hallacy",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ramesh, Aditya",
+        "nameType": "Personal",
+        "givenName": "Aditya",
+        "familyName": "Ramesh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Goh, Gabriel",
+        "nameType": "Personal",
+        "givenName": "Gabriel",
+        "familyName": "Goh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Agarwal, Sandhini",
+        "nameType": "Personal",
+        "givenName": "Sandhini",
+        "familyName": "Agarwal",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sastry, Girish",
+        "nameType": "Personal",
+        "givenName": "Girish",
+        "familyName": "Sastry",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Askell, Amanda",
+        "nameType": "Personal",
+        "givenName": "Amanda",
+        "familyName": "Askell",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Mishkin, Pamela",
+        "nameType": "Personal",
+        "givenName": "Pamela",
+        "familyName": "Mishkin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Clark, Jack",
+        "nameType": "Personal",
+        "givenName": "Jack",
+        "familyName": "Clark",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Krueger, Gretchen",
+        "nameType": "Personal",
+        "givenName": "Gretchen",
+        "familyName": "Krueger",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sutskever, Ilya",
+        "nameType": "Personal",
+        "givenName": "Ilya",
+        "familyName": "Sutskever",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2212.04356",
+    "expected_title": "Robust Speech Recognition via Large-Scale Weak Supervision",
+    "api_title": "Robust Speech Recognition via Large-Scale Weak Supervision",
+    "doi": "10.48550/arxiv.2212.04356",
+    "publication_year": 2022,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2212.04356",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Radford, Alec",
+        "nameType": "Personal",
+        "givenName": "Alec",
+        "familyName": "Radford",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Kim, Jong Wook",
+        "nameType": "Personal",
+        "givenName": "Jong Wook",
+        "familyName": "Kim",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Tao",
+        "nameType": "Personal",
+        "givenName": "Tao",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Brockman, Greg",
+        "nameType": "Personal",
+        "givenName": "Greg",
+        "familyName": "Brockman",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "McLeavey, Christine",
+        "nameType": "Personal",
+        "givenName": "Christine",
+        "familyName": "McLeavey",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sutskever, Ilya",
+        "nameType": "Personal",
+        "givenName": "Ilya",
+        "familyName": "Sutskever",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2405.21075",
+    "expected_title": "Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis",
+    "api_title": "Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in Video Analysis",
+    "doi": "10.48550/arxiv.2405.21075",
+    "publication_year": 2024,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2405.21075",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Fu, Chaoyou",
+        "nameType": "Personal",
+        "givenName": "Chaoyou",
+        "familyName": "Fu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dai, Yuhan",
+        "nameType": "Personal",
+        "givenName": "Yuhan",
+        "familyName": "Dai",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Luo, Yongdong",
+        "nameType": "Personal",
+        "givenName": "Yongdong",
+        "familyName": "Luo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Lei",
+        "nameType": "Personal",
+        "givenName": "Lei",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ren, Shuhuai",
+        "nameType": "Personal",
+        "givenName": "Shuhuai",
+        "familyName": "Ren",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Renrui",
+        "nameType": "Personal",
+        "givenName": "Renrui",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Zihan",
+        "nameType": "Personal",
+        "givenName": "Zihan",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhou, Chenyu",
+        "nameType": "Personal",
+        "givenName": "Chenyu",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shen, Yunhang",
+        "nameType": "Personal",
+        "givenName": "Yunhang",
+        "familyName": "Shen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Mengdan",
+        "nameType": "Personal",
+        "givenName": "Mengdan",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Peixian",
+        "nameType": "Personal",
+        "givenName": "Peixian",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Yanwei",
+        "nameType": "Personal",
+        "givenName": "Yanwei",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lin, Shaohui",
+        "nameType": "Personal",
+        "givenName": "Shaohui",
+        "familyName": "Lin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhao, Sirui",
+        "nameType": "Personal",
+        "givenName": "Sirui",
+        "familyName": "Zhao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Ke",
+        "nameType": "Personal",
+        "givenName": "Ke",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Tong",
+        "nameType": "Personal",
+        "givenName": "Tong",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zheng, Xiawu",
+        "nameType": "Personal",
+        "givenName": "Xiawu",
+        "familyName": "Zheng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Enhong",
+        "nameType": "Personal",
+        "givenName": "Enhong",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shan, Caifeng",
+        "nameType": "Personal",
+        "givenName": "Caifeng",
+        "familyName": "Shan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "He, Ran",
+        "nameType": "Personal",
+        "givenName": "Ran",
+        "familyName": "He",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sun, Xing",
+        "nameType": "Personal",
+        "givenName": "Xing",
+        "familyName": "Sun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2503.20215",
+    "expected_title": "Qwen2.5-Omni Technical Report",
+    "api_title": "Qwen2.5-Omni Technical Report",
+    "doi": "10.48550/arxiv.2503.20215",
+    "publication_year": 2025,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2503.20215",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Xu, Jin",
+        "nameType": "Personal",
+        "givenName": "Jin",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Guo, Zhifang",
+        "nameType": "Personal",
+        "givenName": "Zhifang",
+        "familyName": "Guo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "He, Jinzheng",
+        "nameType": "Personal",
+        "givenName": "Jinzheng",
+        "familyName": "He",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hu, Hangrui",
+        "nameType": "Personal",
+        "givenName": "Hangrui",
+        "familyName": "Hu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "He, Ting",
+        "nameType": "Personal",
+        "givenName": "Ting",
+        "familyName": "He",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Bai, Shuai",
+        "nameType": "Personal",
+        "givenName": "Shuai",
+        "familyName": "Bai",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Keqin",
+        "nameType": "Personal",
+        "givenName": "Keqin",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Jialin",
+        "nameType": "Personal",
+        "givenName": "Jialin",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Fan, Yang",
+        "nameType": "Personal",
+        "givenName": "Yang",
+        "familyName": "Fan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dang, Kai",
+        "nameType": "Personal",
+        "givenName": "Kai",
+        "familyName": "Dang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Bin",
+        "nameType": "Personal",
+        "givenName": "Bin",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Xiong",
+        "nameType": "Personal",
+        "givenName": "Xiong",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chu, Yunfei",
+        "nameType": "Personal",
+        "givenName": "Yunfei",
+        "familyName": "Chu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lin, Junyang",
+        "nameType": "Personal",
+        "givenName": "Junyang",
+        "familyName": "Lin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2212.09748",
+    "expected_title": "Scalable Diffusion Models with Transformers",
+    "api_title": "Scalable Diffusion Models with Transformers",
+    "doi": "10.48550/arxiv.2212.09748",
+    "publication_year": 2022,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2212.09748",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Peebles, William",
+        "nameType": "Personal",
+        "givenName": "William",
+        "familyName": "Peebles",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xie, Saining",
+        "nameType": "Personal",
+        "givenName": "Saining",
+        "familyName": "Xie",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2307.15818",
+    "expected_title": "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control",
+    "api_title": "RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control",
+    "doi": "10.48550/arxiv.2307.15818",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2307.15818",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Brohan, Anthony",
+        "nameType": "Personal",
+        "givenName": "Anthony",
+        "familyName": "Brohan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Brown, Noah",
+        "nameType": "Personal",
+        "givenName": "Noah",
+        "familyName": "Brown",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Carbajal, Justice",
+        "nameType": "Personal",
+        "givenName": "Justice",
+        "familyName": "Carbajal",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chebotar, Yevgen",
+        "nameType": "Personal",
+        "givenName": "Yevgen",
+        "familyName": "Chebotar",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Xi",
+        "nameType": "Personal",
+        "givenName": "Xi",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Choromanski, Krzysztof",
+        "nameType": "Personal",
+        "givenName": "Krzysztof",
+        "familyName": "Choromanski",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ding, Tianli",
+        "nameType": "Personal",
+        "givenName": "Tianli",
+        "familyName": "Ding",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Driess, Danny",
+        "nameType": "Personal",
+        "givenName": "Danny",
+        "familyName": "Driess",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dubey, Avinava",
+        "nameType": "Personal",
+        "givenName": "Avinava",
+        "familyName": "Dubey",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Finn, Chelsea",
+        "nameType": "Personal",
+        "givenName": "Chelsea",
+        "familyName": "Finn",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Florence, Pete",
+        "nameType": "Personal",
+        "givenName": "Pete",
+        "familyName": "Florence",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Fu, Chuyuan",
+        "nameType": "Personal",
+        "givenName": "Chuyuan",
+        "familyName": "Fu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Arenas, Montse Gonzalez",
+        "nameType": "Personal",
+        "givenName": "Montse Gonzalez",
+        "familyName": "Arenas",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gopalakrishnan, Keerthana",
+        "nameType": "Personal",
+        "givenName": "Keerthana",
+        "familyName": "Gopalakrishnan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Han, Kehang",
+        "nameType": "Personal",
+        "givenName": "Kehang",
+        "familyName": "Han",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hausman, Karol",
+        "nameType": "Personal",
+        "givenName": "Karol",
+        "familyName": "Hausman",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Herzog, Alexander",
+        "nameType": "Personal",
+        "givenName": "Alexander",
+        "familyName": "Herzog",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hsu, Jasmine",
+        "nameType": "Personal",
+        "givenName": "Jasmine",
+        "familyName": "Hsu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ichter, Brian",
+        "nameType": "Personal",
+        "givenName": "Brian",
+        "familyName": "Ichter",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Irpan, Alex",
+        "nameType": "Personal",
+        "givenName": "Alex",
+        "familyName": "Irpan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Joshi, Nikhil",
+        "nameType": "Personal",
+        "givenName": "Nikhil",
+        "familyName": "Joshi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Julian, Ryan",
+        "nameType": "Personal",
+        "givenName": "Ryan",
+        "familyName": "Julian",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Kalashnikov, Dmitry",
+        "nameType": "Personal",
+        "givenName": "Dmitry",
+        "familyName": "Kalashnikov",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Kuang, Yuheng",
+        "nameType": "Personal",
+        "givenName": "Yuheng",
+        "familyName": "Kuang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Leal, Isabel",
+        "nameType": "Personal",
+        "givenName": "Isabel",
+        "familyName": "Leal",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lee, Lisa",
+        "nameType": "Personal",
+        "givenName": "Lisa",
+        "familyName": "Lee",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lee, Tsang-Wei Edward",
+        "nameType": "Personal",
+        "givenName": "Tsang-Wei Edward",
+        "familyName": "Lee",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Levine, Sergey",
+        "nameType": "Personal",
+        "givenName": "Sergey",
+        "familyName": "Levine",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lu, Yao",
+        "nameType": "Personal",
+        "givenName": "Yao",
+        "familyName": "Lu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Michalewski, Henryk",
+        "nameType": "Personal",
+        "givenName": "Henryk",
+        "familyName": "Michalewski",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Mordatch, Igor",
+        "nameType": "Personal",
+        "givenName": "Igor",
+        "familyName": "Mordatch",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Pertsch, Karl",
+        "nameType": "Personal",
+        "givenName": "Karl",
+        "familyName": "Pertsch",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Rao, Kanishka",
+        "nameType": "Personal",
+        "givenName": "Kanishka",
+        "familyName": "Rao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Reymann, Krista",
+        "nameType": "Personal",
+        "givenName": "Krista",
+        "familyName": "Reymann",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ryoo, Michael",
+        "nameType": "Personal",
+        "givenName": "Michael",
+        "familyName": "Ryoo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Salazar, Grecia",
+        "nameType": "Personal",
+        "givenName": "Grecia",
+        "familyName": "Salazar",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sanketi, Pannag",
+        "nameType": "Personal",
+        "givenName": "Pannag",
+        "familyName": "Sanketi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sermanet, Pierre",
+        "nameType": "Personal",
+        "givenName": "Pierre",
+        "familyName": "Sermanet",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Singh, Jaspiar",
+        "nameType": "Personal",
+        "givenName": "Jaspiar",
+        "familyName": "Singh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Singh, Anikait",
+        "nameType": "Personal",
+        "givenName": "Anikait",
+        "familyName": "Singh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Soricut, Radu",
+        "nameType": "Personal",
+        "givenName": "Radu",
+        "familyName": "Soricut",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tran, Huong",
+        "nameType": "Personal",
+        "givenName": "Huong",
+        "familyName": "Tran",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Vanhoucke, Vincent",
+        "nameType": "Personal",
+        "givenName": "Vincent",
+        "familyName": "Vanhoucke",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Vuong, Quan",
+        "nameType": "Personal",
+        "givenName": "Quan",
+        "familyName": "Vuong",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wahid, Ayzaan",
+        "nameType": "Personal",
+        "givenName": "Ayzaan",
+        "familyName": "Wahid",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Welker, Stefan",
+        "nameType": "Personal",
+        "givenName": "Stefan",
+        "familyName": "Welker",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wohlhart, Paul",
+        "nameType": "Personal",
+        "givenName": "Paul",
+        "familyName": "Wohlhart",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wu, Jialin",
+        "nameType": "Personal",
+        "givenName": "Jialin",
+        "familyName": "Wu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xia, Fei",
+        "nameType": "Personal",
+        "givenName": "Fei",
+        "familyName": "Xia",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xiao, Ted",
+        "nameType": "Personal",
+        "givenName": "Ted",
+        "familyName": "Xiao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Peng",
+        "nameType": "Personal",
+        "givenName": "Peng",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Sichun",
+        "nameType": "Personal",
+        "givenName": "Sichun",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Tianhe",
+        "nameType": "Personal",
+        "givenName": "Tianhe",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zitkovich, Brianna",
+        "nameType": "Personal",
+        "givenName": "Brianna",
+        "familyName": "Zitkovich",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2404.07972",
+    "expected_title": "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments",
+    "api_title": "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments",
+    "doi": "10.48550/arxiv.2404.07972",
+    "publication_year": 2024,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2404.07972",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Xie, Tianbao",
+        "nameType": "Personal",
+        "givenName": "Tianbao",
+        "familyName": "Xie",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Danyang",
+        "nameType": "Personal",
+        "givenName": "Danyang",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Jixuan",
+        "nameType": "Personal",
+        "givenName": "Jixuan",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Xiaochuan",
+        "nameType": "Personal",
+        "givenName": "Xiaochuan",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhao, Siheng",
+        "nameType": "Personal",
+        "givenName": "Siheng",
+        "familyName": "Zhao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Cao, Ruisheng",
+        "nameType": "Personal",
+        "givenName": "Ruisheng",
+        "familyName": "Cao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hua, Toh Jing",
+        "nameType": "Personal",
+        "givenName": "Toh Jing",
+        "familyName": "Hua",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Cheng, Zhoujun",
+        "nameType": "Personal",
+        "givenName": "Zhoujun",
+        "familyName": "Cheng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shin, Dongchan",
+        "nameType": "Personal",
+        "givenName": "Dongchan",
+        "familyName": "Shin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lei, Fangyu",
+        "nameType": "Personal",
+        "givenName": "Fangyu",
+        "familyName": "Lei",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Yitao",
+        "nameType": "Personal",
+        "givenName": "Yitao",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Yiheng",
+        "nameType": "Personal",
+        "givenName": "Yiheng",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhou, Shuyan",
+        "nameType": "Personal",
+        "givenName": "Shuyan",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Savarese, Silvio",
+        "nameType": "Personal",
+        "givenName": "Silvio",
+        "familyName": "Savarese",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xiong, Caiming",
+        "nameType": "Personal",
+        "givenName": "Caiming",
+        "familyName": "Xiong",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhong, Victor",
+        "nameType": "Personal",
+        "givenName": "Victor",
+        "familyName": "Zhong",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Tao",
+        "nameType": "Personal",
+        "givenName": "Tao",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2205.14135",
+    "expected_title": "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+    "api_title": "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+    "doi": "10.48550/arxiv.2205.14135",
+    "publication_year": 2022,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2205.14135",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Dao, Tri",
+        "nameType": "Personal",
+        "givenName": "Tri",
+        "familyName": "Dao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Fu, Daniel Y.",
+        "nameType": "Personal",
+        "givenName": "Daniel Y.",
+        "familyName": "Fu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ermon, Stefano",
+        "nameType": "Personal",
+        "givenName": "Stefano",
+        "familyName": "Ermon",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Rudra, Atri",
+        "nameType": "Personal",
+        "givenName": "Atri",
+        "familyName": "Rudra",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ré, Christopher",
+        "nameType": "Personal",
+        "givenName": "Christopher",
+        "familyName": "Ré",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2305.10355",
+    "expected_title": "Evaluating Object Hallucination in Large Vision-Language Models",
+    "api_title": "Evaluating Object Hallucination in Large Vision-Language Models",
+    "doi": "10.48550/arxiv.2305.10355",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2305.10355",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Li, Yifan",
+        "nameType": "Personal",
+        "givenName": "Yifan",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Du, Yifan",
+        "nameType": "Personal",
+        "givenName": "Yifan",
+        "familyName": "Du",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhou, Kun",
+        "nameType": "Personal",
+        "givenName": "Kun",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Jinpeng",
+        "nameType": "Personal",
+        "givenName": "Jinpeng",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhao, Wayne Xin",
+        "nameType": "Personal",
+        "givenName": "Wayne Xin",
+        "familyName": "Zhao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wen, Ji-Rong",
+        "nameType": "Personal",
+        "givenName": "Ji-Rong",
+        "familyName": "Wen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2311.16502",
+    "expected_title": "MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI",
+    "api_title": "MMMU: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert AGI",
+    "doi": "10.48550/arxiv.2311.16502",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2311.16502",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Yue, Xiang",
+        "nameType": "Personal",
+        "givenName": "Xiang",
+        "familyName": "Yue",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ni, Yuansheng",
+        "nameType": "Personal",
+        "givenName": "Yuansheng",
+        "familyName": "Ni",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Kai",
+        "nameType": "Personal",
+        "givenName": "Kai",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zheng, Tianyu",
+        "nameType": "Personal",
+        "givenName": "Tianyu",
+        "familyName": "Zheng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Ruoqi",
+        "nameType": "Personal",
+        "givenName": "Ruoqi",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Ge",
+        "nameType": "Personal",
+        "givenName": "Ge",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Stevens, Samuel",
+        "nameType": "Personal",
+        "givenName": "Samuel",
+        "familyName": "Stevens",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Jiang, Dongfu",
+        "nameType": "Personal",
+        "givenName": "Dongfu",
+        "familyName": "Jiang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ren, Weiming",
+        "nameType": "Personal",
+        "givenName": "Weiming",
+        "familyName": "Ren",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sun, Yuxuan",
+        "nameType": "Personal",
+        "givenName": "Yuxuan",
+        "familyName": "Sun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wei, Cong",
+        "nameType": "Personal",
+        "givenName": "Cong",
+        "familyName": "Wei",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Botao",
+        "nameType": "Personal",
+        "givenName": "Botao",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yuan, Ruibin",
+        "nameType": "Personal",
+        "givenName": "Ruibin",
+        "familyName": "Yuan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sun, Renliang",
+        "nameType": "Personal",
+        "givenName": "Renliang",
+        "familyName": "Sun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yin, Ming",
+        "nameType": "Personal",
+        "givenName": "Ming",
+        "familyName": "Yin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zheng, Boyuan",
+        "nameType": "Personal",
+        "givenName": "Boyuan",
+        "familyName": "Zheng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yang, Zhenzhu",
+        "nameType": "Personal",
+        "givenName": "Zhenzhu",
+        "familyName": "Yang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Yibo",
+        "nameType": "Personal",
+        "givenName": "Yibo",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Huang, Wenhao",
+        "nameType": "Personal",
+        "givenName": "Wenhao",
+        "familyName": "Huang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sun, Huan",
+        "nameType": "Personal",
+        "givenName": "Huan",
+        "familyName": "Sun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Su, Yu",
+        "nameType": "Personal",
+        "givenName": "Yu",
+        "familyName": "Su",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Wenhu",
+        "nameType": "Personal",
+        "givenName": "Wenhu",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2304.14108",
+    "expected_title": "DataComp: In search of the next generation of multimodal datasets",
+    "api_title": "DataComp: In search of the next generation of multimodal datasets",
+    "doi": "10.48550/arxiv.2304.14108",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2304.14108",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Gadre, Samir Yitzhak",
+        "nameType": "Personal",
+        "givenName": "Samir Yitzhak",
+        "familyName": "Gadre",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ilharco, Gabriel",
+        "nameType": "Personal",
+        "givenName": "Gabriel",
+        "familyName": "Ilharco",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Fang, Alex",
+        "nameType": "Personal",
+        "givenName": "Alex",
+        "familyName": "Fang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hayase, Jonathan",
+        "nameType": "Personal",
+        "givenName": "Jonathan",
+        "familyName": "Hayase",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Smyrnis, Georgios",
+        "nameType": "Personal",
+        "givenName": "Georgios",
+        "familyName": "Smyrnis",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Nguyen, Thao",
+        "nameType": "Personal",
+        "givenName": "Thao",
+        "familyName": "Nguyen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Marten, Ryan",
+        "nameType": "Personal",
+        "givenName": "Ryan",
+        "familyName": "Marten",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wortsman, Mitchell",
+        "nameType": "Personal",
+        "givenName": "Mitchell",
+        "familyName": "Wortsman",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ghosh, Dhruba",
+        "nameType": "Personal",
+        "givenName": "Dhruba",
+        "familyName": "Ghosh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Jieyu",
+        "nameType": "Personal",
+        "givenName": "Jieyu",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Orgad, Eyal",
+        "nameType": "Personal",
+        "givenName": "Eyal",
+        "familyName": "Orgad",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Entezari, Rahim",
+        "nameType": "Personal",
+        "givenName": "Rahim",
+        "familyName": "Entezari",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Daras, Giannis",
+        "nameType": "Personal",
+        "givenName": "Giannis",
+        "familyName": "Daras",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Pratt, Sarah",
+        "nameType": "Personal",
+        "givenName": "Sarah",
+        "familyName": "Pratt",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ramanujan, Vivek",
+        "nameType": "Personal",
+        "givenName": "Vivek",
+        "familyName": "Ramanujan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Bitton, Yonatan",
+        "nameType": "Personal",
+        "givenName": "Yonatan",
+        "familyName": "Bitton",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Marathe, Kalyani",
+        "nameType": "Personal",
+        "givenName": "Kalyani",
+        "familyName": "Marathe",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Mussmann, Stephen",
+        "nameType": "Personal",
+        "givenName": "Stephen",
+        "familyName": "Mussmann",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Vencu, Richard",
+        "nameType": "Personal",
+        "givenName": "Richard",
+        "familyName": "Vencu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Cherti, Mehdi",
+        "nameType": "Personal",
+        "givenName": "Mehdi",
+        "familyName": "Cherti",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Krishna, Ranjay",
+        "nameType": "Personal",
+        "givenName": "Ranjay",
+        "familyName": "Krishna",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Koh, Pang Wei",
+        "nameType": "Personal",
+        "givenName": "Pang Wei",
+        "familyName": "Koh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Saukh, Olga",
+        "nameType": "Personal",
+        "givenName": "Olga",
+        "familyName": "Saukh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ratner, Alexander",
+        "nameType": "Personal",
+        "givenName": "Alexander",
+        "familyName": "Ratner",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Song, Shuran",
+        "nameType": "Personal",
+        "givenName": "Shuran",
+        "familyName": "Song",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hajishirzi, Hannaneh",
+        "nameType": "Personal",
+        "givenName": "Hannaneh",
+        "familyName": "Hajishirzi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Farhadi, Ali",
+        "nameType": "Personal",
+        "givenName": "Ali",
+        "familyName": "Farhadi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Beaumont, Romain",
+        "nameType": "Personal",
+        "givenName": "Romain",
+        "familyName": "Beaumont",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Oh, Sewoong",
+        "nameType": "Personal",
+        "givenName": "Sewoong",
+        "familyName": "Oh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dimakis, Alex",
+        "nameType": "Personal",
+        "givenName": "Alex",
+        "familyName": "Dimakis",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Jitsev, Jenia",
+        "nameType": "Personal",
+        "givenName": "Jenia",
+        "familyName": "Jitsev",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Carmon, Yair",
+        "nameType": "Personal",
+        "givenName": "Yair",
+        "familyName": "Carmon",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shankar, Vaishaal",
+        "nameType": "Personal",
+        "givenName": "Vaishaal",
+        "familyName": "Shankar",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Schmidt, Ludwig",
+        "nameType": "Personal",
+        "givenName": "Ludwig",
+        "familyName": "Schmidt",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2405.09818",
+    "expected_title": "Chameleon: Mixed-Modal Early-Fusion Foundation Models",
+    "api_title": "Chameleon: Mixed-Modal Early-Fusion Foundation Models",
+    "doi": "10.48550/arxiv.2405.09818",
+    "publication_year": 2024,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2405.09818",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Chameleon Team",
+        "nameType": "Organizational",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "1706.03762",
+    "expected_title": "Attention Is All You Need",
+    "api_title": "Attention Is All You Need",
+    "doi": "10.48550/arxiv.1706.03762",
+    "publication_year": 2017,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.1706.03762",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Vaswani, Ashish",
+        "nameType": "Personal",
+        "givenName": "Ashish",
+        "familyName": "Vaswani",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shazeer, Noam",
+        "nameType": "Personal",
+        "givenName": "Noam",
+        "familyName": "Shazeer",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Parmar, Niki",
+        "nameType": "Personal",
+        "givenName": "Niki",
+        "familyName": "Parmar",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Uszkoreit, Jakob",
+        "nameType": "Personal",
+        "givenName": "Jakob",
+        "familyName": "Uszkoreit",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Jones, Llion",
+        "nameType": "Personal",
+        "givenName": "Llion",
+        "familyName": "Jones",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gomez, Aidan N.",
+        "nameType": "Personal",
+        "givenName": "Aidan N.",
+        "familyName": "Gomez",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Kaiser, Lukasz",
+        "nameType": "Personal",
+        "givenName": "Lukasz",
+        "familyName": "Kaiser",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Polosukhin, Illia",
+        "nameType": "Personal",
+        "givenName": "Illia",
+        "familyName": "Polosukhin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2303.15343",
+    "expected_title": "Sigmoid Loss for Language Image Pre-Training",
+    "api_title": "Sigmoid Loss for Language Image Pre-Training",
+    "doi": "10.48550/arxiv.2303.15343",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2303.15343",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Zhai, Xiaohua",
+        "nameType": "Personal",
+        "givenName": "Xiaohua",
+        "familyName": "Zhai",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Mustafa, Basil",
+        "nameType": "Personal",
+        "givenName": "Basil",
+        "familyName": "Mustafa",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Kolesnikov, Alexander",
+        "nameType": "Personal",
+        "givenName": "Alexander",
+        "familyName": "Kolesnikov",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Beyer, Lucas",
+        "nameType": "Personal",
+        "givenName": "Lucas",
+        "familyName": "Beyer",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2301.12597",
+    "expected_title": "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models",
+    "api_title": "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models",
+    "doi": "10.48550/arxiv.2301.12597",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2301.12597",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Li, Junnan",
+        "nameType": "Personal",
+        "givenName": "Junnan",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Dongxu",
+        "nameType": "Personal",
+        "givenName": "Dongxu",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Savarese, Silvio",
+        "nameType": "Personal",
+        "givenName": "Silvio",
+        "familyName": "Savarese",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hoi, Steven",
+        "nameType": "Personal",
+        "givenName": "Steven",
+        "familyName": "Hoi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2210.13438",
+    "expected_title": "High Fidelity Neural Audio Compression",
+    "api_title": "High Fidelity Neural Audio Compression",
+    "doi": "10.48550/arxiv.2210.13438",
+    "publication_year": 2022,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2210.13438",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Défossez, Alexandre",
+        "nameType": "Personal",
+        "givenName": "Alexandre",
+        "familyName": "Défossez",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Copet, Jade",
+        "nameType": "Personal",
+        "givenName": "Jade",
+        "familyName": "Copet",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Synnaeve, Gabriel",
+        "nameType": "Personal",
+        "givenName": "Gabriel",
+        "familyName": "Synnaeve",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Adi, Yossi",
+        "nameType": "Personal",
+        "givenName": "Yossi",
+        "familyName": "Adi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2006.11239",
+    "expected_title": "Denoising Diffusion Probabilistic Models",
+    "api_title": "Denoising Diffusion Probabilistic Models",
+    "doi": "10.48550/arxiv.2006.11239",
+    "publication_year": 2020,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2006.11239",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Ho, Jonathan",
+        "nameType": "Personal",
+        "givenName": "Jonathan",
+        "familyName": "Ho",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Jain, Ajay",
+        "nameType": "Personal",
+        "givenName": "Ajay",
+        "familyName": "Jain",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Abbeel, Pieter",
+        "nameType": "Personal",
+        "givenName": "Pieter",
+        "familyName": "Abbeel",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2305.18290",
+    "expected_title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
+    "api_title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
+    "doi": "10.48550/arxiv.2305.18290",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2305.18290",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Rafailov, Rafael",
+        "nameType": "Personal",
+        "givenName": "Rafael",
+        "familyName": "Rafailov",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sharma, Archit",
+        "nameType": "Personal",
+        "givenName": "Archit",
+        "familyName": "Sharma",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Mitchell, Eric",
+        "nameType": "Personal",
+        "givenName": "Eric",
+        "familyName": "Mitchell",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ermon, Stefano",
+        "nameType": "Personal",
+        "givenName": "Stefano",
+        "familyName": "Ermon",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Manning, Christopher D.",
+        "nameType": "Personal",
+        "givenName": "Christopher D.",
+        "familyName": "Manning",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Finn, Chelsea",
+        "nameType": "Personal",
+        "givenName": "Chelsea",
+        "familyName": "Finn",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2406.09246",
+    "expected_title": "OpenVLA: An Open-Source Vision-Language-Action Model",
+    "api_title": "OpenVLA: An Open-Source Vision-Language-Action Model",
+    "doi": "10.48550/arxiv.2406.09246",
+    "publication_year": 2024,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2406.09246",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Kim, Moo Jin",
+        "nameType": "Personal",
+        "givenName": "Moo Jin",
+        "familyName": "Kim",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Pertsch, Karl",
+        "nameType": "Personal",
+        "givenName": "Karl",
+        "familyName": "Pertsch",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Karamcheti, Siddharth",
+        "nameType": "Personal",
+        "givenName": "Siddharth",
+        "familyName": "Karamcheti",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xiao, Ted",
+        "nameType": "Personal",
+        "givenName": "Ted",
+        "familyName": "Xiao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Balakrishna, Ashwin",
+        "nameType": "Personal",
+        "givenName": "Ashwin",
+        "familyName": "Balakrishna",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Nair, Suraj",
+        "nameType": "Personal",
+        "givenName": "Suraj",
+        "familyName": "Nair",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Rafailov, Rafael",
+        "nameType": "Personal",
+        "givenName": "Rafael",
+        "familyName": "Rafailov",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Foster, Ethan",
+        "nameType": "Personal",
+        "givenName": "Ethan",
+        "familyName": "Foster",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lam, Grace",
+        "nameType": "Personal",
+        "givenName": "Grace",
+        "familyName": "Lam",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sanketi, Pannag",
+        "nameType": "Personal",
+        "givenName": "Pannag",
+        "familyName": "Sanketi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Vuong, Quan",
+        "nameType": "Personal",
+        "givenName": "Quan",
+        "familyName": "Vuong",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Kollar, Thomas",
+        "nameType": "Personal",
+        "givenName": "Thomas",
+        "familyName": "Kollar",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Burchfiel, Benjamin",
+        "nameType": "Personal",
+        "givenName": "Benjamin",
+        "familyName": "Burchfiel",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tedrake, Russ",
+        "nameType": "Personal",
+        "givenName": "Russ",
+        "familyName": "Tedrake",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sadigh, Dorsa",
+        "nameType": "Personal",
+        "givenName": "Dorsa",
+        "familyName": "Sadigh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Levine, Sergey",
+        "nameType": "Personal",
+        "givenName": "Sergey",
+        "familyName": "Levine",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liang, Percy",
+        "nameType": "Personal",
+        "givenName": "Percy",
+        "familyName": "Liang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Finn, Chelsea",
+        "nameType": "Personal",
+        "givenName": "Chelsea",
+        "familyName": "Finn",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2408.11039",
+    "expected_title": "Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model",
+    "api_title": "Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model",
+    "doi": "10.48550/arxiv.2408.11039",
+    "publication_year": 2024,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2408.11039",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Zhou, Chunting",
+        "nameType": "Personal",
+        "givenName": "Chunting",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Lili",
+        "nameType": "Personal",
+        "givenName": "Lili",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Babu, Arun",
+        "nameType": "Personal",
+        "givenName": "Arun",
+        "familyName": "Babu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tirumala, Kushal",
+        "nameType": "Personal",
+        "givenName": "Kushal",
+        "familyName": "Tirumala",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yasunaga, Michihiro",
+        "nameType": "Personal",
+        "givenName": "Michihiro",
+        "familyName": "Yasunaga",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shamis, Leonid",
+        "nameType": "Personal",
+        "givenName": "Leonid",
+        "familyName": "Shamis",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Kahn, Jacob",
+        "nameType": "Personal",
+        "givenName": "Jacob",
+        "familyName": "Kahn",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ma, Xuezhe",
+        "nameType": "Personal",
+        "givenName": "Xuezhe",
+        "familyName": "Ma",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zettlemoyer, Luke",
+        "nameType": "Personal",
+        "givenName": "Luke",
+        "familyName": "Zettlemoyer",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Levy, Omer",
+        "nameType": "Personal",
+        "givenName": "Omer",
+        "familyName": "Levy",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2501.12948",
+    "expected_title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+    "api_title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+    "doi": "10.48550/arxiv.2501.12948",
+    "publication_year": 2025,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2501.12948",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "DeepSeek-AI",
+        "nameType": "Organizational",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Guo, Daya",
+        "nameType": "Personal",
+        "givenName": "Daya",
+        "familyName": "Guo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yang, Dejian",
+        "nameType": "Personal",
+        "givenName": "Dejian",
+        "familyName": "Yang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Haowei",
+        "nameType": "Personal",
+        "givenName": "Haowei",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Song, Junxiao",
+        "nameType": "Personal",
+        "givenName": "Junxiao",
+        "familyName": "Song",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Peiyi",
+        "nameType": "Personal",
+        "givenName": "Peiyi",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhu, Qihao",
+        "nameType": "Personal",
+        "givenName": "Qihao",
+        "familyName": "Zhu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Runxin",
+        "nameType": "Personal",
+        "givenName": "Runxin",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Ruoyu",
+        "nameType": "Personal",
+        "givenName": "Ruoyu",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ma, Shirong",
+        "nameType": "Personal",
+        "givenName": "Shirong",
+        "familyName": "Ma",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Bi, Xiao",
+        "nameType": "Personal",
+        "givenName": "Xiao",
+        "familyName": "Bi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Xiaokang",
+        "nameType": "Personal",
+        "givenName": "Xiaokang",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Xingkai",
+        "nameType": "Personal",
+        "givenName": "Xingkai",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wu, Yu",
+        "nameType": "Personal",
+        "givenName": "Yu",
+        "familyName": "Wu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wu, Z. F.",
+        "nameType": "Personal",
+        "givenName": "Z. F.",
+        "familyName": "Wu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gou, Zhibin",
+        "nameType": "Personal",
+        "givenName": "Zhibin",
+        "familyName": "Gou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shao, Zhihong",
+        "nameType": "Personal",
+        "givenName": "Zhihong",
+        "familyName": "Shao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Zhuoshu",
+        "nameType": "Personal",
+        "givenName": "Zhuoshu",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gao, Ziyi",
+        "nameType": "Personal",
+        "givenName": "Ziyi",
+        "familyName": "Gao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Aixin",
+        "nameType": "Personal",
+        "givenName": "Aixin",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xue, Bing",
+        "nameType": "Personal",
+        "givenName": "Bing",
+        "familyName": "Xue",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Bingxuan",
+        "nameType": "Personal",
+        "givenName": "Bingxuan",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wu, Bochao",
+        "nameType": "Personal",
+        "givenName": "Bochao",
+        "familyName": "Wu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Feng, Bei",
+        "nameType": "Personal",
+        "givenName": "Bei",
+        "familyName": "Feng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lu, Chengda",
+        "nameType": "Personal",
+        "givenName": "Chengda",
+        "familyName": "Lu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhao, Chenggang",
+        "nameType": "Personal",
+        "givenName": "Chenggang",
+        "familyName": "Zhao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Deng, Chengqi",
+        "nameType": "Personal",
+        "givenName": "Chengqi",
+        "familyName": "Deng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Chenyu",
+        "nameType": "Personal",
+        "givenName": "Chenyu",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ruan, Chong",
+        "nameType": "Personal",
+        "givenName": "Chong",
+        "familyName": "Ruan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dai, Damai",
+        "nameType": "Personal",
+        "givenName": "Damai",
+        "familyName": "Dai",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Deli",
+        "nameType": "Personal",
+        "givenName": "Deli",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ji, Dongjie",
+        "nameType": "Personal",
+        "givenName": "Dongjie",
+        "familyName": "Ji",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Erhang",
+        "nameType": "Personal",
+        "givenName": "Erhang",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lin, Fangyun",
+        "nameType": "Personal",
+        "givenName": "Fangyun",
+        "familyName": "Lin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dai, Fucong",
+        "nameType": "Personal",
+        "givenName": "Fucong",
+        "familyName": "Dai",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Luo, Fuli",
+        "nameType": "Personal",
+        "givenName": "Fuli",
+        "familyName": "Luo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hao, Guangbo",
+        "nameType": "Personal",
+        "givenName": "Guangbo",
+        "familyName": "Hao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Guanting",
+        "nameType": "Personal",
+        "givenName": "Guanting",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Guowei",
+        "nameType": "Personal",
+        "givenName": "Guowei",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, H.",
+        "nameType": "Personal",
+        "givenName": "H.",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Bao, Han",
+        "nameType": "Personal",
+        "givenName": "Han",
+        "familyName": "Bao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Hanwei",
+        "nameType": "Personal",
+        "givenName": "Hanwei",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Haocheng",
+        "nameType": "Personal",
+        "givenName": "Haocheng",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ding, Honghui",
+        "nameType": "Personal",
+        "givenName": "Honghui",
+        "familyName": "Ding",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xin, Huajian",
+        "nameType": "Personal",
+        "givenName": "Huajian",
+        "familyName": "Xin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gao, Huazuo",
+        "nameType": "Personal",
+        "givenName": "Huazuo",
+        "familyName": "Gao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Qu, Hui",
+        "nameType": "Personal",
+        "givenName": "Hui",
+        "familyName": "Qu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Hui",
+        "nameType": "Personal",
+        "givenName": "Hui",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Guo, Jianzhong",
+        "nameType": "Personal",
+        "givenName": "Jianzhong",
+        "familyName": "Guo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Jiashi",
+        "nameType": "Personal",
+        "givenName": "Jiashi",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Jiawei",
+        "nameType": "Personal",
+        "givenName": "Jiawei",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Jingchang",
+        "nameType": "Personal",
+        "givenName": "Jingchang",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yuan, Jingyang",
+        "nameType": "Personal",
+        "givenName": "Jingyang",
+        "familyName": "Yuan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Qiu, Junjie",
+        "nameType": "Personal",
+        "givenName": "Junjie",
+        "familyName": "Qiu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Junlong",
+        "nameType": "Personal",
+        "givenName": "Junlong",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Cai, J. L.",
+        "nameType": "Personal",
+        "givenName": "J. L.",
+        "familyName": "Cai",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ni, Jiaqi",
+        "nameType": "Personal",
+        "givenName": "Jiaqi",
+        "familyName": "Ni",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liang, Jian",
+        "nameType": "Personal",
+        "givenName": "Jian",
+        "familyName": "Liang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Jin",
+        "nameType": "Personal",
+        "givenName": "Jin",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dong, Kai",
+        "nameType": "Personal",
+        "givenName": "Kai",
+        "familyName": "Dong",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hu, Kai",
+        "nameType": "Personal",
+        "givenName": "Kai",
+        "familyName": "Hu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gao, Kaige",
+        "nameType": "Personal",
+        "givenName": "Kaige",
+        "familyName": "Gao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Guan, Kang",
+        "nameType": "Personal",
+        "givenName": "Kang",
+        "familyName": "Guan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Huang, Kexin",
+        "nameType": "Personal",
+        "givenName": "Kexin",
+        "familyName": "Huang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Kuai",
+        "nameType": "Personal",
+        "givenName": "Kuai",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Lean",
+        "nameType": "Personal",
+        "givenName": "Lean",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Lecong",
+        "nameType": "Personal",
+        "givenName": "Lecong",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhao, Liang",
+        "nameType": "Personal",
+        "givenName": "Liang",
+        "familyName": "Zhao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Litong",
+        "nameType": "Personal",
+        "givenName": "Litong",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Liyue",
+        "nameType": "Personal",
+        "givenName": "Liyue",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Lei",
+        "nameType": "Personal",
+        "givenName": "Lei",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xia, Leyi",
+        "nameType": "Personal",
+        "givenName": "Leyi",
+        "familyName": "Xia",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Mingchuan",
+        "nameType": "Personal",
+        "givenName": "Mingchuan",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Minghua",
+        "nameType": "Personal",
+        "givenName": "Minghua",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tang, Minghui",
+        "nameType": "Personal",
+        "givenName": "Minghui",
+        "familyName": "Tang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Meng",
+        "nameType": "Personal",
+        "givenName": "Meng",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Miaojun",
+        "nameType": "Personal",
+        "givenName": "Miaojun",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Mingming",
+        "nameType": "Personal",
+        "givenName": "Mingming",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tian, Ning",
+        "nameType": "Personal",
+        "givenName": "Ning",
+        "familyName": "Tian",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Huang, Panpan",
+        "nameType": "Personal",
+        "givenName": "Panpan",
+        "familyName": "Huang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Peng",
+        "nameType": "Personal",
+        "givenName": "Peng",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Qiancheng",
+        "nameType": "Personal",
+        "givenName": "Qiancheng",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Qinyu",
+        "nameType": "Personal",
+        "givenName": "Qinyu",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Du, Qiushi",
+        "nameType": "Personal",
+        "givenName": "Qiushi",
+        "familyName": "Du",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ge, Ruiqi",
+        "nameType": "Personal",
+        "givenName": "Ruiqi",
+        "familyName": "Ge",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Ruisong",
+        "nameType": "Personal",
+        "givenName": "Ruisong",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Pan, Ruizhe",
+        "nameType": "Personal",
+        "givenName": "Ruizhe",
+        "familyName": "Pan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Runji",
+        "nameType": "Personal",
+        "givenName": "Runji",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, R. J.",
+        "nameType": "Personal",
+        "givenName": "R. J.",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Jin, R. L.",
+        "nameType": "Personal",
+        "givenName": "R. L.",
+        "familyName": "Jin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Ruyi",
+        "nameType": "Personal",
+        "givenName": "Ruyi",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lu, Shanghao",
+        "nameType": "Personal",
+        "givenName": "Shanghao",
+        "familyName": "Lu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhou, Shangyan",
+        "nameType": "Personal",
+        "givenName": "Shangyan",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Shanhuang",
+        "nameType": "Personal",
+        "givenName": "Shanhuang",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ye, Shengfeng",
+        "nameType": "Personal",
+        "givenName": "Shengfeng",
+        "familyName": "Ye",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Shiyu",
+        "nameType": "Personal",
+        "givenName": "Shiyu",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Shuiping",
+        "nameType": "Personal",
+        "givenName": "Shuiping",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhou, Shunfeng",
+        "nameType": "Personal",
+        "givenName": "Shunfeng",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Pan, Shuting",
+        "nameType": "Personal",
+        "givenName": "Shuting",
+        "familyName": "Pan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, S. S.",
+        "nameType": "Personal",
+        "givenName": "S. S.",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhou, Shuang",
+        "nameType": "Personal",
+        "givenName": "Shuang",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wu, Shaoqing",
+        "nameType": "Personal",
+        "givenName": "Shaoqing",
+        "familyName": "Wu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ye, Shengfeng",
+        "nameType": "Personal",
+        "givenName": "Shengfeng",
+        "familyName": "Ye",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yun, Tao",
+        "nameType": "Personal",
+        "givenName": "Tao",
+        "familyName": "Yun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Pei, Tian",
+        "nameType": "Personal",
+        "givenName": "Tian",
+        "familyName": "Pei",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sun, Tianyu",
+        "nameType": "Personal",
+        "givenName": "Tianyu",
+        "familyName": "Sun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, T.",
+        "nameType": "Personal",
+        "givenName": "T.",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zeng, Wangding",
+        "nameType": "Personal",
+        "givenName": "Wangding",
+        "familyName": "Zeng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhao, Wanjia",
+        "nameType": "Personal",
+        "givenName": "Wanjia",
+        "familyName": "Zhao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Wen",
+        "nameType": "Personal",
+        "givenName": "Wen",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liang, Wenfeng",
+        "nameType": "Personal",
+        "givenName": "Wenfeng",
+        "familyName": "Liang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gao, Wenjun",
+        "nameType": "Personal",
+        "givenName": "Wenjun",
+        "familyName": "Gao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Wenqin",
+        "nameType": "Personal",
+        "givenName": "Wenqin",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Wentao",
+        "nameType": "Personal",
+        "givenName": "Wentao",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xiao, W. L.",
+        "nameType": "Personal",
+        "givenName": "W. L.",
+        "familyName": "Xiao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "An, Wei",
+        "nameType": "Personal",
+        "givenName": "Wei",
+        "familyName": "An",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Xiaodong",
+        "nameType": "Personal",
+        "givenName": "Xiaodong",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Xiaohan",
+        "nameType": "Personal",
+        "givenName": "Xiaohan",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Xiaokang",
+        "nameType": "Personal",
+        "givenName": "Xiaokang",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Nie, Xiaotao",
+        "nameType": "Personal",
+        "givenName": "Xiaotao",
+        "familyName": "Nie",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Cheng, Xin",
+        "nameType": "Personal",
+        "givenName": "Xin",
+        "familyName": "Cheng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Xin",
+        "nameType": "Personal",
+        "givenName": "Xin",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xie, Xin",
+        "nameType": "Personal",
+        "givenName": "Xin",
+        "familyName": "Xie",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Xingchao",
+        "nameType": "Personal",
+        "givenName": "Xingchao",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yang, Xinyu",
+        "nameType": "Personal",
+        "givenName": "Xinyu",
+        "familyName": "Yang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Xinyuan",
+        "nameType": "Personal",
+        "givenName": "Xinyuan",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Su, Xuecheng",
+        "nameType": "Personal",
+        "givenName": "Xuecheng",
+        "familyName": "Su",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lin, Xuheng",
+        "nameType": "Personal",
+        "givenName": "Xuheng",
+        "familyName": "Lin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, X. Q.",
+        "nameType": "Personal",
+        "givenName": "X. Q.",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Jin, Xiangyue",
+        "nameType": "Personal",
+        "givenName": "Xiangyue",
+        "familyName": "Jin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shen, Xiaojin",
+        "nameType": "Personal",
+        "givenName": "Xiaojin",
+        "familyName": "Shen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Xiaosha",
+        "nameType": "Personal",
+        "givenName": "Xiaosha",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sun, Xiaowen",
+        "nameType": "Personal",
+        "givenName": "Xiaowen",
+        "familyName": "Sun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Xiaoxiang",
+        "nameType": "Personal",
+        "givenName": "Xiaoxiang",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Song, Xinnan",
+        "nameType": "Personal",
+        "givenName": "Xinnan",
+        "familyName": "Song",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhou, Xinyi",
+        "nameType": "Personal",
+        "givenName": "Xinyi",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Xianzu",
+        "nameType": "Personal",
+        "givenName": "Xianzu",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shan, Xinxia",
+        "nameType": "Personal",
+        "givenName": "Xinxia",
+        "familyName": "Shan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Y. K.",
+        "nameType": "Personal",
+        "givenName": "Y. K.",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Y. Q.",
+        "nameType": "Personal",
+        "givenName": "Y. Q.",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wei, Y. X.",
+        "nameType": "Personal",
+        "givenName": "Y. X.",
+        "familyName": "Wei",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Yang",
+        "nameType": "Personal",
+        "givenName": "Yang",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Yanhong",
+        "nameType": "Personal",
+        "givenName": "Yanhong",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Yao",
+        "nameType": "Personal",
+        "givenName": "Yao",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhao, Yao",
+        "nameType": "Personal",
+        "givenName": "Yao",
+        "familyName": "Zhao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sun, Yaofeng",
+        "nameType": "Personal",
+        "givenName": "Yaofeng",
+        "familyName": "Sun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Yaohui",
+        "nameType": "Personal",
+        "givenName": "Yaohui",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Yi",
+        "nameType": "Personal",
+        "givenName": "Yi",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Yichao",
+        "nameType": "Personal",
+        "givenName": "Yichao",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shi, Yifan",
+        "nameType": "Personal",
+        "givenName": "Yifan",
+        "familyName": "Shi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xiong, Yiliang",
+        "nameType": "Personal",
+        "givenName": "Yiliang",
+        "familyName": "Xiong",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "He, Ying",
+        "nameType": "Personal",
+        "givenName": "Ying",
+        "familyName": "He",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Piao, Yishi",
+        "nameType": "Personal",
+        "givenName": "Yishi",
+        "familyName": "Piao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Yisong",
+        "nameType": "Personal",
+        "givenName": "Yisong",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tan, Yixuan",
+        "nameType": "Personal",
+        "givenName": "Yixuan",
+        "familyName": "Tan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ma, Yiyang",
+        "nameType": "Personal",
+        "givenName": "Yiyang",
+        "familyName": "Ma",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Yiyuan",
+        "nameType": "Personal",
+        "givenName": "Yiyuan",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Guo, Yongqiang",
+        "nameType": "Personal",
+        "givenName": "Yongqiang",
+        "familyName": "Guo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ou, Yuan",
+        "nameType": "Personal",
+        "givenName": "Yuan",
+        "familyName": "Ou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Yuduan",
+        "nameType": "Personal",
+        "givenName": "Yuduan",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gong, Yue",
+        "nameType": "Personal",
+        "givenName": "Yue",
+        "familyName": "Gong",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zou, Yuheng",
+        "nameType": "Personal",
+        "givenName": "Yuheng",
+        "familyName": "Zou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "He, Yujia",
+        "nameType": "Personal",
+        "givenName": "Yujia",
+        "familyName": "He",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xiong, Yunfan",
+        "nameType": "Personal",
+        "givenName": "Yunfan",
+        "familyName": "Xiong",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Luo, Yuxiang",
+        "nameType": "Personal",
+        "givenName": "Yuxiang",
+        "familyName": "Luo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "You, Yuxiang",
+        "nameType": "Personal",
+        "givenName": "Yuxiang",
+        "familyName": "You",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Yuxuan",
+        "nameType": "Personal",
+        "givenName": "Yuxuan",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhou, Yuyang",
+        "nameType": "Personal",
+        "givenName": "Yuyang",
+        "familyName": "Zhou",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhu, Y. X.",
+        "nameType": "Personal",
+        "givenName": "Y. X.",
+        "familyName": "Zhu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Yanhong",
+        "nameType": "Personal",
+        "givenName": "Yanhong",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Huang, Yanping",
+        "nameType": "Personal",
+        "givenName": "Yanping",
+        "familyName": "Huang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Yaohui",
+        "nameType": "Personal",
+        "givenName": "Yaohui",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zheng, Yi",
+        "nameType": "Personal",
+        "givenName": "Yi",
+        "familyName": "Zheng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhu, Yuchen",
+        "nameType": "Personal",
+        "givenName": "Yuchen",
+        "familyName": "Zhu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ma, Yunxian",
+        "nameType": "Personal",
+        "givenName": "Yunxian",
+        "familyName": "Ma",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tang, Ying",
+        "nameType": "Personal",
+        "givenName": "Ying",
+        "familyName": "Tang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zha, Yukun",
+        "nameType": "Personal",
+        "givenName": "Yukun",
+        "familyName": "Zha",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yan, Yuting",
+        "nameType": "Personal",
+        "givenName": "Yuting",
+        "familyName": "Yan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ren, Z. Z.",
+        "nameType": "Personal",
+        "givenName": "Z. Z.",
+        "familyName": "Ren",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ren, Zehui",
+        "nameType": "Personal",
+        "givenName": "Zehui",
+        "familyName": "Ren",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sha, Zhangli",
+        "nameType": "Personal",
+        "givenName": "Zhangli",
+        "familyName": "Sha",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Fu, Zhe",
+        "nameType": "Personal",
+        "givenName": "Zhe",
+        "familyName": "Fu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Zhean",
+        "nameType": "Personal",
+        "givenName": "Zhean",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xie, Zhenda",
+        "nameType": "Personal",
+        "givenName": "Zhenda",
+        "familyName": "Xie",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Zhengyan",
+        "nameType": "Personal",
+        "givenName": "Zhengyan",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hao, Zhewen",
+        "nameType": "Personal",
+        "givenName": "Zhewen",
+        "familyName": "Hao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ma, Zhicheng",
+        "nameType": "Personal",
+        "givenName": "Zhicheng",
+        "familyName": "Ma",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yan, Zhigang",
+        "nameType": "Personal",
+        "givenName": "Zhigang",
+        "familyName": "Yan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wu, Zhiyu",
+        "nameType": "Personal",
+        "givenName": "Zhiyu",
+        "familyName": "Wu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gu, Zihui",
+        "nameType": "Personal",
+        "givenName": "Zihui",
+        "familyName": "Gu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhu, Zijia",
+        "nameType": "Personal",
+        "givenName": "Zijia",
+        "familyName": "Zhu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Zijun",
+        "nameType": "Personal",
+        "givenName": "Zijun",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Zilin",
+        "nameType": "Personal",
+        "givenName": "Zilin",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xie, Ziwei",
+        "nameType": "Personal",
+        "givenName": "Ziwei",
+        "familyName": "Xie",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Song, Ziyang",
+        "nameType": "Personal",
+        "givenName": "Ziyang",
+        "familyName": "Song",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Pan, Zizheng",
+        "nameType": "Personal",
+        "givenName": "Zizheng",
+        "familyName": "Pan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Huang, Zhen",
+        "nameType": "Personal",
+        "givenName": "Zhen",
+        "familyName": "Huang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Zhipeng",
+        "nameType": "Personal",
+        "givenName": "Zhipeng",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Zhongyu",
+        "nameType": "Personal",
+        "givenName": "Zhongyu",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Zhen",
+        "nameType": "Personal",
+        "givenName": "Zhen",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2506.09985",
+    "expected_title": "V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning",
+    "api_title": "V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning",
+    "doi": "10.48550/arxiv.2506.09985",
+    "publication_year": 2025,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2506.09985",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Assran, Mido",
+        "nameType": "Personal",
+        "givenName": "Mido",
+        "familyName": "Assran",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Bardes, Adrien",
+        "nameType": "Personal",
+        "givenName": "Adrien",
+        "familyName": "Bardes",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Fan, David",
+        "nameType": "Personal",
+        "givenName": "David",
+        "familyName": "Fan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Garrido, Quentin",
+        "nameType": "Personal",
+        "givenName": "Quentin",
+        "familyName": "Garrido",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Howes, Russell",
+        "nameType": "Personal",
+        "givenName": "Russell",
+        "familyName": "Howes",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Mojtaba",
+        "nameType": "Organizational",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Komeili",
+        "nameType": "Organizational",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Muckley, Matthew",
+        "nameType": "Personal",
+        "givenName": "Matthew",
+        "familyName": "Muckley",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Rizvi, Ammar",
+        "nameType": "Personal",
+        "givenName": "Ammar",
+        "familyName": "Rizvi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Roberts, Claire",
+        "nameType": "Personal",
+        "givenName": "Claire",
+        "familyName": "Roberts",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sinha, Koustuv",
+        "nameType": "Personal",
+        "givenName": "Koustuv",
+        "familyName": "Sinha",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zholus, Artem",
+        "nameType": "Personal",
+        "givenName": "Artem",
+        "familyName": "Zholus",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Arnaud, Sergio",
+        "nameType": "Personal",
+        "givenName": "Sergio",
+        "familyName": "Arnaud",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gejji, Abha",
+        "nameType": "Personal",
+        "givenName": "Abha",
+        "familyName": "Gejji",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Martin, Ada",
+        "nameType": "Personal",
+        "givenName": "Ada",
+        "familyName": "Martin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hogan, Francois Robert",
+        "nameType": "Personal",
+        "givenName": "Francois Robert",
+        "familyName": "Hogan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dugas, Daniel",
+        "nameType": "Personal",
+        "givenName": "Daniel",
+        "familyName": "Dugas",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Bojanowski, Piotr",
+        "nameType": "Personal",
+        "givenName": "Piotr",
+        "familyName": "Bojanowski",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Khalidov, Vasil",
+        "nameType": "Personal",
+        "givenName": "Vasil",
+        "familyName": "Khalidov",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Labatut, Patrick",
+        "nameType": "Personal",
+        "givenName": "Patrick",
+        "familyName": "Labatut",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Massa, Francisco",
+        "nameType": "Personal",
+        "givenName": "Francisco",
+        "familyName": "Massa",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Szafraniec, Marc",
+        "nameType": "Personal",
+        "givenName": "Marc",
+        "familyName": "Szafraniec",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Krishnakumar, Kapil",
+        "nameType": "Personal",
+        "givenName": "Kapil",
+        "familyName": "Krishnakumar",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Yong",
+        "nameType": "Personal",
+        "givenName": "Yong",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ma, Xiaodong",
+        "nameType": "Personal",
+        "givenName": "Xiaodong",
+        "familyName": "Ma",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chandar, Sarath",
+        "nameType": "Personal",
+        "givenName": "Sarath",
+        "familyName": "Chandar",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Meier, Franziska",
+        "nameType": "Personal",
+        "givenName": "Franziska",
+        "familyName": "Meier",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "LeCun, Yann",
+        "nameType": "Personal",
+        "givenName": "Yann",
+        "familyName": "LeCun",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Rabbat, Michael",
+        "nameType": "Personal",
+        "givenName": "Michael",
+        "familyName": "Rabbat",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ballas, Nicolas",
+        "nameType": "Personal",
+        "givenName": "Nicolas",
+        "familyName": "Ballas",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2104.09864",
+    "expected_title": "RoFormer: Enhanced Transformer with Rotary Position Embedding",
+    "api_title": "RoFormer: Enhanced Transformer with Rotary Position Embedding",
+    "doi": "10.48550/arxiv.2104.09864",
+    "publication_year": 2021,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2104.09864",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Su, Jianlin",
+        "nameType": "Personal",
+        "givenName": "Jianlin",
+        "familyName": "Su",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lu, Yu",
+        "nameType": "Personal",
+        "givenName": "Yu",
+        "familyName": "Lu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Pan, Shengfeng",
+        "nameType": "Personal",
+        "givenName": "Shengfeng",
+        "familyName": "Pan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Murtadha, Ahmed",
+        "nameType": "Personal",
+        "givenName": "Ahmed",
+        "familyName": "Murtadha",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wen, Bo",
+        "nameType": "Personal",
+        "givenName": "Bo",
+        "familyName": "Wen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Yunfeng",
+        "nameType": "Personal",
+        "givenName": "Yunfeng",
+        "familyName": "Liu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2101.03961",
+    "expected_title": "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity",
+    "api_title": "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity",
+    "doi": "10.48550/arxiv.2101.03961",
+    "publication_year": 2021,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2101.03961",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Fedus, William",
+        "nameType": "Personal",
+        "givenName": "William",
+        "familyName": "Fedus",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zoph, Barret",
+        "nameType": "Personal",
+        "givenName": "Barret",
+        "familyName": "Zoph",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Shazeer, Noam",
+        "nameType": "Personal",
+        "givenName": "Noam",
+        "familyName": "Shazeer",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "1211.3711",
+    "expected_title": "Sequence Transduction with Recurrent Neural Networks",
+    "api_title": "Sequence Transduction with Recurrent Neural Networks",
+    "doi": "10.48550/arxiv.1211.3711",
+    "publication_year": 2012,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.1211.3711",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Graves, Alex",
+        "nameType": "Personal",
+        "givenName": "Alex",
+        "familyName": "Graves",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2502.13923",
+    "expected_title": "Qwen2.5-VL Technical Report",
+    "api_title": "Qwen2.5-VL Technical Report",
+    "doi": "10.48550/arxiv.2502.13923",
+    "publication_year": 2025,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2502.13923",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Bai, Shuai",
+        "nameType": "Personal",
+        "givenName": "Shuai",
+        "familyName": "Bai",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Keqin",
+        "nameType": "Personal",
+        "givenName": "Keqin",
+        "familyName": "Chen",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Liu, Xuejing",
+        "nameType": "Personal",
+        "givenName": "Xuejing",
+        "familyName": "Liu",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Jialin",
+        "nameType": "Personal",
+        "givenName": "Jialin",
+        "familyName": "Wang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ge, Wenbin",
+        "nameType": "Personal",
+        "givenName": "Wenbin",
+        "familyName": "Ge",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Song, Sibo",
+        "nameType": "Personal",
+        "givenName": "Sibo",
+        "familyName": "Song",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dang, Kai",
+        "nameType": "Personal",
+        "givenName": "Kai",
+        "familyName": "Dang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Peng",
+        "nameType": "Personal",
+        "givenName": "Peng",
+        "familyName": "Wang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Shijie",
+        "nameType": "Personal",
+        "givenName": "Shijie",
+        "familyName": "Wang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tang, Jun",
+        "nameType": "Personal",
+        "givenName": "Jun",
+        "familyName": "Tang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhong, Humen",
+        "nameType": "Personal",
+        "givenName": "Humen",
+        "familyName": "Zhong",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhu, Yuanzhi",
+        "nameType": "Personal",
+        "givenName": "Yuanzhi",
+        "familyName": "Zhu",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yang, Mingkun",
+        "nameType": "Personal",
+        "givenName": "Mingkun",
+        "familyName": "Yang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Zhaohai",
+        "nameType": "Personal",
+        "givenName": "Zhaohai",
+        "familyName": "Li",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wan, Jianqiang",
+        "nameType": "Personal",
+        "givenName": "Jianqiang",
+        "familyName": "Wan",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Pengfei",
+        "nameType": "Personal",
+        "givenName": "Pengfei",
+        "familyName": "Wang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ding, Wei",
+        "nameType": "Personal",
+        "givenName": "Wei",
+        "familyName": "Ding",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Fu, Zheren",
+        "nameType": "Personal",
+        "givenName": "Zheren",
+        "familyName": "Fu",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Yiheng",
+        "nameType": "Personal",
+        "givenName": "Yiheng",
+        "familyName": "Xu",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ye, Jiabo",
+        "nameType": "Personal",
+        "givenName": "Jiabo",
+        "familyName": "Ye",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Xi",
+        "nameType": "Personal",
+        "givenName": "Xi",
+        "familyName": "Zhang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xie, Tianbao",
+        "nameType": "Personal",
+        "givenName": "Tianbao",
+        "familyName": "Xie",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Cheng, Zesen",
+        "nameType": "Personal",
+        "givenName": "Zesen",
+        "familyName": "Cheng",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Hang",
+        "nameType": "Personal",
+        "givenName": "Hang",
+        "familyName": "Zhang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yang, Zhibo",
+        "nameType": "Personal",
+        "givenName": "Zhibo",
+        "familyName": "Yang",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Haiyang",
+        "nameType": "Personal",
+        "givenName": "Haiyang",
+        "familyName": "Xu",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Lin, Junyang",
+        "nameType": "Personal",
+        "givenName": "Junyang",
+        "familyName": "Lin",
+        "affiliation": [
+          "additional authors not shown"
+        ],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2210.02747",
+    "expected_title": "Flow Matching for Generative Modeling",
+    "api_title": "Flow Matching for Generative Modeling",
+    "doi": "10.48550/arxiv.2210.02747",
+    "publication_year": 2022,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2210.02747",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Lipman, Yaron",
+        "nameType": "Personal",
+        "givenName": "Yaron",
+        "familyName": "Lipman",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Ricky T. Q.",
+        "nameType": "Personal",
+        "givenName": "Ricky T. Q.",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ben-Hamu, Heli",
+        "nameType": "Personal",
+        "givenName": "Heli",
+        "familyName": "Ben-Hamu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Nickel, Maximilian",
+        "nameType": "Personal",
+        "givenName": "Maximilian",
+        "familyName": "Nickel",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Le, Matt",
+        "nameType": "Personal",
+        "givenName": "Matt",
+        "familyName": "Le",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2010.02502",
+    "expected_title": "Denoising Diffusion Implicit Models",
+    "api_title": "Denoising Diffusion Implicit Models",
+    "doi": "10.48550/arxiv.2010.02502",
+    "publication_year": 2020,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2010.02502",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Song, Jiaming",
+        "nameType": "Personal",
+        "givenName": "Jiaming",
+        "familyName": "Song",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Meng, Chenlin",
+        "nameType": "Personal",
+        "givenName": "Chenlin",
+        "familyName": "Meng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ermon, Stefano",
+        "nameType": "Personal",
+        "givenName": "Stefano",
+        "familyName": "Ermon",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2303.04137",
+    "expected_title": "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion",
+    "api_title": "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion",
+    "doi": "10.48550/arxiv.2303.04137",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2303.04137",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Chi, Cheng",
+        "nameType": "Personal",
+        "givenName": "Cheng",
+        "familyName": "Chi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Zhenjia",
+        "nameType": "Personal",
+        "givenName": "Zhenjia",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Feng, Siyuan",
+        "nameType": "Personal",
+        "givenName": "Siyuan",
+        "familyName": "Feng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Cousineau, Eric",
+        "nameType": "Personal",
+        "givenName": "Eric",
+        "familyName": "Cousineau",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Du, Yilun",
+        "nameType": "Personal",
+        "givenName": "Yilun",
+        "familyName": "Du",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Burchfiel, Benjamin",
+        "nameType": "Personal",
+        "givenName": "Benjamin",
+        "familyName": "Burchfiel",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tedrake, Russ",
+        "nameType": "Personal",
+        "givenName": "Russ",
+        "familyName": "Tedrake",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Song, Shuran",
+        "nameType": "Personal",
+        "givenName": "Shuran",
+        "familyName": "Song",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2210.17323",
+    "expected_title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
+    "api_title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
+    "doi": "10.48550/arxiv.2210.17323",
+    "publication_year": 2022,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2210.17323",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Frantar, Elias",
+        "nameType": "Personal",
+        "givenName": "Elias",
+        "familyName": "Frantar",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Ashkboos, Saleh",
+        "nameType": "Personal",
+        "givenName": "Saleh",
+        "familyName": "Ashkboos",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Hoefler, Torsten",
+        "nameType": "Personal",
+        "givenName": "Torsten",
+        "familyName": "Hoefler",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Alistarh, Dan",
+        "nameType": "Personal",
+        "givenName": "Dan",
+        "familyName": "Alistarh",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2306.00978",
+    "expected_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+    "api_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+    "doi": "10.48550/arxiv.2306.00978",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2306.00978",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Lin, Ji",
+        "nameType": "Personal",
+        "givenName": "Ji",
+        "familyName": "Lin",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tang, Jiaming",
+        "nameType": "Personal",
+        "givenName": "Jiaming",
+        "familyName": "Tang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Tang, Haotian",
+        "nameType": "Personal",
+        "givenName": "Haotian",
+        "familyName": "Tang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yang, Shang",
+        "nameType": "Personal",
+        "givenName": "Shang",
+        "familyName": "Yang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Chen, Wei-Ming",
+        "nameType": "Personal",
+        "givenName": "Wei-Ming",
+        "familyName": "Chen",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Wei-Chen",
+        "nameType": "Personal",
+        "givenName": "Wei-Chen",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xiao, Guangxuan",
+        "nameType": "Personal",
+        "givenName": "Guangxuan",
+        "familyName": "Xiao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Dang, Xingyu",
+        "nameType": "Personal",
+        "givenName": "Xingyu",
+        "familyName": "Dang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gan, Chuang",
+        "nameType": "Personal",
+        "givenName": "Chuang",
+        "familyName": "Gan",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Han, Song",
+        "nameType": "Personal",
+        "givenName": "Song",
+        "familyName": "Han",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "1909.08053",
+    "expected_title": "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism",
+    "api_title": "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism",
+    "doi": "10.48550/arxiv.1909.08053",
+    "publication_year": 2019,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.1909.08053",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Shoeybi, Mohammad",
+        "nameType": "Personal",
+        "givenName": "Mohammad",
+        "familyName": "Shoeybi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Patwary, Mostofa",
+        "nameType": "Personal",
+        "givenName": "Mostofa",
+        "familyName": "Patwary",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Puri, Raul",
+        "nameType": "Personal",
+        "givenName": "Raul",
+        "familyName": "Puri",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "LeGresley, Patrick",
+        "nameType": "Personal",
+        "givenName": "Patrick",
+        "familyName": "LeGresley",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Casper, Jared",
+        "nameType": "Personal",
+        "givenName": "Jared",
+        "familyName": "Casper",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Catanzaro, Bryan",
+        "nameType": "Personal",
+        "givenName": "Bryan",
+        "familyName": "Catanzaro",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2309.06180",
+    "expected_title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+    "api_title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+    "doi": "10.48550/arxiv.2309.06180",
+    "publication_year": 2023,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2309.06180",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Kwon, Woosuk",
+        "nameType": "Personal",
+        "givenName": "Woosuk",
+        "familyName": "Kwon",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Zhuohan",
+        "nameType": "Personal",
+        "givenName": "Zhuohan",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhuang, Siyuan",
+        "nameType": "Personal",
+        "givenName": "Siyuan",
+        "familyName": "Zhuang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Sheng, Ying",
+        "nameType": "Personal",
+        "givenName": "Ying",
+        "familyName": "Sheng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zheng, Lianmin",
+        "nameType": "Personal",
+        "givenName": "Lianmin",
+        "familyName": "Zheng",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Yu, Cody Hao",
+        "nameType": "Personal",
+        "givenName": "Cody Hao",
+        "familyName": "Yu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Gonzalez, Joseph E.",
+        "nameType": "Personal",
+        "givenName": "Joseph E.",
+        "familyName": "Gonzalez",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Hao",
+        "nameType": "Personal",
+        "givenName": "Hao",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Stoica, Ion",
+        "nameType": "Personal",
+        "givenName": "Ion",
+        "familyName": "Stoica",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  },
+  {
+    "arxiv": "2402.03300",
+    "expected_title": "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models",
+    "api_title": "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models",
+    "doi": "10.48550/arxiv.2402.03300",
+    "publication_year": 2024,
+    "endpoint": "https://api.datacite.org/dois/10.48550/arXiv.2402.03300",
+    "checked_on": "2026-10-16",
+    "title_similarity": 1.0,
+    "creators": [
+      {
+        "name": "Shao, Zhihong",
+        "nameType": "Personal",
+        "givenName": "Zhihong",
+        "familyName": "Shao",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wang, Peiyi",
+        "nameType": "Personal",
+        "givenName": "Peiyi",
+        "familyName": "Wang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhu, Qihao",
+        "nameType": "Personal",
+        "givenName": "Qihao",
+        "familyName": "Zhu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Xu, Runxin",
+        "nameType": "Personal",
+        "givenName": "Runxin",
+        "familyName": "Xu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Song, Junxiao",
+        "nameType": "Personal",
+        "givenName": "Junxiao",
+        "familyName": "Song",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Bi, Xiao",
+        "nameType": "Personal",
+        "givenName": "Xiao",
+        "familyName": "Bi",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Haowei",
+        "nameType": "Personal",
+        "givenName": "Haowei",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Zhang, Mingchuan",
+        "nameType": "Personal",
+        "givenName": "Mingchuan",
+        "familyName": "Zhang",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Li, Y. K.",
+        "nameType": "Personal",
+        "givenName": "Y. K.",
+        "familyName": "Li",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Wu, Y.",
+        "nameType": "Personal",
+        "givenName": "Y.",
+        "familyName": "Wu",
+        "affiliation": [],
+        "nameIdentifiers": []
+      },
+      {
+        "name": "Guo, Daya",
+        "nameType": "Personal",
+        "givenName": "Daya",
+        "familyName": "Guo",
+        "affiliation": [],
+        "nameIdentifiers": []
+      }
+    ]
+  }
+]

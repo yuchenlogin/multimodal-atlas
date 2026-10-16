@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>多模态图谱 · 从机制到实验的技术报告</title>
+<meta name="description" content="13 篇多模态技术报告：推导、张量接口、方法图、原论文结果与可复算教学实验。">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body id="top">
+<nav class="topnav"><a class="brand" href="index.html">◈ 多模态图谱</a><div class="topnav-links"><a href="#reports">报告</a><a href="paper/index.html">研究方案</a><a href="https://github.com/yuchenlogin/multimodal-atlas">GitHub ↗</a><button id="theme-toggle" aria-label="切换主题">◐</button></div></nav>
+<header class="home-hero editorial-hero">
+<div class="kicker">MULTIMODAL ATLAS / TECHNICAL REPORTS</div>
+<h1>从一个技术问题，<br>走到可以检验的实验。</h1>
+<p class="sub">视觉、声音、视频与动作如何进入模型？训练目标究竟优化什么？一个更高的分数，能够支持多强的结论？十三篇报告从这些问题出发，展开公式、实现与证据。</p>
+<div class="hero-actions"><a class="btn" href="reports/00-foundations/index.html">从计算图开始 →</a><a class="btn ghost" href="#paths">选择阅读路径</a></div>
+<div class="home-stats"><div class="stat"><div class="num">13</div><div class="lbl">问题导向的专题</div></div><div class="stat"><div class="num"><!-- FIGURE_COUNT --></div><div class="lbl">可追溯的技术图表</div></div><div class="stat"><div class="num">13</div><div class="lbl">CPU 教学实验</div></div></div>
+</header>
+<section class="home-section" id="paths">
+<div class="sec-head"><h2>按问题阅读</h2><span class="sec-note">先修基础：线性代数、概率与深度学习</span></div>
+<div class="reading-paths">
+<div class="about-box"><span class="path-no">01 / 表示与目标</span><h3>信息怎样被保留和预测</h3><p>从张量接口到模态表示，再进入连续生成与动作输出。</p><p class="path-links"><a href="reports/00-foundations/index.html">00 基础</a> → <a href="reports/01-vision-language/index.html">01 视觉</a> → <a href="reports/02-audio-speech/index.html">02 音频</a> → <a href="reports/05-generation/index.html">05 生成</a> → <a href="reports/06-embodied/index.html">06 动作</a></p></div>
+<div class="about-box"><span class="path-no">02 / 时间与执行</span><h3>模型怎样进入真实系统</h3><p>时间采样、流式调度、工具状态与推理资源共同决定系统行为。</p><p class="path-links"><a href="reports/03-video/index.html">03 视频</a> → <a href="reports/04-omni/index.html">04 全模态</a> → <a href="reports/07-agent-tooluse/index.html">07 工具</a> → <a href="reports/08-efficiency/index.html">08 效率</a></p></div>
+<div class="about-box"><span class="path-no">03 / 训练与证据</span><h3>改进怎样变成可信判断</h3><p>连接训练数据、偏好目标、测量协议和可以被推翻的研究问题。</p><p class="path-links"><a href="reports/11-data-training/index.html">11 数据</a> → <a href="reports/09-alignment-safety/index.html">09 对齐</a> → <a href="reports/10-benchmarks-eval/index.html">10 评测</a> → <a href="reports/12-frontier/index.html">12 研究问题</a></p></div>
+</div>
+</section>
+<section class="home-section" id="reports"><div class="sec-head"><h2>十三篇技术报告</h2><span class="sec-note">网页与 PDF 由同一份 Markdown 生成</span></div><div class="cards"><!-- REPORT_CARDS --></div></section>
+<section class="home-section" id="about"><div class="sec-head"><h2>怎样使用这些证据</h2><span class="sec-note">修订日期：2026-10-16</span></div>
+<div class="about-grid"><div class="about-box"><h3>图表与实验的来源</h3><p>每章包含一张机制图、一组原论文结果和一个实际运行的 CPU 教学计算。论文结果注明表格、划分与实验条件；教学实验公开脚本、构造假设和输出数据。它们解释机制，不能替代大型模型复现。</p><p>核心论文通过原始全文与真实 DataCite API 交叉核对。检索失败、替代路径、审稿意见和修订记录一并保存在仓库，方便复查。</p><p><a href="https://github.com/yuchenlogin/multimodal-atlas/tree/main/sources">来源与数据 ↗</a> · <a href="https://github.com/yuchenlogin/multimodal-atlas/tree/main/labs">教学实验 ↗</a></p></div>
+<div class="about-box"><h3>范围与研究方案</h3><p>这是一套选择机制案例的技术报告。组织方式参考 Stanford CS336 从原理推到资源与实验的讲授方式；不代表课程官方内容，也不覆盖截至今日的全部新模型。</p><p><a href="paper/index.html">视觉证据门控解码</a>以尚未执行的研究方案单独呈现。旧版没有实验支持的性能数字已撤回，当前没有方法效果或首创性结论。</p><p><a href="https://cs336.stanford.edu/">Stanford CS336 ↗</a> · <a href="https://github.com/yuchenlogin/multimodal-atlas/blob/main/docs/revision-2026-10/plan.md">修订设计 ↗</a></p></div></div>
+</section>
+<footer class="footer home-footer"><span>多模态图谱 · 2026-10 技术报告修订</span><a href="#top">回到顶部 ↑</a></footer>
+<script src="js/site.js"></script>
+</body></html>

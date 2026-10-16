@@ -64,6 +64,12 @@ CJK_FALLBACK = {
 
 # Latin Modern's text font lacks these mathematical Unicode characters.
 TEXT_MATH = {
+    "τ": r"\ensuremath{\tau}",
+    "α": r"\ensuremath{\alpha}",
+    "β": r"\ensuremath{\beta}",
+    "Δ": r"\ensuremath{\Delta}",
+    "ε": r"\ensuremath{\epsilon}",
+    "σ": r"\ensuremath{\sigma}",
     "π": r"\ensuremath{\pi}",
     "↔": r"\ensuremath{\leftrightarrow}",
     "≠": r"\ensuremath{\ne}",
@@ -77,14 +83,16 @@ def escape_text(s):
         s = s.replace(ch, rep)
     for ch, rep in TEXT_MATH.items():
         s = s.replace(ch, rep)
-    return s
+    return s.replace("/", r"/\allowbreak{}")
 
 
 def escape_code_line(s):
     """代码块逐字符转义; 拉丁字体缺字形的中文/符号回退到宋体族。"""
     out = []
     for ch in s:
-        if ch in SPECIALS:
+        if ch == " ":
+            out.append(r"\ ")
+        elif ch in SPECIALS:
             out.append(SPECIALS[ch])
         elif ch in TEXT_MATH:
             out.append(TEXT_MATH[ch])
@@ -95,9 +103,17 @@ def escape_code_line(s):
     return "".join(out)
 
 
-def protect_and_format(text):
+def inline_code(s):
+    escaped = escape_code_line(s)
+    if len(s) > 30 or "/" in s:
+        escaped = escaped.replace(r"\_", r"\_\allowbreak{}")
+        escaped = escaped.replace("/", r"/\allowbreak{}")
+    return r"\texttt{%s}" % escaped
+
+
+def protect_and_format(text, _tokens=None):
     """普通文本 → LaTeX: 公式/URL 保护 → 转义 → 行内格式。"""
-    stash_tokens = []
+    stash_tokens = [] if _tokens is None else _tokens
 
     def stash(latex):
         stash_tokens.append(latex)
@@ -105,7 +121,10 @@ def protect_and_format(text):
 
     # Protect code before scanning dollars; Chinese code needs a CJK font.
     text = re.sub(r"`([^`\n]+?)`",
-                  lambda m: stash(r"\texttt{%s}" % escape_code_line(m.group(1))), text)
+                  lambda m: stash(inline_code(m.group(1))), text)
+    # Labeled links use the same protected path as bare URLs.
+    text = re.sub(r"\[([^\]\n]+)\]\((https?://[^\s)]+)\)",
+                  lambda m: stash(r"\href{%s}{%s}" % (m.group(2), protect_and_format(m.group(1), stash_tokens))), text)
     # 1. URL → \url{} (内容不转义)
     text = URL_RE.sub(lambda m: stash(r"\url{%s}" % m.group(0)), text)
     # 2. 行内公式 $...$ 原样保留
@@ -277,7 +296,7 @@ class Converter:
         else:
             self.warn("unterminated code fence")
         self.out.append("")
-        self.out.append("\\begin{shaded}\\footnotesize")
+        self.out.append("\\begin{shaded}\\footnotesize\\ttfamily\\raggedright\\setlength{\\parindent}{0pt}")
         for ln in buf:
             stripped = ln.lstrip()
             indent = "~" * (len(ln) - len(stripped))
@@ -344,10 +363,11 @@ class Converter:
 
     # ----- 图片 -----
     def try_image(self, line):
-        m = re.match(r"^!\[([^\]]*)\]\(([^)]+)\)\s*$", line.strip())
+        m = re.match(r"^!\[(.*)\]\(([^)]+)\)\s*$", line.strip())
         if not m:
             return False
         alt, path = m.group(1), m.group(2)
+        alt = re.sub(r"^图\s*\d+\s*[：:]\s*", "", alt)
         if not os.path.isabs(path):
             path = str((Path(self.md_path).resolve().parent / path).resolve())
         self.out.append("")

@@ -11,3 +11,5 @@ test-results/
 assets/*.log
 assets/.pdf-build-*/
 node_modules/
+
+tex/.pdf-build.lock
